@@ -60,6 +60,16 @@ export default defineConfig({
       subsets: ['latin'],
       fallbacks: fallbackMono,
     },
+    {
+      provider: fontProviders.fontsource(),
+      name: 'Patrick Hand',
+      cssVariable: '--font-hand',
+      weights: [400],
+      styles: ['normal'],
+      subsets: ['latin', 'latin-ext'],
+      display: 'optional',
+      fallbacks: fallbackSans,
+    },
   ],
 
   integrations: [

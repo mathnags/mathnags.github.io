@@ -108,8 +108,8 @@ html:not(.js) .so-js {
     display: none;
   }
 
-  /* No quarto, as seções só aparecem dentro da vista (o JS as move para o <dialog id="vista">). */
-  html[data-modo='quarto'] main > section:not(#ficha) {
+  /* No quarto, as seções (inclusive o resumo) só aparecem dentro da vista (o JS as move para o <dialog id="vista">). */
+  html[data-modo='quarto'] main > section {
     display: none;
   }
 
@@ -118,6 +118,21 @@ html:not(.js) .so-js {
   #vista section {
     display: block;
   }
+}
+
+/* Só aparece dentro da vista (ex.: link do GitHub na carta, que substitui o rodapé no quarto). */
+.so-na-vista,
+.ficha-h3 {
+  display: none;
+}
+
+#vista .so-na-vista,
+#vista .ficha-h3 {
+  display: block;
+}
+
+#vista .ficha-h2 {
+  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

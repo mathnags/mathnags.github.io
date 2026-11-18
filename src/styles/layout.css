@@ -78,8 +78,7 @@
   text-decoration: none;
 }
 
-.btn-modo:active,
-.btn-luz:active {
+.btn-modo:active {
   transform: translateY(1px);
 }
 
@@ -196,10 +195,20 @@
   }
 }
 
-.idioma {
-  display: inline-flex;
+.topo-esq {
+  display: contents;
+}
+
+.topo-dir {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
   margin-left: auto;
   order: 6;
+}
+
+.idioma {
+  display: inline-flex;
 }
 
 .idioma a {
@@ -233,47 +242,73 @@
   color: var(--bg);
 }
 
-.btn-luz {
+/* Interruptor de parede (design 12.13.6): placa 44×64 e tecla que desce quando a luz apaga */
+.interruptor {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  min-height: 44px;
-  padding: 0 var(--space-3);
-  border: 1.5px solid var(--border-strong);
-  border-radius: var(--radius-sm);
+  min-height: 64px;
+  padding: 0;
   background: transparent;
+  border: 0;
   color: var(--text);
   font: 700 0.9375rem/1 var(--ff-text);
   cursor: pointer;
-  order: 7;
 }
 
-.btn-luz:hover {
-  background: var(--surface-2);
+.int-placa {
+  position: relative;
+  display: block;
+  width: 44px;
+  height: 64px;
+  background: var(--surface);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+}
+
+.int-tecla {
+  position: absolute;
+  left: 11px;
+  top: 9px;
+  width: 20px;
+  height: 22px;
+  background: var(--text);
+  border-radius: var(--radius-xs);
+  transition: transform 160ms var(--ease-std);
+}
+
+.interruptor[aria-pressed='true'] .int-tecla {
+  transform: translateY(15px);
+}
+
+.interruptor:hover .int-placa {
+  border-color: var(--text);
+}
+
+.interruptor:active .int-tecla {
+  filter: brightness(1.4);
 }
 
 .luz-txt {
   display: none;
 }
 
-@media (min-width: 1024px) {
+/* No modo recrutador o texto só cabe na barra a partir de 1440 px; no HUD do quarto, a partir de lg (1024 px). */
+@media (min-width: 1440px) {
   .luz-txt {
     display: inline;
   }
 }
 
-.btn-luz[aria-pressed='true'] .luz-apagar,
-.btn-luz[aria-pressed='false'] .luz-acender {
+.interruptor[aria-pressed='true'] .luz-apagar,
+.interruptor[aria-pressed='false'] .luz-acender {
   display: none;
 }
 
-.btn-luz[aria-pressed='true'] .icone-tecla {
-  transform: translateY(4px);
-}
-
-/* Os dois irmãos do idioma na margem direita: só o primeiro leva margin-left:auto */
-.btn-luz {
-  margin-left: 0;
+@media (prefers-reduced-motion: reduce) {
+  .int-tecla {
+    transition: none;
+  }
 }
 
 /* ---------- Peças de UI ---------- */
@@ -641,66 +676,58 @@ main:focus {
   transform: rotate(45deg);
 }
 
-.dica {
-  margin: 0;
-  color: var(--text-muted);
-  font: 500 var(--fs-label)/var(--lh-label) var(--ff-mono);
+/* ---------- 01 Vértice: o "SO" do monitor (design 12.13.1) ---------- */
+/* Base = modo recrutador e sem JS: ícones e barra de tarefas somem; os arquivos aparecem em sequência. */
+.so {
+  display: grid;
+  gap: var(--space-5);
 }
 
-.dica-toque {
+.so-area,
+.so-tarefas,
+.so-fechar {
   display: none;
 }
 
-@media (pointer: coarse) {
-  .dica-ponteiro {
-    display: none;
-  }
-
-  .dica-toque {
-    display: inline;
-  }
+.so-arquivos {
+  display: grid;
+  gap: var(--space-5);
 }
 
-/* ---------- 01 Vértice: o "site" desenhado ---------- */
-.site {
+.so-arquivo {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5);
   background: var(--surface);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-1);
-  overflow: hidden;
 }
 
-.site-barra {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: 10px 14px;
-  background: var(--surface-2);
-  border-bottom: 1px solid var(--border);
+.so-barra {
+  display: block;
 }
 
-.site-pontos i {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  margin-right: 6px;
-  border-radius: var(--radius-full);
-  background: var(--border-strong);
+.so-barra h3 {
+  margin: 0;
+  font: 700 var(--fs-h3) / var(--lh-h3) var(--ff-mono);
 }
 
-.site-endereco {
-  flex: 1;
-  padding: 4px 12px;
-  background: var(--surface);
-  border-radius: var(--radius-xs);
-  color: var(--text-muted);
-  font: 500 var(--fs-label)/var(--lh-label) var(--ff-mono);
-}
-
-.site-corpo {
+.so-corpo {
   display: grid;
   gap: var(--space-4);
-  padding: var(--space-5);
+  align-content: start;
+}
+
+.so-corpo p {
+  margin: 0;
+  max-width: 70ch;
+}
+
+.so-sub {
+  color: var(--text-muted);
+  font: 500 var(--fs-label) / var(--lh-label) var(--ff-mono);
+  letter-spacing: var(--ls-label);
 }
 
 .site-cab {
@@ -734,31 +761,6 @@ main:focus {
   gap: var(--space-3);
 }
 
-.site-blocos {
-  display: grid;
-  gap: var(--space-5);
-}
-
-.bloco {
-  display: grid;
-  gap: var(--space-2);
-  align-content: start;
-}
-
-.bloco h3 {
-  margin-top: var(--space-2);
-}
-
-@container (min-width: 640px) {
-  .site-blocos {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .bloco:first-child {
-    grid-column: 1 / -1;
-  }
-}
-
 .site-linha {
   display: flex;
   flex-wrap: wrap;
@@ -771,11 +773,255 @@ main:focus {
   max-width: 70ch;
 }
 
-.site-nota {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: var(--fs-small);
-  line-height: var(--lh-small);
+/* ---------- SO no quarto (vista da tela e tela do monitor no fim do tour) ---------- */
+@media screen {
+  html[data-modo='quarto'] .so {
+    position: relative;
+    display: block;
+    height: 100%;
+    min-height: 340px;
+    overflow: hidden;
+    background-color: var(--bg);
+    background-image: radial-gradient(var(--border) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  html[data-modo='quarto'] .so-area {
+    position: absolute;
+    inset: 0 0 40px;
+    display: block;
+    padding: var(--space-5);
+    overflow: auto;
+  }
+
+  html[data-modo='quarto'] .so-papel {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: min(70%, 520px);
+    height: auto;
+    pointer-events: none;
+  }
+
+  html[data-modo='quarto'] .so-icones {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, 112px);
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .so-icone {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: 4px;
+    width: 100%;
+    min-height: 88px;
+    padding: var(--space-2);
+    background: none;
+    border: 0;
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font: 500 13px/1.25 var(--ff-mono);
+    text-align: center;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+  }
+
+  .so-icone:hover {
+    background: var(--surface-2);
+    text-decoration: none;
+  }
+
+  .so-icone[aria-expanded='true'] {
+    background: var(--accent-tint);
+  }
+
+  .so-ico {
+    width: 48px;
+    height: 40px;
+  }
+
+  .so-nome .icone {
+    display: inline;
+    margin-left: 3px;
+    vertical-align: -1px;
+  }
+
+  /* A janela: um arquivo por vez, sem arrastar nem redimensionar */
+  html[data-modo='quarto'] .so-arquivos {
+    position: absolute;
+    inset: 0 0 40px;
+    display: block;
+    pointer-events: none;
+  }
+
+  html[data-modo='quarto'] .so-arquivo {
+    display: none;
+  }
+
+  html[data-modo='quarto'] .so-arquivo[data-aberto] {
+    position: absolute;
+    inset: 5% 4% 6% 272px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-panel);
+    pointer-events: auto;
+  }
+
+  html[data-modo='quarto'] .so-barra {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    min-height: 48px;
+    padding: 2px 4px 2px var(--space-4);
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  html[data-modo='quarto'] .so-barra h3 {
+    font: 500 0.9375rem/1.2 var(--ff-mono);
+  }
+
+  html[data-modo='quarto'] .so-barra h3:focus {
+    outline: none;
+  }
+
+  html[data-modo='quarto'] .so-barra h3:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  html[data-modo='quarto'] .so-fechar {
+    display: inline-grid;
+    place-items: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 var(--space-2);
+    background: none;
+    border: 0;
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font: 700 0.9375rem/1 var(--ff-text);
+    cursor: pointer;
+  }
+
+  html[data-modo='quarto'] .so-fechar:hover {
+    background: var(--border);
+  }
+
+  .so-x {
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  .so-volta {
+    display: none;
+  }
+
+  html[data-modo='quarto'] .so-corpo {
+    flex: 1;
+    padding: var(--space-5);
+    overflow: auto;
+  }
+
+  html[data-modo='quarto'] .so-tarefas {
+    position: absolute;
+    inset: auto 0 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    height: 40px;
+    padding: 0 var(--space-3);
+    background: var(--surface-2);
+    border-top: 1px solid var(--border);
+    color: var(--text);
+    font: 500 13px/1 var(--ff-mono);
+  }
+
+  .so-mmn {
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .so-aba:not(:empty) {
+    padding: 4px 10px;
+    background: var(--surface);
+    border-radius: var(--radius-xs);
+  }
+
+  .so-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+  }
+
+  .so-status::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: var(--radius-full);
+  }
+
+  /* Mobile e retrato: o SO ocupa a tela, ícones em grade de 3 colunas e cada arquivo abre em tela cheia */
+  @media not all and (min-width: 768px) and (min-aspect-ratio: 13/10) {
+    html[data-modo='quarto'] .so-icones {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    html[data-modo='quarto'] .so-icone {
+      min-height: 96px;
+    }
+
+    /* Em 360 px os nomes de arquivo não cabem em 3 colunas sem quebrar no meio: ficam em 2 */
+    @media (max-width: 420px) {
+      html[data-modo='quarto'] .so-icones {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    html[data-modo='quarto'] .so-arquivo[data-aberto] {
+      inset: 0 0 40px;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    html[data-modo='quarto'] .so-x {
+      display: none;
+    }
+
+    html[data-modo='quarto'] .so-volta {
+      display: inline;
+    }
+
+    html[data-modo='quarto'] .so-barra h3 {
+      display: none;
+    }
+
+    html[data-modo='quarto'] .so-barra {
+      justify-content: flex-start;
+    }
+
+    html[data-modo='quarto'] .so-fechar {
+      padding: 0 var(--space-3);
+    }
+  }
 }
 
 /* ---------- 02 Sobre ---------- */
@@ -1178,130 +1424,17 @@ main:focus {
   margin-left: 0;
 }
 
-/* ---------- Modo quarto: topo e resumo (só em tela) ---------- */
-@media screen {
-  html[data-modo='quarto'] .btn-modo {
-    background: var(--text);
-    border-color: var(--text);
-    color: var(--surface);
-  }
-
-  html[data-modo='quarto'] .btn-modo:hover {
-    background: var(--accent-strong);
-    border-color: var(--accent-strong);
-    color: var(--on-accent);
-  }
-
-  html[data-modo='quarto'] .dual .cap,
-  html[data-modo='quarto'] .dual .tema {
-    display: inline;
-    color: var(--text-muted);
-    font: 500 var(--fs-label)/1.4 var(--ff-mono);
-    letter-spacing: var(--ls-label);
-  }
-
-  html[data-modo='quarto'] .dual .comum {
-    display: block;
-  }
-
-  html[data-modo='quarto'] main {
-    max-width: var(--container-quarto);
-    margin-inline: auto;
-    padding: var(--space-4) var(--margem) var(--space-6);
-  }
-
-  html[data-modo='quarto'] .ficha-in {
-    padding: var(--space-5);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-1);
-  }
-
-  html[data-modo='quarto'] .ficha-in .ficha-acoes {
-    gap: var(--space-3);
-  }
-
-  html[data-modo='quarto'] .nome-bloco {
-    max-width: none;
-    margin: 0;
-    padding: 0 0 var(--space-3);
-  }
-
-  html[data-modo='quarto'] .nome-bloco + .ficha .ficha-in {
-    padding-top: var(--space-4);
-  }
-}
-
-@media screen and (min-width: 1280px) {
-  html[data-modo='quarto'] main {
-    display: grid;
-    grid-template-columns: 380px minmax(0, 1fr);
-    grid-template-areas:
-      'resumo nome'
-      'resumo palco'
-      'resumo barra';
-    grid-template-rows: auto auto 1fr;
-    column-gap: var(--space-5);
-    align-items: start;
-    padding-top: var(--space-4);
-  }
-
-  html[data-modo='quarto'] .nome-bloco {
-    grid-area: nome;
-    container-type: inline-size;
-    position: relative;
-    z-index: 3;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    pointer-events: none;
-  }
-
-  /* O nome invade só a faixa livre de parede do topo do palco: 50 unidades do viewBox = 3.125cqi. */
-  html[data-modo='quarto'] .nome-bloco h1 {
-    font-size: clamp(2rem, 5.6cqi, 3rem);
-    line-height: 1.1;
-    white-space: nowrap;
-    margin-bottom: -3.125cqi;
-  }
-
-  html[data-modo='quarto'] .ficha { grid-area: resumo; }
-  html[data-modo='quarto'] #quarto { grid-area: palco; }
-  html[data-modo='quarto'] .capitulos-slot { grid-area: barra; }
-
-  html[data-modo='quarto'] .ficha-in {
-    grid-template-columns: 1fr;
-    gap: var(--space-3);
-    padding: var(--space-4);
-  }
-
-  html[data-modo='quarto'] .ficha-col {
-    gap: var(--space-3);
-  }
-
-}
-
-@media screen and (max-width: 767px) {
-  html[data-modo='quarto'] .ficha-in {
-    padding: var(--space-4);
-  }
-
-  html[data-modo='quarto'] .ficha-col:last-child .provas {
-    margin-bottom: 0;
-  }
-}
-
 /* ---------- Impressão: sempre o modo recrutador ---------- */
 @media print {
   .topo,
   .btn-modo,
-  .btn-luz,
+  .interruptor,
   .btn-menu,
   .idioma,
   .pular,
   #vista,
   #quarto,
+  .rodape-quarto,
   .link-vertice {
     display: none !important;
   }
@@ -1324,10 +1457,9 @@ main:focus {
 }
 
 @media (forced-colors: active) {
-  .marcador,
-  .capitulos,
-  .intro-cartao { border: 2px solid CanvasText; }
-  .cap-item[aria-current='true'] { background: Highlight; color: HighlightText; }
+  .intro-cartao,
+  .hud,
+  .cartao { border: 2px solid CanvasText; }
   .cta,
   .selo,
   .chip,
@@ -1343,10 +1475,5 @@ main:focus {
   .btn-modo {
     gap: 6px;
     font-size: 0.9375rem;
-  }
-
-  .btn-luz {
-    justify-content: center;
-    min-width: 44px;
   }
 }

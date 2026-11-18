@@ -20,7 +20,7 @@ export const idDoHash = () => {
 /** Dono de um #id qualquer: a <section> ancestral do elemento (esteja em main ou no dialog). */
 export function dono(id: string) {
   const el = id ? document.getElementById(id) : null;
-  const sec = el?.closest<HTMLElement>('section.secao') ?? null;
+  const sec = el?.closest<HTMLElement>('section.secao, section.ficha') ?? null;
   return el && sec ? { el, sec } : null;
 }
 

@@ -3,6 +3,7 @@
 import DualLabel from '../ui/DualLabel.astro';
 import Selo from '../ui/Selo.astro';
 import BotaoCTA from '../ui/BotaoCTA.astro';
+import Icone from '../ui/Icone.astro';
 import { getTextos } from '../../lib/textos';
 import { getUi } from '../../lib/ui';
 import { rotuloSecao } from '../../lib/quarto';
@@ -30,6 +31,9 @@ const rotulo = rotuloSecao(lang, 'contato');
         <BotaoCTA lang={lang} href={t.contato.linkedinUrl} texto={t.contato.cta} externo />
       </div>
       <p class="assinatura">{t.contato.assinatura}</p>
+      <p class="so-na-vista carta-github">
+        <a href={t.rodape.githubUrl}>{t.rodape.githubLabel}<Icone nome="externo" /><span class="sr-only">{ui.linkExterno}</span></a>
+      </p>
     </div>
   </div>
 </section>

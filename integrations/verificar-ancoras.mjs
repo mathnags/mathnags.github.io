@@ -27,11 +27,11 @@ export default function verificarAncoras() {
             logger.warn(`${pagina}: sem #quarto-config; verificação dos destinos do quarto pulada.`);
             continue;
           }
-          /** @type {{ objetos: { id: string; destino: string; secao: string }[] }} */
+          /** @type {{ objetos: { id: string; destino: string; secoes: string[] }[] }} */
           const config = JSON.parse(bloco[1]);
           const existentes = new Set(ids);
           for (const o of config.objetos) {
-            for (const alvo of [o.destino, o.secao]) {
+            for (const alvo of [o.destino, ...o.secoes]) {
               if (!existentes.has(alvo)) erros.push(`${pagina}: objeto "${o.id}" aponta para #${alvo}, que não existe`);
             }
           }

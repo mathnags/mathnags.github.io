@@ -1,9 +1,10 @@
 /**
- * Tipos e listas fechadas do quarto (docs/design.md 9.2).
+ * Tipos e listas fechadas do quarto (docs/design.md 12.6 e 12.13.7).
  * Módulo puro: usado pela config, pela validação, pelos schemas de texto e pelos testes.
+ * Todas as posições são em % da imagem mestre 16:9 (0 a 100).
  */
 
-/** Retângulo em unidades do viewBox 1600×1000. l = largura, a = altura. */
+/** Retângulo em % da imagem. l = largura, a = altura. */
 export type Rect = { x: number; y: number; l: number; a: number };
 
 export const TIPOS_VISTA_DENTRO = ['tela', 'cortica', 'estante'] as const;
@@ -11,104 +12,56 @@ export const TIPOS_VISTA_PAINEL = ['porta-retrato', 'caderno', 'caixa', 'tecido'
 export type TipoVista = (typeof TIPOS_VISTA_DENTRO)[number] | (typeof TIPOS_VISTA_PAINEL)[number];
 
 /** Objetos clicáveis. Cada id também é a chave em textos.<lang>.json > quarto.objetos. */
-export const IDS_OBJETOS = [
-  'monitor',
-  'porta-retrato',
-  'mural',
-  'caderno',
-  'caixa',
-  'estante',
-  'quadros',
-  'lenco',
-  'bola',
-  'headset',
-  'estojos',
-  'envelope',
-] as const;
+export const IDS_OBJETOS = ['monitor', 'porta-retrato', 'mural', 'caderno', 'caixa', 'estante', 'lenco', 'envelope'] as const;
 export type IdObjeto = (typeof IDS_OBJETOS)[number];
-
-/** Nome do componente em src/components/quarto/objetos/<Nome>.astro. */
-export const COMPONENTES_OBJETO = [
-  'Monitor',
-  'PortaRetrato',
-  'Mural',
-  'Caderno',
-  'Caixa',
-  'Estante',
-  'Quadros',
-  'Lenco',
-  'Bola',
-  'Headset',
-  'Estojos',
-  'Envelope',
-] as const;
-export type ComponenteObjeto = (typeof COMPONENTES_OBJETO)[number];
-
-/** Nome do componente em src/components/quarto/decoracao/<Nome>.astro (o Varal é desenhado à parte). */
-export const COMPONENTES_DECORACAO = [
-  'Janela',
-  'Poster',
-  'Vaso',
-  'MouseMousepad',
-  'Mesa',
-  'Mesinha',
-  'Cadeira',
-  'Tapete',
-  'Luminaria',
-  'Interruptor',
-] as const;
-export type ComponenteDecoracao = (typeof COMPONENTES_DECORACAO)[number];
 
 export type Capitulo = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
+/** Câmera: centro (cx, cy) em % da imagem e escala. A translação é limitada às bordas da imagem. */
+export type Camera = { cx: number; cy: number; escala: number };
+
 export interface ObjetoQuarto {
   id: IdObjeto;
-  componente: ComponenteObjeto;
-  papel: 'principal' | 'secundario';
   capitulo: Capitulo;
-  /** Posição no Tab entre todos os objetos (1…12). */
-  ordem: number;
-  /** id do HTML aberto pelo objeto: 'experiencia', 'certificacoes', 'alem-games'… */
+  /** id do HTML aberto pelo objeto: 'experiencia', 'sobre'… (também é a chave de tour.<id>.resumo). */
   destino: string;
-  /** Seção que contém o destino: 'formacao', 'alem'… */
-  secao: string;
-  caixa: Rect;
-  /** Área clicável (padrão = caixa). */
-  clique?: Rect;
-  /** Padrão = canto superior esquerdo da caixa. */
-  etiqueta?: { x: number; y: number };
-  /** Lâmpada-pino (1 por capítulo): só nos principais. Âncora = centro do círculo, em parede ou chão livres; dir = para onde a ponta aponta. */
-  marcador?: { x: number; y: number; dir: 'baixo' | 'esquerda' | 'direita' };
-  /** Só para 'principal'. */
-  lampada?: { x: number };
+  /** Seções movidas para a vista; o porta-retrato abre ['ficha', 'sobre']. */
+  secoes: string[];
+  /** Área clicável sobre o objeto. */
+  clique: Rect;
+  /** Post-it colado no objeto: centro (x, y) em % e rotação em graus. É o rótulo visível do link. */
+  postit: { x: number; y: number; rot: number };
   vista: {
     tipo: TipoVista;
-    /** Enquadramento 16:10. */
-    camera: Rect;
+    camera: Camera;
     /** Moldura do HTML; obrigatória nas vistas "dentro" (tela, cortica, estante). */
     janela?: Rect;
     /** Lado do painel estilizado (padrão: 'direita'). */
     lado?: 'esquerda' | 'direita';
   };
-  /** ladrilho: posição na grade do mobile (1…8); null = não vira ladrilho (secundários). */
-  mobile: { ladrilho: number | null; desenhos: ComponenteObjeto[] };
+  /** Passo do tour pela rolagem: câmera e lado do cartão (oposto ao objeto). */
+  tour: { camera: Camera; lado: 'esquerda' | 'direita' };
 }
 
-export interface DecoracaoQuarto {
-  id: string;
-  componente: ComponenteDecoracao;
-  caixa: Rect;
-  /** Muda com o tema (janela, luminária, interruptor). */
-  noite?: boolean;
+export interface AnotacaoQuarto {
+  id: 'comece' | 'role';
+  /** Âncora do texto em % e rotação. */
+  x: number;
+  y: number;
+  rot: number;
+  larguraMax: number;
+  /** Seta à mão livre em %: de, para e curvatura (0 = reta). */
+  seta: { de: [number, number]; para: [number, number]; curva: number };
+  ate: 'primeira-interacao';
 }
 
 export interface ConfigQuarto {
-  viewBox: { l: number; a: number };
-  /** Largura do palco mais estreito com o quarto (px), usada para garantir alvos de 44 px. */
-  palcoMinimoPx: number;
-  varal: { y: number; de: number; ate: number };
-  /** Cenário: y onde a parede acaba e o chão começa, e a porta (atrás do lenço e do envelope). */
-  fundo: { piso: number; porta: Rect };
+  imagem: { l: number; a: number };
+  /** Faixas reservadas aos HUDs: nenhum clique nem post-it entra nelas. */
+  areasReservadas: { nome: string; area: Rect }[];
+  /** Parede lisa reservada ao nome (HTML sobre a imagem) e âncora do post-it "Fale comigo!". */
+  paredeNome: Rect;
+  postitContato: { x: number; y: number; rot: number };
   objetos: ObjetoQuarto[];
-  decoracao: DecoracaoQuarto[];
+  anotacoes: AnotacaoQuarto[];
 }

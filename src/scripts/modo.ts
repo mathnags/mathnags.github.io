@@ -4,6 +4,7 @@
  */
 import { guardar, html, modoQuarto } from './ctx';
 import * as hist from './historico';
+import { desmontarSO } from './tour';
 import { fecharSemAnimar, sincronizar } from './vista';
 
 export function iniciarModo() {
@@ -24,6 +25,7 @@ export function iniciarModo() {
     const novo = modoQuarto() ? 'recrutador' : 'quarto';
     if (novo === 'recrutador') {
       fecharSemAnimar();
+      desmontarSO();
       delete html.dataset.modo;
       delete html.dataset.intro;
     } else {

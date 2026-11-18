@@ -1,9 +1,14 @@
 ---
-/** 01 · O monitor · Projeto Vértice (#vertice). O "site" é desenhado por nós, sem captura de tela. */
+/**
+ * 01 · O monitor · Projeto Vértice (#vertice), organizado como o "SO" do monitor (design 12.13.1): ícones de pasta e
+ * arquivo, uma janela por vez e barra de tarefas. Cada arquivo é um <article> com id próprio. No modo recrutador e sem JS
+ * os ícones somem e os <article>s aparecem em sequência, como subseções normais.
+ */
 import DualLabel from '../ui/DualLabel.astro';
 import Selo from '../ui/Selo.astro';
 import Chip from '../ui/Chip.astro';
 import BotaoCTA from '../ui/BotaoCTA.astro';
+import Icone from '../ui/Icone.astro';
 import { getTextos } from '../../lib/textos';
 import { getUi } from '../../lib/ui';
 import { getProjetos } from '../../lib/projetos';
@@ -17,68 +22,163 @@ interface Props {
 const { lang } = Astro.props;
 const t = getTextos(lang);
 const v = t.vertice;
+const so = t.so;
 const ui = getUi(lang);
 const { destaque } = await getProjetos(lang);
 const rotulo = rotuloSecao(lang, 'vertice');
 const stack = destaque?.stack ?? [];
+
+const arquivos = [
+  { id: 'vertice-leiame', nome: so.arquivos.leiame, tipo: 'arquivo' },
+  { id: 'vertice-construcao', nome: so.arquivos.construcao, tipo: 'pasta' },
+  { id: 'vertice-funcionalidades', nome: so.arquivos.funcionalidades, tipo: 'arquivo' },
+  { id: 'vertice-stack', nome: so.arquivos.stack, tipo: 'arquivo' },
+  ...(v.proximoPasso ? [{ id: 'vertice-proximo', nome: so.arquivos.proximo, tipo: 'arquivo' }] : []),
+  { id: 'vertice-origem', nome: so.arquivos.origem, tipo: 'arquivo' },
+];
+const monograma = t.hero.nome.split(' ').map((p) => p[0]).join('').toUpperCase();
+const fecharRotulo = (nome: string) => so.fechar.replace('{arquivo}', nome);
+const nomeDe = (id: string) => arquivos.find((a) => a.id === id)!.nome;
 ---
 
 <section id="vertice" class="secao secao-vertice" aria-labelledby={rotulo.id}>
   <div class="secao-in">
     <DualLabel nivel="h2" {...rotulo} />
-    <div class="site">
-      <div class="site-barra" aria-hidden="true">
-        <span class="site-pontos"><i></i><i></i><i></i></span>
-        <span class="site-endereco">{v.navegador.endereco}</span>
+    <div class="so" role="region" aria-label={so.rotulo} data-so>
+      <div class="so-area">
+        <svg class="so-papel" viewBox="0 0 200 80" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+          <path d="M8 62H64L94 62L126 22H192" fill="none" stroke="var(--text-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"></path>
+          <path d="M94 62L126 22H192" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+          <circle cx="94" cy="62" r="4" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5"></circle>
+          <circle cx="192" cy="22" r="4.5" fill="var(--accent)"></circle>
+        </svg>
+        <ul class="so-icones">
+          {
+            arquivos.map((a) => (
+              <li>
+                <button class="so-icone" type="button" aria-controls={a.id} aria-expanded="false" data-so-abrir={a.id}>
+                  <svg class={`so-ico so-ico-${a.tipo}`} viewBox="0 0 48 40" aria-hidden="true" focusable="false">
+                    {
+                      a.tipo === 'pasta' ? (
+                        <>
+                          <path d="M3 8a3 3 0 0 1 3-3h13l4 5h19a3 3 0 0 1 3 3v21a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="2"></path>
+                        </>
+                      ) : (
+                        <>
+                          <path d="M12 3h18l8 8v26a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" fill="var(--surface)" stroke="var(--text-muted)" stroke-width="2"></path>
+                          <path d="M30 3v8h8" fill="none" stroke="var(--text-muted)" stroke-width="2"></path>
+                          <path d="M15 20h18M15 26h18M15 32h11" stroke="var(--border-strong)" stroke-width="2" stroke-linecap="round"></path>
+                        </>
+                      )
+                    }
+                  </svg>
+                  <span class="so-nome">{a.nome}</span>
+                </button>
+              </li>
+            ))
+          }
+          <li>
+            <a class="so-icone" href={v.siteUrl}>
+              <svg class="so-ico" viewBox="0 0 48 40" aria-hidden="true" focusable="false">
+                <circle cx="24" cy="20" r="15" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"></circle>
+                <path d="M9 20h30M24 5c-7 8-7 22 0 30M24 5c7 8 7 22 0 30" fill="none" stroke="var(--accent)" stroke-width="2"></path>
+              </svg>
+              <span class="so-nome">{so.arquivos.site}<Icone nome="externo" tamanho={12} /><span class="sr-only">{ui.linkExterno}</span></span>
+            </a>
+          </li>
+        </ul>
       </div>
-      <div class="site-corpo">
-        <div class="site-cab">
-          <p class="site-nome">{v.nome}</p>
-          <ul class="selos" aria-label={ui.selosStatus}>
-            <Selo variante="dev" texto={t.selos.emDesenvolvimento} />
-            {destaque?.repositorioPrivado && <Selo variante="privado" texto={t.selos.repositorioPrivado} />}
-          </ul>
-          <p class="site-periodo">{v.periodo}</p>
-        </div>
-        <p class="site-resumo">{v.resumo}</p>
-        <div class="site-acoes">
-          <BotaoCTA lang={lang} href={v.siteUrl} texto={v.ctaSiteReal} variante="secundario" externo />
-        </div>
-        <div class="site-blocos">
-          <div class="bloco">
-            <h3>{v.comoFoiConstruidoTitulo}</h3>
+
+      <div class="so-arquivos">
+        <article id="vertice-leiame" class="so-arquivo" aria-labelledby="vertice-leiame-titulo">
+          <header class="so-barra">
+            <h3 id="vertice-leiame-titulo" tabindex="-1">{nomeDe('vertice-leiame')}</h3>
+            <button class="so-fechar" type="button" aria-label={fecharRotulo(nomeDe('vertice-leiame'))} data-so-fechar><span aria-hidden="true" class="so-x">×</span><span aria-hidden="true" class="so-volta">← {so.voltarArea}</span></button>
+          </header>
+          <div class="so-corpo">
+            <div class="site-cab">
+              <p class="site-nome">{v.nome}</p>
+              <ul class="selos" aria-label={ui.selosStatus}>
+                <Selo variante="dev" texto={t.selos.emDesenvolvimento} />
+                {destaque?.repositorioPrivado && <Selo variante="privado" texto={t.selos.repositorioPrivado} />}
+              </ul>
+              <p class="site-periodo">{v.periodo}</p>
+            </div>
+            <p class="site-resumo">{v.resumo}</p>
+            <div class="site-acoes">
+              <BotaoCTA lang={lang} href={v.siteUrl} texto={v.ctaSiteReal} variante="secundario" externo />
+              <BotaoCTA lang={lang} href={t.contato.linkedinUrl} texto={v.ctaLinkedin} externo />
+            </div>
+          </div>
+        </article>
+
+        <article id="vertice-construcao" class="so-arquivo" aria-labelledby="vertice-construcao-titulo">
+          <header class="so-barra">
+            <h3 id="vertice-construcao-titulo" tabindex="-1">{nomeDe('vertice-construcao')}</h3>
+            <button class="so-fechar" type="button" aria-label={fecharRotulo(nomeDe('vertice-construcao'))} data-so-fechar><span aria-hidden="true" class="so-x">×</span><span aria-hidden="true" class="so-volta">← {so.voltarArea}</span></button>
+          </header>
+          <div class="so-corpo">
+            <p class="so-sub">{v.comoFoiConstruidoTitulo}</p>
             <ul class="lista">{v.comoFoiConstruido.map((i) => <li>{i}</li>)}</ul>
           </div>
-          <div class="bloco">
-            <h3>{v.oQueFazTitulo}</h3>
+        </article>
+
+        <article id="vertice-funcionalidades" class="so-arquivo" aria-labelledby="vertice-funcionalidades-titulo">
+          <header class="so-barra">
+            <h3 id="vertice-funcionalidades-titulo" tabindex="-1">{nomeDe('vertice-funcionalidades')}</h3>
+            <button class="so-fechar" type="button" aria-label={fecharRotulo(nomeDe('vertice-funcionalidades'))} data-so-fechar><span aria-hidden="true" class="so-x">×</span><span aria-hidden="true" class="so-volta">← {so.voltarArea}</span></button>
+          </header>
+          <div class="so-corpo">
+            <p class="so-sub">{v.oQueFazTitulo}</p>
             <ul class="lista">{v.oQueFaz.map((i) => <li>{i}</li>)}</ul>
           </div>
-          {
-            stack.length > 0 && (
-              <div class="bloco">
-                <h3>{v.stackTitulo}</h3>
-                <ul class="chips">{stack.map((s) => <li><Chip nome={s} /></li>)}</ul>
-              </div>
-            )
-          }
-        </div>
+        </article>
+
+        <article id="vertice-stack" class="so-arquivo" aria-labelledby="vertice-stack-titulo">
+          <header class="so-barra">
+            <h3 id="vertice-stack-titulo" tabindex="-1">{nomeDe('vertice-stack')}</h3>
+            <button class="so-fechar" type="button" aria-label={fecharRotulo(nomeDe('vertice-stack'))} data-so-fechar><span aria-hidden="true" class="so-x">×</span><span aria-hidden="true" class="so-volta">← {so.voltarArea}</span></button>
+          </header>
+          <div class="so-corpo">
+            <p class="so-sub">{v.stackTitulo}</p>
+            <ul class="chips">{stack.map((s) => <li><Chip nome={s} /></li>)}</ul>
+          </div>
+        </article>
+
         {
           v.proximoPasso && (
-            <div class="site-linha">
-              <p><strong>{v.proximoPassoRotulo}:</strong> {v.proximoPasso}</p>
-              <ul class="selos" aria-label={ui.selosStatus}><Selo variante="estado" texto={t.selos.emAndamento} /></ul>
-            </div>
+            <article id="vertice-proximo" class="so-arquivo" aria-labelledby="vertice-proximo-titulo">
+              <header class="so-barra">
+                <h3 id="vertice-proximo-titulo" tabindex="-1">{nomeDe('vertice-proximo')}</h3>
+                <button class="so-fechar" type="button" aria-label={fecharRotulo(nomeDe('vertice-proximo'))} data-so-fechar><span aria-hidden="true" class="so-x">×</span><span aria-hidden="true" class="so-volta">← {so.voltarArea}</span></button>
+              </header>
+              <div class="so-corpo">
+                <p class="so-sub">{v.proximoPassoRotulo}</p>
+                <div class="site-linha">
+                  <p>{v.proximoPasso}</p>
+                  <ul class="selos" aria-label={ui.selosStatus}><Selo variante="estado" texto={t.selos.emAndamento} /></ul>
+                </div>
+              </div>
+            </article>
           )
         }
-        <div class="site-linha">
-          <p>
-            <strong>{v.origemRotulo}:</strong> {v.origem} <a href={`#${ANCORA_GAMES}`}>{v.origemLink}</a>
-          </p>
-        </div>
-        <div class="site-acoes">
-          <BotaoCTA lang={lang} href={t.contato.linkedinUrl} texto={v.ctaLinkedin} externo />
-        </div>
-        <p class="site-nota">{v.navegador.nota}</p>
+
+        <article id="vertice-origem" class="so-arquivo" aria-labelledby="vertice-origem-titulo">
+          <header class="so-barra">
+            <h3 id="vertice-origem-titulo" tabindex="-1">{nomeDe('vertice-origem')}</h3>
+            <button class="so-fechar" type="button" aria-label={fecharRotulo(nomeDe('vertice-origem'))} data-so-fechar><span aria-hidden="true" class="so-x">×</span><span aria-hidden="true" class="so-volta">← {so.voltarArea}</span></button>
+          </header>
+          <div class="so-corpo">
+            <p class="so-sub">{v.origemRotulo}</p>
+            <p>{v.origem} <a href={`#${ANCORA_GAMES}`}>{v.origemLink}</a></p>
+          </div>
+        </article>
+      </div>
+
+      <div class="so-tarefas" aria-hidden="true">
+        <span class="so-mmn">{monograma}</span>
+        <span class="so-aba"></span>
+        <span class="so-status">{t.selos.emDesenvolvimento}</span>
       </div>
     </div>
   </div>

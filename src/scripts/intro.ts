@@ -20,6 +20,9 @@ export function iniciarIntro() {
   if (!('intro' in html.dataset)) return;
   const overlay = palco.querySelector('[data-intro-overlay]');
   overlay?.addEventListener('click', terminarIntro);
+  // Rolar durante a intro equivale a "Pular" (design 12.13.2).
+  addEventListener('wheel', terminarIntro, { passive: true, once: true });
+  addEventListener('touchmove', terminarIntro, { passive: true, once: true });
   // Fim natural (2,5 s): o CSS já deixou o overlay hidden; aqui só limpa o estado do <html>.
   overlay?.addEventListener('animationend', (e) => {
     if ((e as AnimationEvent).animationName === 'intro-fim' && e.target === overlay) delete html.dataset.intro;

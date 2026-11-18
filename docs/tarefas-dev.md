@@ -73,3 +73,12 @@ Leia antes: `docs/arquitetura.md` (contrato, seção 5 sobre o quarto), `docs/de
 - [x] **T22. Página 404** **[bloqueada: `ui.erro404`]**: `src/pages/404.astro` com links para `/` e `/en/`.
 - [ ] **T23. Passada final:** Lighthouse mobile em `/` e `/en/` (`npm run build && npm run preview`) e a lista de testes do design 10.3. Confira o orçamento: HTML ≤ 55 KB gzip, CSS ≤ 20 KB, JS ≤ 1 KB + 10 KB e ≤ 7 requisições.
   *Pronto quando:* as 4 categorias ficam ≥ 90 nas duas rotas, sem erro no console e sem texto ou coordenada fora do lugar.
+
+## Bloco 5: revisão 6 (design 12 e 12.13; tarefas 1 a 24 de 12.11 e 12.13.9)
+
+- [x] **R1. Pipeline de imagens:** `scripts/gerar-imagens.mjs` (`npm run imagens`, sharp) gera cena 1280/1920/2560, herói 9:16 480/720/1080, nichos 4:3 480/720 e LQIP; falha se passar do orçamento. Originais privados em `content/fonte/` (no `.gitignore`).
+- [x] **R2. Cena SVG removida** (objetos, decoração, varal, tokens `--room-*` não usados). **R3, R15. Tela cheia e HUD só de controles.** **R4, R22. Config em % e validador novo.**
+- [x] **R5, R14. Pinos, pílula, balão e botão de tema antigo removidos.** **R6. Zoom por transform.** **R7. Tema com `<picture>`, troca manual e pré-carga.** **R8, R21. Mobile: herói recortado + nichos em 1 coluna.** **R9. Intro com película.**
+- [x] **R10. Porta-retrato com o resumo.** **R11. Calibração** com `?calibrar=1` em desenvolvimento (em vez de página `/dev/quarto`).
+- [x] **R12, R23. Textos e schema.** **R16. Nome na parede + "Fale comigo!".** **R17. Post-its.** **R18. Anotações.** **R19. Tour.** **R20. SO no monitor.**
+- [x] **R13, R24. Verificação** por capturas no Chrome headless (1280×800, 1920×1080, 360×740; dia e noite) e `npm run verify`. Pendente para o `revisor-qualidade`: Lighthouse e leitor de tela.

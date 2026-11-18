@@ -1,154 +1,105 @@
 /**
- * ÚNICA fonte de posição, destino e vista dos objetos do quarto (docs/design.md 4.2 e 9.2).
- * Mover, trocar ou remover um objeto é uma edição aqui; os componentes desenham só em coordenadas locais.
+ * ÚNICA fonte de posição, destino, câmera e vista dos objetos do quarto (docs/design.md 12.6, 12.13.7 e 9.2).
+ * Mover, trocar ou remover um objeto é uma edição aqui.
  *
- * - Unidades: viewBox 1600×1000.
- * - Textos de cada objeto: textos.<lang>.json > quarto.objetos.<id> (tema, comum, legenda).
+ * - Unidades: % da imagem mestre 16:9 (2560×1440). Calibradas sobre quarto-dia.jpeg; a da noite tem a mesma composição.
+ * - Textos de cada objeto: textos.<lang>.json > quarto.objetos.<id> (tema, comum, legenda) e tour.<destino>.resumo.
  * - A config é validada ao ser importada (validarQuarto): um valor inválido derruba a build.
- * - O JS do cliente não tem coordenadas fixas: ele lê configCliente(), serializada no HTML
- *   em <script type="application/json" id="quarto-config">.
+ * - O JS do cliente não tem coordenadas fixas: ele lê configCliente(), serializada no HTML em #quarto-config.
+ * - Recortes do herói mobile e dos nichos (e o script das imagens) ficam em recortes.json.
+ * - Calibração visual: abra a página em desenvolvimento com ?calibrar=1 para ver os retângulos sobre a imagem.
  */
-import type { ConfigQuarto, ObjetoQuarto, Rect } from './tipos';
+import type { ConfigQuarto, ObjetoQuarto } from './tipos';
 import { validarQuarto } from './validar-quarto';
-
-/** A estante e os quadros usam o mesmo enquadramento (os quadros rolam até #certificacoes). */
-const VISTA_ESTANTE: ObjetoQuarto['vista'] = {
-  tipo: 'estante',
-  camera: { x: 1008, y: 545, l: 592, a: 370 },
-  janela: { x: 1212, y: 575, l: 216, a: 310 },
-};
+import recortes from './recortes.json';
 
 export const quarto: ConfigQuarto = validarQuarto({
-  viewBox: { l: 1600, a: 1000 },
-  palcoMinimoPx: 728,
-  varal: { y: 75, de: 20, ate: 1580 },
-  fundo: { piso: 760, porta: { x: 1450, y: 150, l: 150, a: 610 } },
+  imagem: recortes.imagem,
+  areasReservadas: [
+    { nome: 'HUD esquerdo', area: { x: 0, y: 0, l: 22, a: 10 } },
+    { nome: 'HUD direito', area: { x: 80, y: 0, l: 20, a: 12 } },
+    { nome: 'trilho do tour', area: { x: 96, y: 25, l: 4, a: 50 } },
+  ],
+  paredeNome: { x: 26, y: 4, l: 34, a: 11 },
+  postitContato: { x: 61, y: 5.5, rot: -5 },
   objetos: [
     {
-      id: 'monitor', componente: 'Monitor', papel: 'principal', capitulo: 1, ordem: 1,
-      destino: 'vertice', secao: 'vertice',
-      marcador: { x: 60, y: 400, dir: 'direita' },
-      caixa: { x: 110, y: 330, l: 280, a: 250 }, lampada: { x: 250 },
-      vista: { tipo: 'tela', camera: { x: 70, y: 330, l: 360, a: 225 }, janela: { x: 124, y: 342, l: 252, a: 158 } },
-      mobile: { ladrilho: 1, desenhos: ['Monitor'] },
+      id: 'monitor', capitulo: 1, destino: 'vertice', secoes: ['vertice'],
+      clique: { x: 10, y: 54, l: 11, a: 25 },
+      postit: { x: 15.5, y: 46, rot: 4 },
+      vista: { tipo: 'tela', camera: { cx: 16.7, cy: 62, escala: 3 }, janela: { x: 10.8, y: 55, l: 10, a: 20 } },
+      tour: { camera: { cx: 31, cy: 62, escala: 1.6 }, lado: 'direita' },
     },
     {
-      id: 'porta-retrato', componente: 'PortaRetrato', papel: 'principal', capitulo: 2, ordem: 2,
-      destino: 'sobre', secao: 'sobre',
-      marcador: { x: 475, y: 395, dir: 'baixo' },
-      caixa: { x: 430, y: 480, l: 90, a: 120 }, clique: { x: 425, y: 475, l: 100, a: 125 }, lampada: { x: 475 },
-      vista: { tipo: 'porta-retrato', camera: { x: 395, y: 430, l: 320, a: 200 } },
-      mobile: { ladrilho: 2, desenhos: ['PortaRetrato'] },
+      id: 'porta-retrato', capitulo: 2, destino: 'sobre', secoes: ['ficha', 'sobre'],
+      clique: { x: 74, y: 60, l: 4.5, a: 10 },
+      postit: { x: 72.5, y: 53, rot: -3 },
+      vista: { tipo: 'porta-retrato', camera: { cx: 60.7, cy: 62, escala: 2 }, lado: 'esquerda' },
+      tour: { camera: { cx: 72, cy: 62, escala: 1.8 }, lado: 'esquerda' },
     },
     {
-      id: 'mural', componente: 'Mural', papel: 'principal', capitulo: 3, ordem: 3,
-      destino: 'experiencia', secao: 'experiencia',
-      marcador: { x: 1100, y: 345, dir: 'esquerda' },
-      caixa: { x: 830, y: 150, l: 240, a: 210 }, lampada: { x: 905 },
-      vista: { tipo: 'cortica', camera: { x: 766, y: 140, l: 368, a: 230 }, janela: { x: 842, y: 162, l: 216, a: 186 } },
-      mobile: { ladrilho: 3, desenhos: ['Mural'] },
+      id: 'mural', capitulo: 3, destino: 'experiencia', secoes: ['experiencia'],
+      clique: { x: 41, y: 31.5, l: 10.5, a: 19 },
+      postit: { x: 46.5, y: 24, rot: 3 },
+      vista: { tipo: 'cortica', camera: { cx: 46.3, cy: 41, escala: 1.8 }, janela: { x: 41.8, y: 32.5, l: 9, a: 17 } },
+      tour: { camera: { cx: 58.8, cy: 41, escala: 1.6 }, lado: 'direita' },
     },
     {
-      id: 'caderno', componente: 'Caderno', papel: 'principal', capitulo: 4, ordem: 4,
-      destino: 'projetos', secao: 'projetos',
-      marcador: { x: 920, y: 520, dir: 'baixo' },
-      caixa: { x: 845, y: 600, l: 150, a: 40 }, clique: { x: 845, y: 580, l: 150, a: 100 }, lampada: { x: 985 },
-      vista: { tipo: 'caderno', camera: { x: 840, y: 520, l: 320, a: 200 } },
-      mobile: { ladrilho: 4, desenhos: ['Caderno'] },
+      id: 'caderno', capitulo: 4, destino: 'projetos', secoes: ['projetos'],
+      clique: { x: 69, y: 64.5, l: 5, a: 6 },
+      postit: { x: 72.3, y: 77.5, rot: -2 },
+      vista: { tipo: 'caderno', camera: { cx: 56, cy: 67.5, escala: 2 }, lado: 'esquerda' },
+      tour: { camera: { cx: 72, cy: 67.5, escala: 1.8 }, lado: 'esquerda' },
     },
     {
-      id: 'caixa', componente: 'Caixa', papel: 'principal', capitulo: 5, ordem: 5,
-      destino: 'habilidades', secao: 'habilidades',
-      marcador: { x: 1095, y: 715, dir: 'baixo' },
-      caixa: { x: 1010, y: 800, l: 170, a: 100 }, lampada: { x: 1095 },
-      vista: { tipo: 'caixa', camera: { x: 980, y: 760, l: 320, a: 200 } },
-      mobile: { ladrilho: 5, desenhos: ['Caixa'] },
+      id: 'caixa', capitulo: 5, destino: 'habilidades', secoes: ['habilidades'],
+      clique: { x: 41.5, y: 66, l: 7.5, a: 13.5 },
+      postit: { x: 37, y: 70, rot: 2 },
+      vista: { tipo: 'caixa', camera: { cx: 60.8, cy: 72, escala: 2 }, lado: 'direita' },
+      tour: { camera: { cx: 56.4, cy: 72, escala: 1.8 }, lado: 'direita' },
     },
     {
-      id: 'estante', componente: 'Estante', papel: 'principal', capitulo: 6, ordem: 6,
-      destino: 'formacao', secao: 'formacao',
-      marcador: { x: 1270, y: 490, dir: 'baixo' },
-      caixa: { x: 1200, y: 560, l: 240, a: 340 }, etiqueta: { x: 1440, y: 535 }, lampada: { x: 1320 },
-      vista: VISTA_ESTANTE,
-      mobile: { ladrilho: 6, desenhos: ['Estante', 'Quadros'] },
+      id: 'estante', capitulo: 6, destino: 'formacao', secoes: ['formacao'],
+      clique: { x: 54.5, y: 27.5, l: 14.3, a: 51 },
+      postit: { x: 61.7, y: 40, rot: -3 },
+      vista: { tipo: 'estante', camera: { cx: 62, cy: 53, escala: 1.6 }, janela: { x: 55, y: 29, l: 13, a: 48 } },
+      tour: { camera: { cx: 66.7, cy: 53, escala: 1.5 }, lado: 'direita' },
     },
     {
-      id: 'quadros', componente: 'Quadros', papel: 'secundario', capitulo: 6, ordem: 7,
-      destino: 'certificacoes', secao: 'formacao',
-      caixa: { x: 1210, y: 250, l: 220, a: 190 }, etiqueta: { x: 1430, y: 222 },
-      vista: VISTA_ESTANTE,
-      mobile: { ladrilho: null, desenhos: ['Quadros'] },
+      id: 'lenco', capitulo: 7, destino: 'alem', secoes: ['alem'],
+      clique: { x: 84, y: 32, l: 5, a: 30 },
+      postit: { x: 88, y: 70.5, rot: -4 },
+      vista: { tipo: 'tecido', camera: { cx: 72, cy: 47, escala: 2 }, lado: 'esquerda' },
+      tour: { camera: { cx: 72, cy: 47, escala: 1.8 }, lado: 'esquerda' },
     },
     {
-      id: 'lenco', componente: 'Lenco', papel: 'principal', capitulo: 7, ordem: 8,
-      destino: 'alem', secao: 'alem',
-      marcador: { x: 1515, y: 190, dir: 'baixo' },
-      caixa: { x: 1475, y: 280, l: 90, a: 120 }, clique: { x: 1465, y: 275, l: 100, a: 130 }, lampada: { x: 1490 },
-      vista: { tipo: 'tecido', camera: { x: 1280, y: 230, l: 320, a: 200 }, lado: 'esquerda' },
-      mobile: { ladrilho: 7, desenhos: ['Lenco', 'Bola', 'Headset'] },
-    },
-    {
-      id: 'bola', componente: 'Bola', papel: 'secundario', capitulo: 7, ordem: 9,
-      destino: 'alem-volei', secao: 'alem',
-      caixa: { x: 1450, y: 850, l: 140, a: 100 },
-      vista: { tipo: 'tecido', camera: { x: 1280, y: 790, l: 320, a: 200 }, lado: 'esquerda' },
-      mobile: { ladrilho: null, desenhos: ['Bola'] },
-    },
-    {
-      id: 'headset', componente: 'Headset', papel: 'secundario', capitulo: 7, ordem: 10,
-      destino: 'alem-games', secao: 'alem',
-      caixa: { x: 30, y: 480, l: 80, a: 120 }, clique: { x: 10, y: 470, l: 100, a: 140 },
-      vista: { tipo: 'tecido', camera: { x: 20, y: 440, l: 320, a: 200 } },
-      mobile: { ladrilho: null, desenhos: ['Headset'] },
-    },
-    {
-      id: 'estojos', componente: 'Estojos', papel: 'secundario', capitulo: 7, ordem: 11,
-      destino: 'alem-games', secao: 'alem',
-      caixa: { x: 70, y: 180, l: 260, a: 130 },
-      vista: { tipo: 'tecido', camera: { x: 40, y: 150, l: 320, a: 200 } },
-      mobile: { ladrilho: null, desenhos: ['Estojos'] },
-    },
-    {
-      id: 'envelope', componente: 'Envelope', papel: 'principal', capitulo: 8, ordem: 12,
-      destino: 'contato', secao: 'contato',
-      marcador: { x: 1520, y: 480, dir: 'baixo' },
-      caixa: { x: 1470, y: 560, l: 100, a: 80 }, clique: { x: 1465, y: 550, l: 110, a: 100 }, etiqueta: { x: 1570, y: 668 }, lampada: { x: 1550 },
-      vista: { tipo: 'carta', camera: { x: 1280, y: 500, l: 320, a: 200 }, lado: 'esquerda' },
-      mobile: { ladrilho: 8, desenhos: ['Envelope'] },
+      id: 'envelope', capitulo: 8, destino: 'contato', secoes: ['contato'],
+      clique: { x: 76, y: 40.5, l: 4.5, a: 13 },
+      postit: { x: 78.2, y: 33, rot: 3 },
+      vista: { tipo: 'carta', camera: { cx: 62.7, cy: 47, escala: 2 }, lado: 'esquerda' },
+      tour: { camera: { cx: 72, cy: 47, escala: 1.8 }, lado: 'esquerda' },
     },
   ],
-  // A ordem desta lista é a ordem de desenho (de trás para a frente).
-  decoracao: [
-    { id: 'janela', componente: 'Janela', caixa: { x: 590, y: 140, l: 200, a: 380 }, noite: true },
-    { id: 'poster', componente: 'Poster', caixa: { x: 400, y: 110, l: 100, a: 220 } },
-    { id: 'luminaria', componente: 'Luminaria', caixa: { x: 1100, y: 0, l: 80, a: 110 }, noite: true },
-    { id: 'interruptor', componente: 'Interruptor', caixa: { x: 1440, y: 480, l: 16, a: 28 }, noite: true },
-    { id: 'tapete', componente: 'Tapete', caixa: { x: 300, y: 900, l: 500, a: 60 } },
-    { id: 'cadeira', componente: 'Cadeira', caixa: { x: 200, y: 640, l: 160, a: 260 } },
-    { id: 'mesa', componente: 'Mesa', caixa: { x: 40, y: 580, l: 520, a: 320 } },
-    { id: 'mesinha', componente: 'Mesinha', caixa: { x: 830, y: 640, l: 180, a: 260 } },
-    { id: 'vaso', componente: 'Vaso', caixa: { x: 600, y: 790, l: 80, a: 110 } },
-    { id: 'mouse', componente: 'MouseMousepad', caixa: { x: 300, y: 585, l: 110, a: 20 } },
+  anotacoes: [
+    { id: 'comece', x: 6, y: 36, rot: -4, larguraMax: 9, seta: { de: [9.5, 40.5], para: [12.4, 44.5], curva: 0.3 }, ate: 'primeira-interacao' },
+    { id: 'role', x: 40, y: 89, rot: 0, larguraMax: 24, seta: { de: [50, 92], para: [50, 97], curva: 0 }, ate: 'primeira-interacao' },
   ],
 } satisfies ConfigQuarto);
 
 /** Objetos na ordem de Tab (= ordem dos capítulos). */
-export const objetosEmOrdem = [...quarto.objetos].sort((a, b) => a.ordem - b.ordem);
+export const objetosEmOrdem = [...quarto.objetos].sort((a, b) => a.capitulo - b.capitulo);
 
-/** Retângulo clicável efetivo. */
-export const cliqueDe = (o: ObjetoQuarto): Rect => o.clique ?? o.caixa;
-
-/** Subconjunto serializado no HTML para o JS do cliente (≤ 3 KB): sem nada que o cliente não use. */
+/** Subconjunto serializado no HTML para o JS do cliente: sem nada que o cliente não use. */
 export function configCliente() {
   return {
-    viewBox: quarto.viewBox,
-    objetos: objetosEmOrdem.map((o) => ({
+    imagem: quarto.imagem,
+    objetos: objetosEmOrdem.map((o: ObjetoQuarto) => ({
       id: o.id,
       capitulo: o.capitulo,
-      papel: o.papel,
       destino: o.destino,
-      secao: o.secao,
+      secoes: o.secoes,
       vista: o.vista,
+      tour: o.tour,
     })),
   };
 }

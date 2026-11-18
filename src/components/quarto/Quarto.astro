@@ -1,18 +1,18 @@
 ---
 /**
- * Palco do quarto (design 4.0, 4.2, 5.3, 5.5): <svg> decorativo + <ol> de <a class="objeto"> (os controles reais)
- * + legenda. Tudo sai de src/config/quarto.ts e de textos.<lang>.json > quarto. Visível só com data-modo="quarto".
- * No mobile (< 768) o mesmo <ol> vira a grade de ladrilhos, que reaproveita os desenhos com <use>.
+ * O quarto (design 12.1 a 12.4, 12.13): UMA imagem raster (dia/noite, recorte vertical no mobile) numa caixa 16:9 em "cover",
+ * com a camada de <a class="objeto"> (área de clique + post-it) posicionados em % da imagem, o nome na parede, o post-it
+ * "Fale comigo!", as anotações, a intro e o tour pela rolagem (cartões no fluxo). Abaixo de 768 px ou em retrato, a mesma
+ * <picture> vira o herói recortado e os objetos viram a lista de nichos (um por capítulo). Tudo sai de src/config/quarto.ts
+ * e de textos.<lang>.json; nada de texto ou coordenada fixa aqui. Visível só com data-modo="quarto".
  */
 import Icone from '../ui/Icone.astro';
-import { cliqueDe, objetosEmOrdem, quarto } from '../../config/quarto';
+import { objetosEmOrdem, quarto } from '../../config/quarto';
 import { numeroDoCapitulo } from '../../i18n/secoes';
 import { getTextos } from '../../lib/textos';
-import Piso from './cenario/Piso.astro';
-import ParedesLaterais from './cenario/ParedesLaterais.astro';
-import Sombras from './cenario/Sombras.astro';
-import Luzes from './cenario/Luzes.astro';
-import { DESENHOS_DECORACAO, DESENHOS_OBJETO, Varal } from './registro';
+import { getUi } from '../../lib/ui';
+import { comBase } from '../../lib/url';
+import lqip from '../../assets/lqip.json';
 import type { Idioma } from '../../i18n/idiomas';
 
 interface Props {
@@ -20,9 +20,62 @@ interface Props {
 }
 const { lang } = Astro.props;
 const t = getTextos(lang);
-const vb = quarto.viewBox;
-const { piso, porta } = quarto.fundo;
-const lombadas = [...t.alem.games.lista, t.alem.games.lombadaExtra];
+const ui = getUi(lang);
+const arq = (nome: string) => comBase(`img/quarto/${nome}`);
+
+/* ---- <picture> da cena: desktop (16:9) e herói (9:16) × dia/noite × AVIF/WebP ---- */
+const TELA_CHEIA = '(min-width: 768px) and (min-aspect-ratio: 13/10)';
+const TELA_RETRATO = ['(max-width: 767px)', '(max-aspect-ratio: 1299/1000)'];
+const mq = (tela: 'cheia' | 'retrato', escuro: boolean) => {
+  const e = escuro ? ' and (prefers-color-scheme: dark)' : '';
+  return tela === 'cheia' ? `${TELA_CHEIA}${e}` : TELA_RETRATO.map((q) => `${q}${e}`).join(', ');
+};
+const mqTela = (tela: 'cheia' | 'retrato') => (tela === 'cheia' ? TELA_CHEIA : TELA_RETRATO.join(', '));
+const larguras = { cheia: [1280, 1920, 2560], retrato: [480, 720, 1080] } as const;
+const sizes = { cheia: '(min-aspect-ratio: 16/9) 100vw, 178vh', retrato: 'max(100vw, 56.25vh)' };
+const fontes = (['cheia', 'retrato'] as const).flatMap((tela) =>
+  ([true, false] as const).flatMap((escuro) =>
+    (['avif', 'webp'] as const).map((tipo) => {
+      const base = `${tela === 'cheia' ? '' : 'heroi-'}${escuro ? 'noite' : 'dia'}`;
+      return {
+        tipo,
+        tela,
+        escuro,
+        media: escuro ? mq(tela, true) : mqTela(tela),
+        srcset: larguras[tela].map((l) => `${arq(`${base}-${l}.${tipo}`)} ${l}w`).join(', '),
+        sizes: sizes[tela],
+      };
+    }),
+  ),
+);
+// Ordem: desktop escuro, desktop claro, retrato escuro, retrato claro (o 1º que combina vence).
+const fontesOrdenadas = [...fontes].sort((a, b) => Number(a.tela === 'retrato') - Number(b.tela === 'retrato'));
+
+/* ---- Objetos, tour e nichos ---- */
+const itens = objetosEmOrdem.map((o) => ({
+  o,
+  txt: t.quarto.objetos[o.id],
+  num: numeroDoCapitulo(o.capitulo),
+  resumo: t.tour[o.destino as keyof typeof t.tour] as { resumo: string },
+}));
+const progresso = (n: string) => t.tour.progresso.replace('{n}', n);
+const [antes, depois] = t.parede.direcao.split('→').map((s) => s.trim());
+
+/* ---- Setas das anotações: curva quadrática + ponta aberta, em unidades de 100 × 56.25 ---- */
+const setas = quarto.anotacoes.map((a) => {
+  const k = 9 / 16;
+  const [x1, y1] = [a.seta.de[0], a.seta.de[1] * k];
+  const [x2, y2] = [a.seta.para[0], a.seta.para[1] * k];
+  const cx = (x1 + x2) / 2 - (y2 - y1) * a.seta.curva * 0.5;
+  const cy = (y1 + y2) / 2 + (x2 - x1) * a.seta.curva * 0.5;
+  const ang = Math.atan2(y2 - cy, x2 - cx);
+  const p = (d: number): [number, number] => [x2 - 1.6 * Math.cos(ang + d), y2 - 1.6 * Math.sin(ang + d)];
+  const [a1x, a1y] = p(0.5);
+  const [a2x, a2y] = p(-0.5);
+  const f = (n: number) => Math.round(n * 100) / 100;
+  return { id: a.id, d: `M${f(x1)} ${f(y1)}Q${f(cx)} ${f(cy)} ${f(x2)} ${f(y2)}M${f(a1x)} ${f(a1y)}L${f(x2)} ${f(y2)}L${f(a2x)} ${f(a2y)}` };
+});
+
 const PALAVRAS_SQL = /\b(SELECT|FROM|WHERE|AND|BETWEEN|ORDER BY)\b/g;
 const trechosSql = (linha: string) => {
   const partes: { txt: string; kw: boolean }[] = [];
@@ -35,118 +88,82 @@ const trechosSql = (linha: string) => {
   if (fim < linha.length) partes.push({ txt: linha.slice(fim), kw: false });
   return partes;
 };
-const lampadas = objetosEmOrdem.flatMap((o) => (o.papel === 'principal' && o.lampada ? [{ x: o.lampada.x, capitulo: o.capitulo }] : []));
-
-const itens = objetosEmOrdem.map((o) => {
-  const c = cliqueDe(o);
-  // Objetos perto da borda direita ancoram a etiqueta pela direita, para ela não sair do palco.
-  const aDireita = o.caixa.x + o.caixa.l / 2 > vb.l * 0.8;
-  const ex = (aDireita ? (o.etiqueta?.x ?? o.caixa.x + o.caixa.l) : (o.etiqueta?.x ?? o.caixa.x)) - c.x;
-  const ey = (o.etiqueta?.y ?? o.caixa.y) - c.y;
-  const txt = t.quarto.objetos[o.id];
-  return {
-    o,
-    c,
-    aDireita,
-    estilo: `--x:${c.x};--y:${c.y};--w:${c.l};--h:${c.a};--ex:${ex};--ey:${ey};${o.marcador ? `;--mx:${o.marcador.x - c.x};--my:${o.marcador.y - c.y}` : ''}`,
-    txt,
-    cap: numeroDoCapitulo(o.capitulo),
-    minis: o.mobile.desenhos.map((nome) => quarto.objetos.find((x) => x.componente === nome)!),
-  };
-});
+const pc = quarto.postitContato;
+const pn = quarto.paredeNome;
 ---
 
-<nav id="quarto" aria-label={t.quarto.titulo}>
+<nav id="quarto" aria-label={t.quarto.titulo} data-passo="0">
   <p class="sr-only">{t.quarto.ajuda}</p>
-  <div class="palco" data-estado="repouso" style={`--vb-l:${vb.l};--vb-a:${vb.a}`}>
-    <svg class="cena" viewBox={`0 0 ${vb.l} ${vb.a}`} aria-hidden="true" focusable="false">
-      <rect class="f-wall" x="0" y="0" width={vb.l} height={piso}></rect>
-      <ParedesLaterais l={vb.l} a={vb.a} piso={piso} />
-      <rect class="f-wall-shade" x="40" y={piso - 20} width={vb.l - 80} height="20"></rect>
-      <Piso l={vb.l} a={vb.a} piso={piso} />
-      <Luzes camada="baixo" />
-      <Sombras />
-      <rect class="f-wood-dark" x={porta.x - 10} y={porta.y - 10} width={porta.l + 10} height={porta.a + 10} rx="6"></rect>
-      <rect class="f-wood" x={porta.x} y={porta.y} width={porta.l} height={porta.a} rx="8"></rect>
-      <rect class="f-wood-dark" x={porta.x + 14} y={porta.y + 14} width={porta.l - 28} height={Math.round(porta.a * 0.4)} rx="6"></rect>
-      <rect class="f-wood-dark" x={porta.x + 14} y={porta.y + Math.round(porta.a * 0.4) + 28} width={porta.l - 28} height={Math.round(porta.a * 0.5)} rx="6"></rect>
-      <circle class="f-metal" cx={porta.x + 12} cy={porta.y + Math.round(porta.a * 0.5)} r="6"></circle>
 
-      {
-        quarto.decoracao.map((d) => {
-          const Desenho = DESENHOS_DECORACAO[d.componente];
-          return (
-            <svg x={d.caixa.x} y={d.caixa.y} width={d.caixa.l} height={d.caixa.a} viewBox={`0 0 ${d.caixa.l} ${d.caixa.a}`} overflow="visible">
-              <Desenho l={d.caixa.l} a={d.caixa.a} />
-            </svg>
-          );
-        })
-      }
+  <div class="palco" data-estado="repouso" data-passo="0">
+    <div class="caixa" style={`--lqip-dia:url(${lqip.dia});--lqip-noite:url(${lqip.noite});--lqip-heroi-dia:url(${lqip['heroi-dia']});--lqip-heroi-noite:url(${lqip['heroi-noite']})`}>
+      <picture>
+        {
+          fontesOrdenadas.map((f) => (
+            <source type={`image/${f.tipo}`} media={f.media} srcset={f.srcset} sizes={f.sizes} data-tema={f.escuro ? 'dark' : 'light'} data-mq={mqTela(f.tela)} />
+          ))
+        }
+        <img src={arq('dia-1920.webp')} width={quarto.imagem.l} height={quarto.imagem.a} alt={t.quarto.imagemAlt} fetchpriority="high" decoding="async" />
+      </picture>
 
-      <Luzes camada="cima" />
-      <Varal l={vb.l} a={vb.a} y={quarto.varal.y} de={quarto.varal.de} ate={quarto.varal.ate} lampadas={lampadas} />
+      <div class="parede-bloco" style={`--nx:${pn.x};--ny:${pn.y};--nl:${pn.l};--cx:${pc.x};--cy:${pc.y};--crot:${pc.rot}deg`}>
+        <p class="parede" aria-hidden="true">
+          <span class="parede-nome">{t.hero.nome}</span>
+          <span class="parede-dir">{antes}{' '}<Icone nome="seta" tamanho={18} />{' '}{depois}</span>
+        </p>
+        <a class="postit-contato" href={t.contato.linkedinUrl}>
+          <span class="pc-titulo">{t.postit.contato.titulo}</span>
+          <span class="pc-cta">{t.postit.contato.cta}<Icone nome="externo" tamanho={12} /><span class="sr-only">{ui.linkExterno}</span></span>
+        </a>
+        <a class="explorar" href="#nichos">{t.quarto.explorarAbaixo}<Icone nome="seta" tamanho={16} class="seta-baixo" /></a>
+      </div>
 
-      {
-        itens.map(({ o }) => {
-          const Desenho = DESENHOS_OBJETO[o.componente];
-          return (
-            <g class="obj" data-g={o.id}>
-              <rect class="realce" x={o.caixa.x - 6} y={o.caixa.y - 6} width={o.caixa.l + 12} height={o.caixa.a + 12} rx="12" fill="none"></rect>
-              <svg x={o.caixa.x} y={o.caixa.y} width={o.caixa.l} height={o.caixa.a} viewBox={`0 0 ${o.caixa.l} ${o.caixa.a}`} overflow="visible">
-                <g id={`d-${o.id}`}>
-                  <Desenho l={o.caixa.l} a={o.caixa.a} lombadas={lombadas} />
-                </g>
-              </svg>
-            </g>
-          );
-        })
-      }
-    </svg>
+      <ol class="objetos">
+        {
+          itens.map(({ o, txt, num }) => (
+            <li>
+              <a
+                class="objeto"
+                href={`#${o.destino}`}
+                data-objeto={o.id}
+                data-cap={o.capitulo}
+                style={`--x:${o.clique.x};--y:${o.clique.y};--w:${o.clique.l};--h:${o.clique.a};--px:${o.postit.x - o.clique.x};--py:${o.postit.y - o.clique.y};--rot:${o.postit.rot}deg`}
+              >
+                <span class="postit">
+                  <span class="p-num">{num}</span>
+                  <span class="sr-only"> · {txt.tema}, </span>
+                  <span class="p-nome">{txt.comum}</span>
+                  <Icone nome="check" tamanho={14} class="p-check" />
+                  <span class="sr-only estado" data-lido={t.quarto.estado.lido} data-proximo={t.quarto.estado.proximo}></span>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
 
-    <ol class="objetos">
-      {
-        itens.map(({ o, estilo, txt, cap, aDireita, minis }) => (
-          <li class:list={[o.papel === 'secundario' && 'sec']}>
-            <a
-              class:list={['objeto', aDireita && 'etq-dir']}
-              href={`#${o.destino}`}
-              data-objeto={o.id}
-              data-cap={o.capitulo}
-              data-num={cap}
-              data-papel={o.papel}
-              data-tema={txt.tema}
-              data-comum={txt.comum}
-              data-legenda={txt.legenda}
-              style={estilo}
-            >
-              <span class="ladrilho-arte" aria-hidden="true">
-                {minis.map((m) => (
-                  <svg class="mini" viewBox={`0 0 ${m.caixa.l} ${m.caixa.a}`} focusable="false">
-                    <use href={`#d-${m.id}`} />
-                  </svg>
-                ))}
-              </span>
-              <span class="ladrilho-lampada" aria-hidden="true"></span>
-              {
-                o.marcador && (
-                  <span class="marcador" aria-hidden="true" data-dir={o.marcador.dir}>
-                    <Icone nome="check" tamanho={10} class="m-check" />
-                  </span>
-                )
-              }
-              <span class="etiqueta">
-                <span class="num">{cap}</span>
-                <Icone nome="check" tamanho={12} class="check" />
-                <span class="sep" aria-hidden="true"> · </span>
-                <span class="tema">{txt.tema}</span><span class="sr-only">, </span>
-                <span class="comum">{txt.comum}</span>
-                <span class="sr-only estado" data-lido={t.quarto.estado.lido} data-proximo={t.quarto.estado.proximo}></span>
-              </span>
-            </a>
-          </li>
-        ))
-      }
-    </ol>
+      <div class="anotacoes" aria-hidden="true">
+        <svg class="setas" viewBox="0 0 100 56.25" focusable="false">
+          {
+            setas.map((s, i) => (
+              <>
+                <path class="seta-halo" d={s.d} pathLength="1" data-seta={i}></path>
+                <path class="seta-traco" d={s.d} pathLength="1" data-seta={i}></path>
+              </>
+            ))
+          }
+        </svg>
+        {
+          quarto.anotacoes.map((a) => (
+            <p class="anot" style={`--ax:${a.x};--ay:${a.y};--arot:${a.rot}deg;--amax:${a.larguraMax}`} data-anot={a.id}>
+              {t.anotacoes[a.id]}
+            </p>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="pelicula" aria-hidden="true"></div>
 
     <div class="intro" data-intro-overlay>
       <div class="intro-cartao">
@@ -166,10 +183,77 @@ const itens = objetosEmOrdem.map((o) => {
         <button class="intro-pular" type="button" aria-label={t.intro.pularRotulo} data-intro-pular>{t.intro.pular}</button>
       </div>
     </div>
+
+    <div class="trilho" aria-hidden="true">
+      {itens.map(({ num }) => <span class="traco" data-n={num}>{num}</span>)}
+      <span class="traco traco-monitor"><Icone nome="menu" tamanho={14} /></span>
+    </div>
+    <div class="tour-acoes">
+      <button class="tour-sair" type="button" data-tour-sair><Icone nome="seta" class="seta-cima" />{t.tour.sair}</button>
+      <button class="tour-ir" type="button" data-tour-monitor><Icone nome="seta" class="seta-baixo" />{t.tour.irMonitor}</button>
+    </div>
+
+    <div class="so-tour" data-vista="tela" hidden></div>
   </div>
 
-  <div class="legenda" aria-hidden="true">
-    <p class="leg-linha"><strong class="leg-nome"></strong> <span class="leg-texto"></span></p>
-    <p class="leg-dica"><span class="leg-teclas">{t.quarto.legendaTeclas}</span><span class="leg-ponteiro">{t.quarto.legendaPonteiro}</span></p>
-  </div>
+  <ol class="tour">
+    <li class="passo passo-vazio" data-passo="0" aria-hidden="true"></li>
+    {
+      itens.map(({ o, txt, num, resumo }, i) => (
+        <li class="passo" data-passo={i + 1} data-lado={o.tour.lado}>
+          <div class="cartao papel">
+            <p class="cartao-titulo">
+              <span class="cartao-prog">{progresso(num)}</span>
+              <span class="cartao-nome">{txt.tema} · {txt.comum}</span>
+            </p>
+            <p class="cartao-texto">{resumo.resumo}</p>
+            {i === 0 && <p class="cartao-fim">{t.tour.vertice.fim}</p>}
+            <a class="cta cta-primario tour-abrir" href={`#${o.destino}`} data-objeto={o.id} data-cap={o.capitulo}>
+              <span>{t.tour.abrir}</span><span class="sr-only">: {txt.comum}</span>
+            </a>
+          </div>
+        </li>
+      ))
+    }
+    <li class="passo passo-vazio" data-passo="9" aria-hidden="true"></li>
+  </ol>
+
+  <ol class="nichos" id="nichos">
+    {
+      itens.map(({ o, txt, num, resumo }) => (
+        <li>
+          <a class="nicho" href={`#${o.destino}`} data-objeto={o.id} data-cap={o.capitulo}>
+            <picture>
+              {
+                ([true, false] as const).flatMap((escuro) =>
+                  (['avif', 'webp'] as const).map((tipo) => (
+                    <source
+                      type={`image/${tipo}`}
+                      media={escuro ? '(prefers-color-scheme: dark)' : undefined}
+                      srcset={[480, 720].map((l) => `${arq(`obj-${o.id}-${escuro ? 'noite' : 'dia'}-${l}.${tipo}`)} ${l}w`).join(', ')}
+                      sizes="(min-width: 560px) 520px, 100vw"
+                      data-tema={escuro ? 'dark' : 'light'}
+                    />
+                  )),
+                )
+              }
+              <img src={arq(`obj-${o.id}-dia-480.webp`)} width="480" height="360" alt="" loading="lazy" decoding="async" />
+            </picture>
+            <span class="postit">
+              <span class="p-num">{num}</span>
+              <span class="sr-only"> · {txt.tema}, </span>
+              <span class="p-nome">{txt.comum}</span>
+              <Icone nome="check" tamanho={14} class="p-check" />
+              <span class="sr-only estado" data-lido={t.quarto.estado.lido} data-proximo={t.quarto.estado.proximo}></span>
+            </span>
+            <span class="nicho-texto">
+              <span class="nicho-tema">{txt.tema}</span>
+              <span class="nicho-resumo">{resumo.resumo}</span>
+              <span class="nicho-acao" aria-hidden="true">{t.tour.abrir}<Icone nome="seta" /></span>
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
 </nav>

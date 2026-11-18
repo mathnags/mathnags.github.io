@@ -1,8 +1,8 @@
 /**
- * "Lido" (sessionStorage, por capítulo), lâmpadas do varal e "próximo sugerido" (design 5.3).
+ * "Lido" (sessionStorage, por capítulo) e "próximo sugerido" nos post-its (design 12.13.4).
  * Sem contador, pontuação ou recompensa. Os textos dos estados vêm de data-* escritos pelo HTML.
  */
-import { cena, links } from './ctx';
+import { links } from './ctx';
 
 const CHAVE = 'lidos';
 const lidos = new Set<number>();
@@ -16,13 +16,11 @@ try {
 }
 
 export function render() {
-  const proximo = [...new Set(links.filter((l) => l.dataset.papel === 'principal').map((l) => Number(l.dataset.cap)))]
-    .sort((a, b) => a - b)
-    .find((c) => !lidos.has(c));
+  const proximo = [...new Set(links.map((l) => Number(l.dataset.cap)))].sort((a, b) => a - b).find((c) => !lidos.has(c));
   for (const l of links) {
     const cap = Number(l.dataset.cap);
     const lido = lidos.has(cap);
-    const sugerido = l.dataset.papel === 'principal' && cap === proximo;
+    const sugerido = cap === proximo;
     l.toggleAttribute('data-lido', lido);
     l.toggleAttribute('data-proximo', sugerido);
     const estado = l.querySelector<HTMLElement>('.estado');
@@ -31,7 +29,6 @@ export function render() {
       estado.textContent = texto ? `, ${texto}` : '';
     }
   }
-  cena.querySelectorAll<SVGElement>('.lampada').forEach((g) => g.toggleAttribute('data-lido', lidos.has(Number(g.dataset.cap))));
   ouvintes.forEach((fn) => fn());
 }
 

@@ -25,16 +25,12 @@
 
   #vista[data-fase='trocando'] .vista-moldura { visibility: hidden; }
 
-  #vista::backdrop { background: rgb(18 20 26 / 0.35); }
-
-  #vista:is([data-vista='tela'], [data-vista='cortica'], [data-vista='estante'])::backdrop { background: transparent; }
+  /* O escurecimento atrás da vista é a película do palco (12.5): o backdrop é transparente. */
+  #vista::backdrop { background: transparent; }
 
   .vista-quadro {
     position: absolute;
-    left: var(--qx, 0);
-    top: var(--qy, 0);
-    width: var(--qw, 100%);
-    height: var(--qh, 100%);
+    inset: 0;
   }
 
   /* ---------- Barra ---------- */
@@ -135,9 +131,23 @@
   #vista .secao { padding: 0; }
   #vista .secao-in { max-width: none; padding: var(--space-5); }
 
-  /* tela (monitor): bisel de 12 px */
+  /* tela (monitor): bisel de 12 px desenhado em CSS; o SO ocupa a tela inteira do monitor (12.13.1) */
   #vista[data-vista='tela'] .vista-moldura { padding: 12px; background: var(--room-metal); }
-  #vista[data-vista='tela'] .vista-miolo { background: var(--surface); border-radius: var(--radius-xs); }
+  #vista[data-vista='tela'] .vista-miolo { display: flex; overflow: hidden; background: var(--surface); border-radius: var(--radius-xs); }
+  #vista[data-vista='tela'] .secao { flex: 1; min-width: 0; }
+  #vista[data-vista='tela'] .secao-in { height: 100%; padding: 0; }
+
+  /* porta-retrato: o resumo (#ficha) vem antes do Sobre */
+  #vista .ficha-in {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    max-width: none;
+    padding: var(--space-3) var(--space-5) 0;
+  }
+
+  #vista .ficha-col { gap: var(--space-3); }
+  #vista .ficha-h3 { margin: 0; padding: var(--space-5) var(--space-5) 0; font: 700 var(--fs-h3) / var(--lh-h3) var(--ff-display); }
+  #vista .ficha .selos { margin: 0; }
 
   /* cortiça (mural) */
   #vista[data-vista='cortica'] .vista-moldura {
@@ -385,7 +395,7 @@
       box-shadow: none;
     }
 
-    #vista[data-vista='tela'] .vista-moldura { padding: 8px; }
+    #vista[data-vista='tela'] .vista-moldura { padding: 0; background: var(--surface); }
     #vista[data-vista='cortica'] .vista-moldura { padding: 8px; border-width: 8px; }
     #vista[data-vista='estante'] .vista-moldura { border-inline-width: 8px; padding: 0 4px; }
     #vista[data-vista='porta-retrato'] .vista-moldura { border-width: 8px; }

@@ -1,5 +1,5 @@
 ---
-/** #ficha: resumo (design 4.5). h1 com o nome; nenhum número, nível ou barra. */
+/** #ficha: resumo (design 4.5). No quarto vive na vista do porta-retrato (12.7), com h3 "Resumo". Nenhum número, nível ou barra. */
 import Icone from '../ui/Icone.astro';
 import Selo from '../ui/Selo.astro';
 import BotaoCTA from '../ui/BotaoCTA.astro';
@@ -18,7 +18,8 @@ const [antes, depois] = t.hero.rotulo.split('→').map((s) => s.trim());
 ---
 
 <section id="ficha" class="ficha" aria-labelledby="ficha-titulo">
-  <h2 id="ficha-titulo" class="sr-only">{t.ficha.titulo}</h2>
+  <h2 id="ficha-titulo" class="sr-only ficha-h2">{t.ficha.titulo}</h2>
+  <h3 class="ficha-h3">{t.ficha.tituloNaVista}</h3>
   <div class="ficha-in">
     <div class="ficha-col">
     <div class="ficha-topo">
@@ -49,9 +50,6 @@ const [antes, depois] = t.hero.rotulo.split('→').map((s) => s.trim());
     <ul class="provas">
       {t.hero.provas.map((p) => <li>{p}</li>)}
     </ul>
-    <p class="dica so-quarto">
-      <span class="dica-ponteiro">{t.quarto.dica.ponteiro}</span><span class="dica-toque">{t.quarto.dica.toque}</span>
-    </p>
     </div>
   </div>
 </section>

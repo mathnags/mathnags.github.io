@@ -1,5 +1,8 @@
 ---
-/** Cabeçalho (design 4.0, 5.2, 5.7, 5.8): botão de modo (1º focável), "pular" (2º), nome, nav, idioma e luz. */
+/**
+ * Cabeçalho (design 12.1, 12.13.6): no modo quarto vira dois HUDs de controles (esquerdo: "Modo recrutador", 1º focável;
+ * direito: PT|EN e interruptor). No modo recrutador continua a barra com nome, nav, idioma e luz.
+ */
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import Icone from '../ui/Icone.astro';
 import { getTextos } from '../../lib/textos';
@@ -16,13 +19,15 @@ const itensNav = SECOES.flatMap((s) => (s.chaveNav ? [{ id: s.id, texto: t.nav[s
 
 <header class="topo">
   <div class="topo-in">
-    <a class="btn-modo so-js" href="?modo=recrutador" data-modo-botao>
-      <Icone nome="menu" class="so-quarto" />
-      <Icone nome="casa" class="so-recrutador" />
-      <span class="so-quarto">{t.topo.modoRecrutador}</span>
-      <span class="so-recrutador">{t.topo.explorarQuarto}</span>
-    </a>
-    <a class="pular" href="#conteudo">{t.topo.pularConteudo}</a>
+    <div class="topo-esq">
+      <a class="btn-modo so-js" href="?modo=recrutador" data-modo-botao>
+        <Icone nome="menu" class="so-quarto" />
+        <Icone nome="casa" class="so-recrutador" />
+        <span class="so-quarto">{t.topo.modoRecrutador}</span>
+        <span class="so-recrutador">{t.topo.explorarQuarto}</span>
+      </a>
+      <a class="pular" href="#conteudo">{t.topo.pularConteudo}</a>
+    </div>
     <p class="topo-nome">{t.hero.nome}</p>
 
     <button class="btn-menu so-recrutador so-js" type="button" aria-expanded="false" aria-controls="nav-modo" data-menu-botao>
@@ -35,29 +40,30 @@ const itensNav = SECOES.flatMap((s) => (s.chaveNav ? [{ id: s.id, texto: t.nav[s
       </ul>
     </nav>
 
-    <nav class="idioma" aria-label={t.topo.idioma.rotulo}>
-      {
-        IDIOMAS.map((l) => (
-          <a
-            href={getRelativeLocaleUrl(l)}
-            hreflang={CONFIG_IDIOMA[l].hreflang}
-            lang={CONFIG_IDIOMA[l].htmlLang}
-            aria-label={`${l.toUpperCase()}, ${t.topo.idioma[l]}`}
-            aria-current={l === lang ? 'true' : undefined}
-            data-idioma
-          >
-            {l.toUpperCase()}
-          </a>
-        ))
-      }
-    </nav>
+    <div class="topo-dir">
+      <nav class="idioma" aria-label={t.topo.idioma.rotulo}>
+        {
+          IDIOMAS.map((l) => (
+            <a
+              href={getRelativeLocaleUrl(l)}
+              hreflang={CONFIG_IDIOMA[l].hreflang}
+              lang={CONFIG_IDIOMA[l].htmlLang}
+              aria-label={`${l.toUpperCase()}, ${t.topo.idioma[l]}`}
+              aria-current={l === lang ? 'true' : undefined}
+              data-idioma
+            >
+              {l.toUpperCase()}
+            </a>
+          ))
+        }
+      </nav>
 
-    <button class="btn-luz so-js" type="button" aria-pressed="false" data-luz>
-      <Icone nome="interruptor" />
-      <span class="sr-only">{t.topo.luz.rotuloAcessivel}</span>
-      <span class="luz-txt" aria-hidden="true">
-        <span class="luz-apagar">{t.topo.luz.apagar}</span><span class="luz-acender">{t.topo.luz.acender}</span>
-      </span>
-    </button>
+      <button class="interruptor so-js" type="button" aria-pressed="false" aria-label={t.topo.luz.rotuloAcessivel} data-luz>
+        <span class="int-placa" aria-hidden="true"><span class="int-tecla"></span></span>
+        <span class="luz-txt" aria-hidden="true">
+          <span class="luz-apagar">{t.topo.luz.apagar}</span><span class="luz-acender">{t.topo.luz.acender}</span>
+        </span>
+      </button>
+    </div>
   </div>
 </header>

@@ -133,8 +133,12 @@ export const textosSchema = z.strictObject({
     ctaSecundario: texto,
   }),
 
-  /* Revisão 5: h2 oculto do resumo, intro SQL e menu numerado */
-  ficha: z.strictObject({ titulo: texto }),
+  /* Revisão 6: h2 oculto e h3 do resumo, intro SQL, nome na parede, post-its, anotações, tour e SO */
+  ficha: z.strictObject({
+    titulo: texto,
+    /** h3 do resumo dentro da vista do porta-retrato (12.7). */
+    tituloNaVista: texto,
+  }),
   intro: z.strictObject({
     linhas: z.array(texto).length(4),
     executando: texto,
@@ -142,29 +146,52 @@ export const textosSchema = z.strictObject({
     pular: texto,
     pularRotulo: texto,
   }),
-  menu: z.strictObject({
+  /** "Dados → IA" pintado na parede (12.13.3). */
+  parede: z.strictObject({ direcao: texto }),
+  /** Post-it "Fale comigo!" (CTA do LinkedIn): título manuscrito + texto literal do CTA. */
+  postit: z.strictObject({ contato: z.strictObject({ titulo: texto, cta: texto }) }),
+  /** Duas anotações à mão (12.13.5). */
+  anotacoes: z.strictObject({ comece: texto, role: texto }),
+  /** Tour pela rolagem (12.13.2): uma chave por destino de capítulo. */
+  tour: z.strictObject({
+    /** Formato "{n} de 08". */
+    progresso: texto,
+    abrir: texto,
+    sair: texto,
+    irMonitor: texto,
+    vertice: z.strictObject({ resumo: texto, fim: texto }),
+    sobre: z.strictObject({ resumo: texto }),
+    experiencia: z.strictObject({ resumo: texto }),
+    projetos: z.strictObject({ resumo: texto }),
+    habilidades: z.strictObject({ resumo: texto }),
+    formacao: z.strictObject({ resumo: texto }),
+    alem: z.strictObject({ resumo: texto }),
+    contato: z.strictObject({ resumo: texto }),
+  }),
+  /** O monitor como "SO" (12.13.1). */
+  so: z.strictObject({
     rotulo: texto,
-    /** Uma chave por seção com capítulo (mesmos ids de SECOES). */
-    itens: z.strictObject({
-      vertice: texto,
-      sobre: texto,
-      experiencia: texto,
-      projetos: texto,
-      habilidades: texto,
-      formacao: texto,
-      alem: texto,
-      contato: texto,
+    arquivos: z.strictObject({
+      leiame: texto,
+      construcao: texto,
+      funcionalidades: texto,
+      stack: texto,
+      proximo: texto,
+      origem: texto,
+      site: texto,
     }),
-    todos: texto,
+    /** Formato "Fechar {arquivo}". */
+    fechar: texto,
+    voltarArea: texto,
   }),
 
   /* Quarto e vistas */
   quarto: z.strictObject({
     titulo: texto,
+    imagemAlt: texto,
+    explorarAbaixo: texto,
     ajuda: texto,
     dica: z.strictObject({ ponteiro: texto, toque: texto }),
-    legendaTeclas: texto,
-    legendaPonteiro: texto,
     estado: z.strictObject({ lido: texto, proximo: texto }),
     /** Exatamente um item por objeto de src/config/tipos.ts > IDS_OBJETOS. Também dá o rótulo duplo das seções. */
     objetos: z.record(z.enum(IDS_OBJETOS), textoObjetoSchema),
@@ -329,7 +356,7 @@ const textoProjetoSchema = z.strictObject({
 /** Categorias aceitas. Para criar outra, acrescente aqui (é a única mudança de código). */
 export const CATEGORIAS_PROJETO = ['full-stack', 'academico', 'dados-bi', 'ia'] as const;
 
-/** O site não usa imagens raster (design 9.4): não há campo de capa. */
+/** O quarto usa imagens raster só na cena (design 12.2); projetos não têm campo de capa. */
 export const projetoSchema = z.strictObject({
   titulo: texto,
   /** Igual ao nome do arquivo, sem ".md". Âncora do card: "projeto-" + slug. */

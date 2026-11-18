@@ -140,7 +140,7 @@ describe('content/textos.<lang>.json', () => {
       for (const id of IDS_ESTAVEIS_DESIGN) expect(ancoras.has(id), `id "${id}" (${lang})`).toBe(true);
       for (const o of quarto.objetos) {
         expect(ancoras.has(o.destino), `destino "${o.destino}" do objeto "${o.id}" (${lang})`).toBe(true);
-        expect(ancoras.has(o.secao), `seção "${o.secao}" do objeto "${o.id}" (${lang})`).toBe(true);
+        for (const sec of o.secoes) expect(ancoras.has(sec), `seção "${sec}" do objeto "${o.id}" (${lang})`).toBe(true);
       }
     }
   });
@@ -151,16 +151,26 @@ describe('src/config/quarto.ts', () => {
     expect(errosDoQuarto(quarto)).toEqual([]);
   });
 
-  it('a validação pega sobreposição de cliques, câmera fora de 16:10 e alvo pequeno', () => {
+  it('a validação pega sobreposição de cliques, escala excessiva, clique fora da área segura e alvo pequeno', () => {
     const copia = structuredClone(quarto);
     const [primeiro, segundo] = copia.objetos;
-    segundo.clique = { ...(primeiro.clique ?? primeiro.caixa) };
-    primeiro.vista.camera = { ...primeiro.vista.camera, a: primeiro.vista.camera.a + 50 };
-    copia.objetos[2].clique = { x: 900, y: 200, l: 40, a: 40 };
-    const erros = errosDoQuarto(copia).join('\n');
+    segundo.clique = { ...primeiro.clique };
+    primeiro.vista.camera = { ...primeiro.vista.camera, escala: 5 };
+    copia.objetos[2].clique = { x: 2, y: 20, l: 2, a: 2 };
+    const erros = errosDoQuarto(copia).join(String.fromCharCode(10));
     expect(erros).toMatch(/se sobrepõem/);
-    expect(erros).toMatch(/não é 16:10/);
+    expect(erros).toMatch(/escala da câmera/);
+    expect(erros).toMatch(/fora da área segura/);
     expect(erros).toMatch(/menor que/);
+  });
+
+  it('a validação pega post-it sobre o nome e sobre o clique de outro objeto', () => {
+    const copia = structuredClone(quarto);
+    copia.objetos[0].postit = { x: 40, y: 9, rot: 0 };
+    copia.objetos[1].postit = { x: copia.objetos[2].clique.x + 2, y: copia.objetos[2].clique.y + 4, rot: 0 };
+    const erros = errosDoQuarto(copia).join(String.fromCharCode(10));
+    expect(erros).toMatch(/post-it cobre "nome na parede"/);
+    expect(erros).toMatch(/post-it cobre a área de clique/);
   });
 
   it('a config serializada para o cliente cabe em 3 KB', () => {

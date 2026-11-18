@@ -1,72 +1,82 @@
 /**
- * Câmera: interpola o viewBox do SVG do quarto só durante o zoom (400 ms ida / 320 ms volta).
- * Com movimento reduzido, é corte direto.
+ * Câmera por transform (design 12.5): a caixa da cena (imagem + objetos + nome) recebe translate + scale, com a
+ * translação limitada às bordas da imagem. Animação por WAAPI (só transform, composto na GPU); com movimento
+ * reduzido, é corte direto. No mobile não há câmera.
  */
-import { cena, cfg, css, reduz, type Rect } from './ctx';
+import { caixa, clamp, css, mobile, palco, reduz, type Camera } from './ctx';
 
-let epoca = 0;
+export const GERAL: Camera = { cx: 50, cy: 50, escala: 1 };
 
-export const inteira = (): Rect => ({ x: 0, y: 0, l: cfg.viewBox.l, a: cfg.viewBox.a });
+let atual: Camera = GERAL;
+let anim: Animation | null = null;
 
-function atual(): Rect {
-  const [x, y, l, a] = (cena.getAttribute('viewBox') ?? '').split(' ').map(Number);
-  return { x, y, l, a };
+/** transform que leva o ponto (cx, cy) da imagem ao centro da tela, sem mostrar nada fora da imagem. */
+export function transformDe(c: Camera): string {
+  const L = caixa.offsetWidth;
+  const A = caixa.offsetHeight;
+  const vw = palco.clientWidth;
+  const vh = palco.clientHeight;
+  const s = c.escala;
+  const mx = Math.max(0, (L * s - vw) / 2);
+  const my = Math.max(0, (A * s - vh) / 2);
+  const tx = clamp(-(c.cx / 100 - 0.5) * L * s, -mx, mx);
+  const ty = clamp(-(c.cy / 100 - 0.5) * A * s, -my, my);
+  return `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px) scale(${s})`;
 }
 
-const aplicar = (r: Rect) => cena.setAttribute('viewBox', `${r.x} ${r.y} ${r.l} ${r.a}`);
-
-function bezier(x1: number, y1: number, x2: number, y2: number) {
-  const cx = 3 * x1;
-  const bx = 3 * (x2 - x1) - cx;
-  const ax = 1 - cx - bx;
-  const cy = 3 * y1;
-  const by = 3 * (y2 - y1) - cy;
-  const ay = 1 - cy - by;
-  const sx = (t: number) => ((ax * t + bx) * t + cx) * t;
-  const sy = (t: number) => ((ay * t + by) * t + cy) * t;
-  const dx = (t: number) => (3 * ax * t + 2 * bx) * t + cx;
-  return (x: number) => {
-    let t = x;
-    for (let i = 0; i < 8; i++) {
-      const e = sx(t) - x;
-      const d = dx(t);
-      if (Math.abs(e) < 1e-4 || Math.abs(d) < 1e-6) break;
-      t -= e / d;
-    }
-    return sy(t);
-  };
+function pararAnim() {
+  if (!anim) return;
+  const emCurso = getComputedStyle(caixa).transform;
+  anim.cancel();
+  anim = null;
+  caixa.style.transform = emCurso;
+  caixa.style.willChange = '';
 }
 
 /** Interrompe a animação em curso (a promessa dela resolve com false). */
 export function parar() {
-  epoca++;
+  pararAnim();
 }
 
-/** Leva o viewBox até "para". Resolve true ao terminar e false se foi interrompida. */
-export function ir(para: Rect, duracaoMs: number, easing: '--ease-out' | '--ease-std', animar: boolean): Promise<boolean> {
-  const minha = ++epoca;
-  if (!animar || reduz.matches) {
-    aplicar(para);
+export const cameraAtual = () => atual;
+
+/** Leva a câmera até "para". Resolve true ao terminar e false se foi interrompida. */
+export function ir(para: Camera, duracaoMs: number, easing: '--ease-out' | '--ease-std', animar: boolean): Promise<boolean> {
+  if (mobile.matches) return Promise.resolve(true);
+  pararAnim();
+  const ate = transformDe(para);
+  const de = caixa.style.transform || transformDe(GERAL);
+  atual = para;
+  if (!animar || reduz.matches || duracaoMs <= 0 || de === ate) {
+    caixa.style.transform = ate;
     return Promise.resolve(true);
   }
-  const de = atual();
-  const curva = (css(easing).match(/-?[\d.]+/g) ?? ['0', '0', '1', '1']).map(Number);
-  const f = bezier(curva[0], curva[1], curva[2], curva[3]);
-  const inicio = performance.now();
-  return new Promise((resolve) => {
-    const passo = (agora: number) => {
-      if (minha !== epoca) return resolve(false);
-      const t = Math.min(1, (agora - inicio) / duracaoMs);
-      const k = f(t);
-      aplicar({
-        x: de.x + (para.x - de.x) * k,
-        y: de.y + (para.y - de.y) * k,
-        l: de.l + (para.l - de.l) * k,
-        a: de.a + (para.a - de.a) * k,
-      });
-      if (t < 1) requestAnimationFrame(passo);
-      else resolve(true);
-    };
-    requestAnimationFrame(passo);
-  });
+  caixa.style.willChange = 'transform';
+  const a = caixa.animate([{ transform: de }, { transform: ate }], { duration: duracaoMs, easing: css(easing), fill: 'forwards' });
+  anim = a;
+  return a.finished.then(
+    () => {
+      if (anim === a) {
+        caixa.style.transform = ate;
+        a.cancel();
+        anim = null;
+        caixa.style.willChange = '';
+      }
+      return true;
+    },
+    () => false,
+  );
 }
+
+/** Reaplica a câmera atual (mudança de tamanho da janela). */
+export function reaplicar() {
+  if (anim || mobile.matches) return;
+  caixa.style.transform = transformDe(atual);
+}
+
+// Ao cruzar a fronteira entre tela cheia e mobile, a câmera é zerada (mobile) ou reaplicada (tela cheia).
+mobile.addEventListener('change', () => {
+  pararAnim();
+  if (mobile.matches) caixa.style.transform = '';
+  else reaplicar();
+});
