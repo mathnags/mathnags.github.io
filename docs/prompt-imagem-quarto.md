@@ -63,7 +63,32 @@ Imagem **16:9**, mostrando o **quarto inteiro** numa vista ampla (não é um clo
 
 ---
 
-## 2. Prompt (dia), em inglês, pronto para copiar
+## Versão curta (ferramentas com limite de 2000 caracteres)
+
+Use esta versão se a ferramenta limitar o tamanho do prompt. As posições exatas saíram, porque o site calibra as áreas de clique na imagem final. O que importa é ter os 8 objetos visíveis e separados.
+
+**Dia** (~1.480 caracteres; já inclui as proibições no fim):
+
+```
+Cozy, richly detailed digital illustration of a young data analyst's bedroom-office, whole room in a wide view, gentle 3/4 isometric perspective, 16:9. Dense, lived-in, many small details, little empty space, but key objects clearly readable. Warm sunbeam through a window on the far left falling across floor and desk, soft shadows, warm wood, cream walls, painterly style, crisp edges.
+Left to right: window with city skyline and a pot with one green and one red plant; long wooden desk with a large modern widescreen monitor with a blank softly glowing screen, keyboard, mouse on coral-red mousepad, generic headset, stack of game cases with blank colorful spines, mug, desk lamp, office chair, LED strip under the desk; small wooden photo frame with an abstract landscape at the desk's right end; red and blue poster with a geometric web pattern; cork board with papers showing abstract lines; low side table with a closed spiral notebook; metal toolbox on the floor, lid open; tall bookshelf full of books with blank spines and rolled diplomas; wooden door on the right with a plain triangular scout neckerchief on a hook and a small mailbox holding an envelope; volleyball with knee pads near the door. Fairy lights along the top of the wall, rug, plants.
+Leave a plain empty wall area at the top center. All key objects separated and fully visible.
+No text, no letters, no logos, no people, no characters, no faces, no weapons, no video game art, no spider figure, no emblems.
+```
+
+**Noite** (~390 caracteres; de preferência como edição/image-to-image da imagem de dia):
+
+```
+Same room, same camera, same composition and object positions. Night time: no sunbeam, ceiling light off; softly lit by warm fairy lights, the desk lamp, a teal LED strip under the desk and the blank glowing monitor. Moon and small lit city windows through the window. Top-center wall stays plain. Cozy, darker but every object clearly visible. No text, no logos, no people, no neon pink.
+```
+
+**Negative prompt curto** (~380 caracteres; só se a ferramenta tiver o campo):
+
+```
+text, letters, numbers, watermark, logo, brand, emblem, UI, crosshair, image on monitor, people, face, hands, character, mascot, superhero, spider, mask, robot, weapon, gun, knife, bomb, military insignia, umbrella symbol, fleur-de-lis, trophy, movie poster, game cover art, neon pink, cyberpunk, horror, empty room, distorted perspective, cropped objects, blurry, low resolution
+```
+
+## 2. Prompt (dia), em inglês, versão completa
 
 ```
 A cozy, richly detailed digital illustration of a young data analyst's bedroom-office, showing the whole room in a wide view (not a close-up), gentle 3/4 isometric-style perspective (slightly elevated camera facing the back wall, side edges slightly visible), 16:9 widescreen. Dense and lived-in, lots of small details and textures, little empty space, yet every key object clearly readable. Soft, warm natural light: a visible sunbeam enters through the window on the far left and falls diagonally across the floor and the desk, with soft gentle shadows; warm wood tones, cream walls, calm and inviting mood. Clean painterly illustration style, crisp edges, high detail.
