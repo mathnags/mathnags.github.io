@@ -65,3 +65,9 @@ docs/                     estratégia, design, arquitetura, relatórios de revis
 - Para trocar o modelo ou o esforço de um agente, edite `model:` e `effort:` no topo do arquivo dele em `.claude/agents/`.
 - Se um agente erra por falta de raciocínio, suba o `effort` antes de trocar para um modelo maior.
 - Para adicionar um projeto depois de pronto: crie `content/projetos/<slug>.md` (o `curador-projetos` pode fazer isso) e rode o `verificador-fatos`.
+
+## Publicação
+
+O site vai para https://mathnags.github.io/ pelo workflow `.github/workflows/deploy.yml`. Cada push na `main` roda `npm ci` e `npm run verify` (lint, testes e build) e, se passar, publica `dist/` no GitHub Pages. Também é possível rodar manualmente em Actions → Deploy → Run workflow.
+
+Primeira vez: em Settings → Pages → Build and deployment → Source, escolha **GitHub Actions** (não "Deploy from a branch"). Para domínio próprio, configure o DNS e o campo Custom domain nessa mesma tela, e ajuste `site` no `astro.config.mjs` (ou a variável `SITE_URL`).
