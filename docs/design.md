@@ -18,6 +18,7 @@ Esta versão **substitui** o "caderno de campo" e a "Trilha do Vértice". Os tex
 | O texto é sempre HTML real sobre a moldura do desenho, AA e legível em 360 px | 3.4, 4.4 |
 | Cada objeto é um componente; posição, destino e vista ficam num único arquivo de configuração | 9.2 |
 | Hobbies como "acenos de fã" | 4.2a, 9.1 |
+| **Referência externa** (`docs/referencias/raomuhammadhamza.md`), usada como inspiração e não como cópia: marcadores flutuantes, intro temática, menu numerado em pílula com o nome grande sobre a cena, e 2D com profundidade | **11** (revisão 5) e ajustes em 4.1, 4.2, 5.3 e 9 |
 
 A metáfora é a **embalagem**, não o conteúdo. Se um objeto exigir um fato que não está em `perfil.json`, o objeto sai. O Vértice nunca aparece como "concluído", "em produção", "no ar" ou "com usuários".
 
@@ -330,8 +331,10 @@ Razões calculadas pela fórmula de luminância relativa da WCAG (sRGB lineariza
 ```
 <header class="topo">  [Modo recrutador] ← 1º focável · nome · [PT|EN] · [luz]
 <main id="conteudo">
-  <section id="ficha">        Resumo (Hero)
-  <nav id="quarto">           palco: <svg viewBox> aria-hidden + <ol> de 12 links (só no modo quarto)
+  <h1>Matheus Maki Nagano     nome grande; no desktop do modo quarto fica sobre a cena (11.3)
+  <section id="ficha">        Resumo (Hero), com h2 oculto "Resumo"
+  <nav id="quarto">           palco: intro estática (11.2) + <svg viewBox> aria-hidden + <ol> de 12 links com marcadores (11.1)
+  <nav id="capitulos">        pílula 01…08 (11.4; só no modo quarto)
   <section id="vertice">      01 · O monitor · Projeto Vértice
   <section id="sobre">        02 · O porta-retrato · Sobre mim
   <section id="experiencia">  03 · O mural · Experiência
@@ -413,7 +416,7 @@ Razões calculadas pela fórmula de luminância relativa da WCAG (sRGB lineariza
 | Pôster (decorativo) | — | 400, 110, 100, 220 | — | — | — | — |
 | Vaso (decorativo) | — | 600, 790, 80, 110 | — | — | — | — |
 | Mouse + mousepad coral (decorativo) | — | 300, 585, 110, 20 | — | — | — | — |
-| Mesa · mesinha · cadeira · tapete · luminária · interruptor | — | 40,600,520,300 · 830,640,180,260 · 200,640,160,260 · 300,900,500,60 · 760,0,80,110 · 1440,480,16,28 | — | — | — | — |
+| Mesa · mesinha · cadeira · tapete · luminária · interruptor | — | 40,600,520,300 · 830,640,180,260 · 200,640,160,260 · 300,900,500,60 · **1100,0,80,110** (saiu de x 760 para liberar a faixa do nome; ver 11.3) · 1440,480,16,28 | — | — | — | — |
 
 - **Varal:** curva em `y ≈ 60–90` de x 20 a x 1580. Há **uma lâmpada por capítulo**, em x = 250 (01), 475 (02), 905 (03), 985 (04), 1095 (05), 1320 (06), 1490 (07) e 1550 (08). Um fio fino desce até cada etiqueta principal.
 - **Etiquetas** (5.3) ficam no canto superior esquerdo da `caixa` de cada objeto clicável, inclusive dos secundários.
@@ -678,8 +681,8 @@ A mesma página em sequência: sem quarto, câmera, legenda nem etiquetas. Fundo
 | **Hover** | sobe 4 px (`--dur-2`), ganha sombra chapada de 6 px e o contorno de destaque (forma duplicada em `--text`, 2 px, sem filtro). A legenda atualiza | fundo `--surface-2` |
 | **Foco** | o realce do hover + **foco duplo** na área de clique | a mesma do hover |
 | **Ativo** | `scale(.98)` e início do zoom | — |
-| **Próximo sugerido** | — | ponto `--accent` de 8 px + anel que pulsa 2× e para; texto oculto "próximo sugerido" |
-| **Lido** | a lâmpada do capítulo acende (`--bulb-on`; à noite, com `--glow`) | ✓ `--pine` de 12 px; texto oculto "lido" |
+| **Próximo sugerido** | marcador flutuante preenchido em `--accent` (11.1) | texto oculto "próximo sugerido" (o sinal visual fica no marcador) |
+| **Lido** | a lâmpada do capítulo acende (`--bulb-on`; à noite, com `--glow`); o marcador vira ✓ (11.1) | texto oculto "lido" |
 | **Aproximando / aberto** | etiquetas e áreas de clique ficam ocultas e com `inert` (o `<dialog>` modal já torna o resto inerte) | — |
 
 - "Lido" fica em `sessionStorage` por capítulo: abrir os quadros conta como ler o 06. **Sem contador**, pontuação ou recompensa.
@@ -782,7 +785,7 @@ O mesmo `<li>` serve aos dois contextos:
 
 | Tecla | Onde | Ação |
 |---|---|---|
-| `Tab` / `Shift+Tab` | página | botão de modo → idioma → luz → CTA do resumo → **objetos na ordem dos capítulos**: 01 monitor, 02 porta-retrato, 03 mural, 04 caderno, 05 caixa, 06 estante, 06 quadros, 07 lenço, 07 bola, 07 headset, 07 estojos, 08 envelope → rodapé |
+| `Tab` / `Shift+Tab` | página | botão de modo → idioma → luz → CTA do resumo → **objetos na ordem dos capítulos**: 01 monitor, 02 porta-retrato, 03 mural, 04 caderno, 05 caixa, 06 estante, 06 quadros, 07 lenço, 07 bola, 07 headset, 07 estojos, 08 envelope → **menu numerado 01…08** (11.4) → rodapé. Durante a intro, o botão "Pular" entra logo depois do CTA do resumo (11.2) |
 | `→` `↓` / `←` `↑` | foco num objeto | próximo / anterior na mesma ordem (só move o foco) |
 | `Home` / `End` | foco num objeto | primeiro / último |
 | `Enter` · `Espaço` | foco num objeto | aproxima e abre |
@@ -813,6 +816,10 @@ O movimento confirma uma ação ou explica uma direção. **Nada se move sozinho
 | Objeto em hover/foco | sobe 4 px, 180 ms | só o realce |
 | Linha do monitor | desenha em 700 ms, 1× | já desenhada |
 | Anel "próximo sugerido", ponto "Em desenvolvimento" | pulsam 2× e param | estáticos |
+| **Marcadores flutuantes** (11.1) | flutuam 4 px em 1,6 s × 3 (≤ 5 s) ao carregar e a cada volta ao quarto; o "próximo" pulsa 2× | **estáticos**, sem flutuação nem pulso |
+| **Intro** (11.2) | ≤ 2,5 s, uma vez por navegador | **não existe** |
+| Pílula: item ativo | fundo desliza entre itens em 200 ms | troca instantânea |
+| Luzes (LED, cones, brilho do monitor) | estáticas; só mudam com o tema (320 ms) | instantâneo |
 | Papéis e livros inclinados ou deslocados | estáticos | sem inclinação |
 | Acender / apagar a luz | 320 ms | instantâneo |
 | `:target` | some em 1,2 s | fixo por 3 s |
@@ -898,6 +905,7 @@ export interface ObjetoQuarto {
   caixa: Rect;                   // onde o desenho é posicionado
   clique?: Rect;                 // área clicável (padrão = caixa)
   etiqueta?: { x: number; y: number }; // padrão = canto superior esquerdo da caixa
+  marcador: { x: number; y: number };  // âncora do marcador flutuante (centro da ponta), em parede ou chão livres (11.1)
   lampada?: { x: number };       // só para 'principal'
   vista: {
     tipo: TipoVista;
@@ -935,6 +943,7 @@ export const quarto = {
 - `ordem` é única e segue `capitulo`; cada capítulo tem exatamente 1 `principal`, com `lampada`;
 - toda `camera` tem proporção 1.6 (±0.01) e cabe no `viewBox`; toda `janela` fica dentro da `camera`;
 - nenhum `clique` se sobrepõe a outro; todo `clique` mede ≥ 44×44 px no palco de 728 px (≥ 97×97 unidades);
+- o retângulo de cada **marcador** (11.1, incluindo a amplitude da flutuação) não toca nenhuma etiqueta, nenhum `clique` de outro objeto, as `caixa`s dos objetos e da decoração, nem a **faixa do nome** (`y < 50` e `x < 1060`);
 - `vista.tipo` ∈ {tela, cortica, estante} ⇒ `janela` presente; secundários têm `mobile.ladrilho = null`;
 - todas as chaves de texto `textos.*` (10.2) existem em pt e en.
 
@@ -948,11 +957,11 @@ O JS do quarto **não tem coordenadas fixas no código**: ele lê a config, seri
 
 | Recurso | Orçamento |
 |---|---|
-| HTML por idioma (todo o conteúdo + SVG inline + config) | ≤ 55 KB gzip |
-| SVG do quarto (componentes + decoração, após SVGO) | ≤ 45 KB bruto / ≤ 11 KB gzip, ≤ 400 elementos |
-| CSS total (inclui as 8 molduras de vista) | ≤ 20 KB gzip |
-| JS: script inline no `<head>` | ≤ 1 KB |
-| JS: `quarto.ts` compilado (câmera, teclado, histórico, vistas, modo) | ≤ 10 KB gzip, `type="module"` |
+| HTML por idioma (todo o conteúdo + SVG inline + config + intro + menu) | ≤ 56 KB gzip |
+| SVG do quarto (componentes + decoração + profundidade e luzes, após SVGO) | **≤ 11 KB gzip** (mantido), ≤ 48 KB bruto, ≤ 450 elementos |
+| CSS total (8 molduras de vista, marcadores, intro, pílula) | ≤ 22 KB gzip |
+| JS: script inline no `<head>` (tema, modo, decisão da intro) | ≤ 1,2 KB |
+| JS: `quarto.ts` compilado (câmera, teclado, histórico, vistas, modo, marcadores, menu, intro) | ≤ 11 KB gzip, `type="module"` |
 | Fontes | ≤ 110 KB, 2 `preload` |
 | **Imagens raster** | **nenhuma** (a captura do Vértice saiu; o monitor mostra um "site" em HTML) |
 | Requisições no 1º carregamento | ≤ 7, todas no mesmo domínio |
@@ -1001,4 +1010,184 @@ O JS do quarto **não tem coordenadas fixas no código**: ele lê a config, seri
 
 ### 10.3 Testes
 
-360, 768, 1024 e 1280 px; luz acesa e apagada; zoom do navegador em 200% e 400%; só teclado (Tab na ordem dos capítulos, Esc devolvendo o foco); NVDA + Firefox e VoiceOver + Safari com vista aberta; `forced-colors`; reduced motion (corte direto); JS desligado (abre no modo recrutador); `?modo=recrutador#exp-kpmg`; `/#certificacoes` (abre a estante já aproximada e rolada); voltar do navegador após abrir, navegar entre capítulos e voltar (deve cair no quarto em um passo); troca de idioma com vista aberta; e medição do zoom no painel Performance do DevTools com CPU 4× mais lenta.
+360, 768, 1024 e 1280 px; luz acesa e apagada; zoom do navegador em 200% e 400%; só teclado (Tab na ordem dos capítulos, Esc devolvendo o foco); NVDA + Firefox e VoiceOver + Safari com vista aberta; `forced-colors`; reduced motion (corte direto); JS desligado (abre no modo recrutador); `?modo=recrutador#exp-kpmg`; `/#certificacoes` (abre a estante já aproximada e rolada); voltar do navegador após abrir, navegar entre capítulos e voltar (deve cair no quarto em um passo); troca de idioma com vista aberta; e medição do zoom no painel Performance do DevTools com CPU 4× mais lenta. Os testes da revisão 5 estão em 11.7.
+
+---
+
+## 11. Revisão 5: elementos inspirados na referência externa
+
+Fonte: `docs/referencias/raomuhammadhamza.md`. **Regra: inspirar-se, não copiar.** O site de referência é um quarto 3D noturno com intro de "treinando um modelo", marcadores em losango e menu em pílula. Daqui **não** entram: a cena, a composição, a paleta rosa-neon, os textos, o robô, a intro de treino de modelo ou curva de *loss*, o losango como marcador, o clima noturno como padrão e o 3D real. Entram as **ideias** de interação, redesenhadas com o nosso sistema: luzinhas, papel, `--accent`/`--pine` e SQL.
+
+### 11.1 Marcadores flutuantes
+
+**Forma própria: uma "lâmpada-pino".** É um círculo de 20 px com uma ponta de 6 px apontando para o objeto, o mesmo vocabulário das lâmpadas do varal. Não usamos losango (forma da referência) nem círculo com anel concêntrico (lembraria uma mira, proibida em 9.1).
+
+| Estado (integrado a 5.3) | Visual | Movimento |
+|---|---|---|
+| **Não lido** | preenchimento `--surface`, anel 2 px `--accent`, ponto central de 6 px `--accent`, contorno externo de 1.5 px `--text` | flutua 4 px (`translateY`) em 1,6 s `ease-in-out`, **3 ciclos (4,8 s)** e para |
+| **Próximo sugerido** (1 por vez) | preenchimento `--accent` e ponto central `--on-accent`, com 24 px de diâmetro | flutua como os outros e **pulsa 2×** (anel `--accent` que se expande 1 → 1.6 e some) |
+| **Lido** | preenchimento `--pine-tint` com ✓ `--pine` de 10 px, sem ponto | **parado** |
+| **Hover / foco no objeto** | `scale(1.15)`, preenchimento `--accent` (como o próximo) | — |
+| **Secundários** (quadros, bola, headset, estojos) | mesmos estados, em 16 px | idem |
+| **Zoom / vista aberta / intro** | ocultos (`opacity: 0`, 120 ms) | — |
+
+- **Posição:** a âncora vem de `marcador` na config (9.2), sempre em **parede ou chão livres** acima ou ao lado do objeto, com a ponta voltada para ele. O validador garante que o marcador, incluindo os 4 px de flutuação, **não cobre arte, etiquetas, áreas de clique de outros objetos nem a faixa do nome**.
+- **Marcação:** um `<span class="marcador" aria-hidden="true">` dentro do `<a class="objeto">`. Clicar no marcador abre o objeto. O estado já está no nome acessível (5.3), então o marcador não repete nada para leitores de tela.
+- **Relação com a etiqueta e o varal:** o "próximo sugerido" passa a ser sinalizado **só pelo marcador** (o ponto da etiqueta sai). O ✓ de lido aparece no marcador e na lâmpada do varal.
+- **WCAG 2.2.2:** a flutuação termina em ≤ 5 s e só recomeça quando o visitante volta ao quarto. Com **reduced motion**, os marcadores ficam **estáticos**.
+- **Mobile (nichos):** o marcador fica no canto superior direito do ladrilho, estático, com os mesmos estados.
+- **Contraste (≥ 3:1, não textual):** contorno `--text` contra `--room-wall` 14.82 / 12.95 e contra `--room-floor` (#C9B79A / #2A2622) 9.16 / 12.28; anel `--accent` contra `--room-wall` 4.60 / 6.78; ✓ `--pine` sobre `--pine-tint` 5.34 / 6.43; ponto `--on-accent` sobre `--accent` 5.56 / 7.88.
+
+### 11.2 Intro temática: "query carregando o quarto"
+
+**Tema próprio:** uma consulta SQL, a linguagem que o Matheus usou em contexto real (Cushman & Wakefield), "carrega" a trajetória e acende o quarto. Não há treino de modelo, *loss*, *epochs* nem robô.
+
+```
+┌ cartão --surface sobre o palco, mono 15px ───────────────────────────────┐
+│ -- carregando o quarto de Matheus Maki Nagano                (--text-muted)│
+│ SELECT ano, capitulo FROM trajetoria          (palavras-chave em --accent) │
+│ WHERE cidade = 'São Paulo' AND ano BETWEEN 2019 AND 2026                   │
+│ ORDER BY ano;                                                              │
+│ [██████████░░░░░░] executando…        (trilho --surface-2, barra --accent) │
+│ ✓ 8 capítulos · 2019 Sistemas de Informação → 2026 Vértice · Dados → IA    │ (--pine)
+│                                                            [ Pular ]       │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Linha do tempo (2,5 s no total):**
+
+| Tempo | O que acontece |
+|---|---|
+| 0–1,2 s | As 4 linhas da query aparecem uma a cada 300 ms (opacidade + `clip-path` de 120 ms; **sem digitação letra a letra**). O quarto aparece atrás, com a luz baixa (opacidade de 30%) |
+| 1,2–1,8 s | A barra "executando…" se enche (600 ms). É progresso da consulta, não uma métrica sobre o Matheus |
+| 1,8–2,1 s | A linha de resultado aparece em `--pine` |
+| 2,1–2,5 s | O cartão some (400 ms), o quarto chega à opacidade total e as lâmpadas do varal **piscam uma vez da esquerda para a direita** antes de assumir o estado real (lidas acesas, não lidas apagadas). Os marcadores entram |
+
+**Regras:**
+- **Botão "Pular"** (`<button>`, secundário, 44 px, nome acessível "Pular introdução"). Esc e um clique em qualquer ponto do palco também pulam. Ao pular, o overlay some em 120 ms e o quarto fica no estado final.
+- **Só na 1ª visita:** a chave `quarto-intro-vista` é gravada em `localStorage` **quando a intro começa**, então recarregar não repete.
+- **Nunca aparece:** no modo recrutador; sem JS; com `prefers-reduced-motion: reduce`; com `#id` na URL (link direto); com `?modo=` na URL; com `navigator.connection.saveData`; abaixo de 768 px (não há palco); na impressão.
+- **A decisão é do script inline do `<head>`**, antes da pintura: ele define `<html data-intro>`. O overlay é **HTML estático dentro do palco**, oculto por padrão e mostrado por CSS quando `data-intro` existe. Por isso não há CLS e não há dependência do módulo JS.
+- **Não bloqueia o LCP nem o conteúdo:** o overlay cobre **só o palco**. O topo (com o botão "Modo recrutador" como 1º focável), o nome e o resumo ficam visíveis e clicáveis desde o 1º frame. O cartão é menor que o bloco do nome e da frase, então não vira o elemento de LCP.
+- **Linha do tempo 100% em CSS** (`animation-delay`, terminando com `visibility: hidden` em 2,5 s). Se o JS atrasar ou falhar, a intro termina sozinha. O JS só trata "Pular", Esc, clique e `localStorage`.
+- **Objetos ocultos durante a intro:** `html[data-intro] .objeto { visibility: hidden }` com uma animação discreta que os torna visíveis em 2,5 s. Assim eles não recebem foco nem clique por trás do overlay. A ordem de `Tab` durante a intro é: topo → resumo → "Pular" → menu.
+- **Acessibilidade:** as linhas são `aria-hidden` (decorativas); só o botão é anunciado. Não há região viva.
+- **Lastro factual:** São Paulo (cidade), 2019 (início de Sistemas de Informação), 2026 (Vértice), "Dados → IA" (posicionamento aprovado) e "8 capítulos" (estrutura do site). `trajetoria` é um nome de tabela ilustrativo, não um fato.
+- **Contraste:** `--text` sobre `--surface` 17.93 / 13.63; palavras-chave `--accent` 5.56 / 7.13; comentário `--text-muted` 7.62 / 6.84; resultado `--pine` 6.35 / 7.70; barra `--accent` sobre `--surface-2` 4.54 / 6.23 (≥ 3:1).
+
+### 11.3 Nome grande sobre a cena
+
+- **Estrutura:** o `<h1>Matheus Maki Nagano</h1>` sai de dentro de `#ficha` e passa a ser o 1º filho de `<main>`. A seção `#ficha` ganha um `<h2 class="sr-only">{ficha.titulo}</h2>` ("Resumo"). No mobile, no tablet e no modo recrutador, o h1 continua visualmente no topo do resumo, como antes.
+- **Desktop (≥ 1024, modo quarto):** a grade de `main` tem as áreas `"resumo nome" / "resumo palco" / "resumo barra"`. O h1 fica na área `nome`, alinhado à esquerda do palco, em Bricolage 800 com `font-size: clamp(2rem, 5.6cqi, 3rem)` (cerca de 34 px num palco de 600 px e 48 px num de 848 px). Ele **invade só a faixa livre de parede do topo do palco**, com `margin-bottom: -3.125cqi`, o equivalente a 50 unidades do `viewBox`.
+- **Faixa do nome reservada:** `y < 50` e `x < 1060` no `viewBox`, sem varal (y 60–90) e sem luminária (movida para x 1100–1180; ver 4.2). O validador da config proíbe qualquer elemento nessa faixa.
+- **1ª tela em 1280×800:** topo 64 + nome ≈ 35 (descontada a sobreposição) + palco 848×530 + barra 88 (legenda + pílula) + respiros 48 = **765 px** ≤ 800. Se a janela for mais baixa, o palco encolhe: `altura = min(largura / 1.6, 100dvh − 64 − 35 − 88 − 48)`.
+- **1ª tela em 360:** **inalterada** (topo, nome de 32 px, frase, provas e CTA; os nichos começam logo abaixo).
+- **Contraste:** o nome em `--text` sobre `--bg` (16.30 / 15.06) e, na faixa sobreposta, sobre `--room-wall` (14.82 / 12.95).
+
+### 11.4 Menu numerado em pílula
+
+```
+≥ 1024, palco < 880 px (ex.: 1280×800)       palco ≥ 880 px (ex.: 1440+)
+      ┌──────────────────────────────┐        ┌──────────────────────────────────────────────────────────────┐
+      │ 01 02 03 04 05 06 07 08      │        │ 01 Vértice  02 Sobre  03 Experiência  04 Projetos  05 …  08 Contato │
+      └──────────────────────────────┘        └──────────────────────────────────────────────────────────────┘
+ legenda acima: "03 · O mural · Experiência: …"
+```
+
+- **Marcação:** `<nav id="capitulos" aria-label="{menu.rotulo}"><ol>` com 8 `<a href="#vertice">` contendo `<span class="num">01</span><span class="nome">Vértice</span>` (nome comum da seção). Quando o nome não aparece, ele fica em `sr-only`, e o nome acessível é sempre "01 Vértice".
+- **Lugar:** na área `barra`, sob o palco e centralizado nele, com `position: sticky; bottom: 16px`. No desktop, como a página não rola, ela fica fixa na prática. No tablet, acompanha a rolagem enquanto o quarto está na tela. **Nunca fica sobre a cena** (não cobre arte nem marcadores). A legenda (5.5) passa a ser uma linha logo acima da pílula.
+- **Visual:** `--surface`, borda 1.5 px `--text`, `--radius-full`, `--shadow-2`, altura de 52 px e itens com ≥ 44×44 px. Número em mono 13 `--text-muted` e nome em Atkinson 500 14 `--text`.
+
+| Estado do item | Visual |
+|---|---|
+| Repouso | como acima |
+| Hover / foco | fundo `--surface-2` / anel padrão (`outline-offset: 2px`) |
+| **Ativo** (vista aberta naquele capítulo) | fundo `--text`, texto `--surface` (17.93 / 13.63), `aria-current="true"`; o fundo desliza entre itens em 200 ms (instantâneo em reduced motion) |
+| Em foco no quarto (objeto em hover ou foco) | fundo `--surface-2` sincronizado |
+| Lido | ✓ `--pine` de 10 px no canto do número |
+| Próximo sugerido | ponto `--accent` de 6 px no canto do número |
+
+- **Comportamento:** clicar abre a vista do capítulo (zoom a partir do quarto, com `pushState`). Com uma vista aberta, a pílula é **movida para o rodapé do `<dialog>`** (uma única instância, como as seções), e clicar em outro número faz a câmera viajar (`replaceState`). Os botões "anterior/próximo" da barra da vista continuam lá.
+- **Convivência:** o botão de modo, o idioma e o tema ficam **no topo**, e a pílula fica **embaixo**, sem disputar espaço. Com uma vista aberta, o topo fica inerte (modal); para trocar idioma ou tema, o visitante fecha a vista. No modo recrutador, a pílula **não existe** (a nav do topo cumpre o papel). Sem JS, os links funcionam pelo fallback `:target`.
+- **Mobile (< 768):** na página de nichos, a pílula **fica oculta**, porque a própria grade já é o menu numerado. Dentro de uma vista em tela cheia, o rodapé fixo vira `[←] [03 · Experiência ▾] [→]`, e o botão central abre uma lista (`popover`) com os 8 capítulos em linhas de 48 px, o ativo destacado e ✓ nos lidos.
+- **Tablet (768–1023):** só os números; o nome do item em foco ou ativo aparece na legenda.
+
+### 11.5 2D com profundidade (3/4 frontal)
+
+**Decisão:** é uma **perspectiva 3/4 frontal** com ponto de fuga central em `(800, 420)` no `viewBox`. As **faces frontais continuam exatamente nas coordenadas da config** (4.2), e a profundidade vem de **faces extrudadas** (12 a 24 unidades), piso em trapézio e paredes laterais estreitas. Câmeras, cliques e vistas não mudam; só os desenhos mudam. Não há 3D real nem Three.js.
+
+- **Faces:** objetos abaixo da linha do olhar (y 420) mostram o **topo**; acima dela, a **face de baixo**. À esquerda do centro aparece a face lateral **direita**; à direita, a **esquerda**. Cada face é um único `path` num tom próprio (topo mais claro, lateral mais escura).
+- **Piso e paredes:** o piso vira um trapézio da base da parede (y 760) até a borda (y 1000), e as paredes laterais são faixas em ângulo nas bordas (x 0–40 e 1560–1600). O tapete vira um trapézio.
+- **Luzes** (formas chapadas com opacidade; sem `filter`, sem `blur`, sem gradiente):
+
+| Luz | Dia | Noite |
+|---|---|---|
+| **LED sob a mesa** | faixa apagada `--led-off` | faixa `--led` + halo trapezoidal no chão e na parede (`--led-halo`) |
+| **Brilho do monitor** | — | cone `--glow` na mesa e reflexo retangular no topo do monitor |
+| **Luminária de teto** | cone `--lamp-cone` sobre a caixa e a mesinha | apagada (sem cone) |
+| **Janela** | faixa de luz `--window-light` no chão, em diagonal | luar fraco (mesma forma em `--glow` a 50%) |
+| **Lâmpadas do varal** | — | halo `--glow` nas lidas |
+
+- **Sombras chapadas:** as sombras de contato dos móveis e objetos no chão são paralelogramos em `--shadow-floor`, projetados para a direita e para baixo (luz do dia vinda da janela). À noite, a mesma forma fica mais escura e curta.
+- **Tokens novos (decorativos):**
+
+| Token | Dia | Noite |
+|---|---|---|
+| `--room-top` (topos de madeira) | `#C08E62` | `#5E4634` |
+| `--room-side` (laterais de madeira) | `#8E6240` | `#3F2F23` |
+| `--room-metal-top` | `#3A3F4A` | `#1A1D24` |
+| `--room-sidewall` | `#E6DFD0` | `#1A1E2B` |
+| `--shadow-floor` | `rgba(21,23,28,.12)` | `rgba(0,0,0,.35)` |
+| `--led-off` / `--led` | `#D6D2C6` / — | — / `#5CC2A4` |
+| `--led-halo` | `transparent` | `rgba(92,194,164,.22)` |
+| `--lamp-cone` | `rgba(242,184,75,.12)` | `transparent` |
+| `--window-light` | `rgba(255,253,247,.35)` | `rgba(255,210,122,.09)` |
+
+  O LED usa o verde-água do sistema, não neon rosa: o clima segue claro por padrão e é calmo à noite.
+- **Contraste AA mantido:** nenhum texto passa a ficar sobre luz ou sombra. Etiquetas, marcadores, nome e pílula têm fundo próprio ou ficam sobre parede lisa (valores em 11.1 e 11.3). O foco duplo continua garantido contra qualquer cor (3.3). Os halos não podem passar por baixo das etiquetas (o validador verifica as `caixa`s das luzes).
+- **Orçamento: ≤ 11 KB gzip (mantido).** Técnicas: no máximo 3 `path`s por objeto (frente, topo e lateral); luzes e sombras como `path`s simples reaproveitados com `<use>`; SVGO com precisão 0; nenhum `filter`, máscara ou gradiente; limite de 450 elementos. O CI mede o tamanho gzip do SVG e falha acima de 11 KB.
+
+**Objetos que precisam ser redesenhados:**
+
+| Grupo | Componentes | O que muda |
+|---|---|---|
+| **Novos** | `Piso`, `ParedesLaterais`, `Luzes` (LED, cones, janela, monitor), `Sombras` | criados do zero |
+| **Profundidade completa** (topo + lateral + sombra) | `Mesa` (com faixa de LED), `Mesinha`, `Estante` (prateleiras com fundo), `Caixa` (tampa em ângulo), `Cadeira`, `Monitor` (corpo, suporte e reflexo) | redesenho |
+| **Espessura e sombra** | `Mural`, `Quadros`, `Janela` (peitoril e recuo), `Porta` (batente), `Pôster`, `PortaRetrato` (suporte em ângulo), `Caderno` (topo visível), `Estojos` (face de baixo, porque ficam acima da linha do olhar), `Vaso` (boca elíptica), `Tapete` (trapézio) | ajuste |
+| **Só sombra de contato e sombreado** | `Bola` (crescente de sombra), `Headset`, `Lenco`, `Envelope`, `MouseMousepad`, `Luminaria` (agora em x 1100), `Interruptor`, `Varal` | ajuste mínimo |
+
+### 11.6 Chaves de texto novas (pt e en)
+
+| Chave | pt (ilustrativo) | en (ilustrativo) |
+|---|---|---|
+| `ficha.titulo` (h2 oculto) | "Resumo" | "Summary" |
+| `intro.linhas[0]` | "-- carregando o quarto de Matheus Maki Nagano" | "-- loading Matheus Maki Nagano's room" |
+| `intro.linhas[1]` | "SELECT ano, capitulo FROM trajetoria" | "SELECT year, chapter FROM journey" |
+| `intro.linhas[2]` | "WHERE cidade = 'São Paulo' AND ano BETWEEN 2019 AND 2026" | "WHERE city = 'São Paulo' AND year BETWEEN 2019 AND 2026" |
+| `intro.linhas[3]` | "ORDER BY ano;" | "ORDER BY year;" |
+| `intro.executando` | "executando…" | "running…" |
+| `intro.resultado` | "8 capítulos · 2019 Sistemas de Informação → 2026 Vértice · Dados → IA" | "8 chapters · 2019 Information Systems → 2026 Vértice · Data → AI" |
+| `intro.pular` / `intro.pularRotulo` | "Pular" / "Pular introdução" | "Skip" / "Skip intro" |
+| `menu.rotulo` | "Capítulos" | "Chapters" |
+| `menu.itens.<id>` (8, nome comum) | "Vértice", "Sobre", "Experiência", "Projetos", "Habilidades", "Formação", "Além do trabalho", "Contato" | "Vértice", "About", "Experience", "Projects", "Skills", "Education", "Beyond work", "Contact" |
+| `menu.todos` (mobile) | "Todos os capítulos" | "All chapters" |
+
+- As palavras-chave SQL (`SELECT`, `FROM`, `WHERE`…) ficam iguais nos dois idiomas. Os marcadores não têm texto (o estado está em `quarto.estado.*`).
+- Lastro de cada fato da intro: `perfil.json` (cidade, formação com início em 2019, Vértice em 2026) e o rótulo aprovado "Dados → IA". O `verificador-fatos` deve conferir `intro.resultado` nos dois idiomas.
+
+### 11.7 Tarefas para o `dev-frontend` (sobre o site publicado)
+
+1. **Config (`src/config/quarto.ts`):** adicionar `marcador` a cada objeto; mover a luminária para `1100, 0, 80, 110`; reservar a faixa do nome; estender o validador (marcadores sem colisão, faixa do nome livre, halos fora das etiquetas).
+2. **Marcador:** criar `components/quarto/Marcador.*` com os estados de 11.1 e ligá-lo ao estado de lido/próximo que já existe em `sessionStorage`; remover o ponto de "próximo" da etiqueta; flutuação de 3 ciclos, reiniciada a cada volta ao quarto; estático com reduced motion e nos ladrilhos.
+3. **Intro:** HTML estático no palco; linha do tempo só em CSS; condição no script do `<head>` (`data-intro`); JS para "Pular", Esc, clique e `localStorage` (`quarto-intro-vista`); objetos com `visibility: hidden` até o fim.
+4. **Nome grande:** mover o `h1` para o início de `<main>`; adicionar o `h2` oculto em `#ficha`; criar as áreas de grade `nome/palco/barra`; aplicar `clamp(2rem, 5.6cqi, 3rem)` e a sobreposição de `-3.125cqi`; conferir a 1ª tela em 1280×800 e em 360.
+5. **Pílula:** criar o componente `Capitulos.*` sticky na área `barra`; mover a pílula para o `<dialog>` quando a vista abre; implementar ativo, lido e próximo; nomes por container query (palco ≥ 880 px); no mobile, rodapé `[←][03 ▾][→]` com `popover`; ocultar no modo recrutador.
+6. **SVG 3/4:** redesenhar conforme a tabela de 11.5; criar os tokens novos; medir o SVG em gzip no CI (≤ 11 KB) e o total de elementos (≤ 450).
+7. **Textos:** carregar as chaves de 11.6 em pt e en.
+8. **Verificação:**
+   - Lighthouse ≥ 90 nas 4 categorias, com e sem intro (limpe o `localStorage`). O elemento de LCP continua sendo texto (nome ou frase), e o CLS fica ≤ 0,02 com a intro.
+   - A intro **não** aparece: com reduced motion, em `/#vertice`, com `?modo=recrutador`, sem JS e na 2ª visita.
+   - O "Modo recrutador" continua sendo o 1º `Tab` durante a intro.
+   - Os marcadores param em ≤ 5 s e não cobrem arte nem etiquetas em 768, 1024, 1280 e 1440 px.
+   - A pílula não cobre o palco.
+   - Tudo funciona em `forced-colors`.
