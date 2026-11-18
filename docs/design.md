@@ -20,6 +20,7 @@ Esta versão **substitui** o "caderno de campo" e a "Trilha do Vértice". Os tex
 | Hobbies como "acenos de fã" | 4.2a, 9.1 |
 | **Referência externa** (`docs/referencias/raomuhammadhamza.md`), usada como inspiração e não como cópia: marcadores flutuantes, intro temática, menu numerado em pílula com o nome grande sobre a cena, e 2D com profundidade | **11** (revisão 5) e ajustes em 4.1, 4.2, 5.3 e 9 |
 | **Revisão 6:** quarto em tela cheia com HUD translúcido; arte em **imagem raster** com áreas clicáveis em HTML; **só 8 objetos clicáveis**; o resumo passa para o porta-retrato | **12**, que **prevalece** sobre as seções 4.1–4.3, 6, 9.1 (desenho SVG), 9.2 (unidades), 9.4, 11.1, 11.3, 11.4 e 11.5 onde houver conflito. Prompt da imagem em `docs/prompt-imagem-quarto.md` |
+| **Revisão 6b/6c** (2ª e 3ª referências): monitor como "SO", tour guiado pela rolagem que termina no monitor, nome na parede, post-its como menu, anotações à mão, interruptor dia/noite e cena mais densa | **12.13**, que prevalece sobre 11.1, 11.4, 12.1 (HUD), 12.6 e 12.8 |
 
 A metáfora é a **embalagem**, não o conteúdo. Se um objeto exigir um fato que não está em `perfil.json`, o objeto sai. O Vértice nunca aparece como "concluído", "em produção", "no ar" ou "com usuários".
 
@@ -1389,6 +1390,8 @@ Primeiro frame em 360×640: o HUD com "Modo recrutador" e o cartão com nome, Da
 
 ### 12.11 Tarefas para o `dev-frontend`
 
+> **Lista consolidada (revisões 6, 6b e 6c).** As tarefas 1, 2, 4, 6–8, 10 e 11 abaixo continuam valendo. **A 3, a 5, a 9 e a 12 foram atualizadas pela 12.13**: veja as tarefas 14–24 em 12.13.9, que prevalecem onde houver conflito (pílula, pinos, nome e LinkedIn no HUD e botão de tema saem).
+
 1. **Pipeline de imagens:** criar `scripts/gerar-imagens.mjs` (sharp, devDependency gratuita), rodado localmente com `npm.cmd run imagens`.
    - Lê `content/fonte/arte/quarto-dia.png` e `quarto-noite.png` (**privados**, no `.gitignore`) e os recortes da config.
    - Gera em `public/img/quarto/`: cena AVIF/WebP em 1280–3840w; herói 9:16 em 480/720/1080; nichos quadrados em 240/480; LQIP de 32×18.
@@ -1419,3 +1422,237 @@ Primeiro frame em 360×640: o HUD com "Modo recrutador" e o cartão com nome, Da
 - **Qualidade e alinhamento da arte gerada por IA:** a posição dos objetos pode variar, e a versão noturna pode não coincidir. Mitigações: calibração (tarefa 11), checklist do prompt e fallback por filtro.
 - **Direitos:** os termos de uso da ferramenta de imagem precisam permitir o uso no portfólio (aviso no prompt).
 - **Peso:** a imagem passa a ser o LCP. O orçamento de 12.2 e 12.9 é obrigatório no CI.
+
+### 12.13 Revisão 6b/6c: SO no monitor, tour pela rolagem, nome na parede, post-its e interruptor
+
+Fontes: `docs/referencias/funnyworks-stubborn-room.md` e `docs/referencias/mbilalkhan.md`. **Regra: inspirar-se, não copiar.** Não entram o computador retrô, o mascote, a paleta, os textos e o tema espacial da 1ª referência, nem a paleta lilás, o sofá, a composição e o 3D da 2ª. Esta subseção **prevalece** sobre 11.1, 11.4, 12.1 (conteúdo do HUD), 12.6 (posições) e 12.8.
+
+#### 12.13.0 Reconciliação: o que fica, o que sai e por quê
+
+O feedback do Matheus foi **menos ruído e nada de repetição**. Com tour, post-its e anotações chegando, cada função passa a ter **um único elemento**:
+
+| Função | Elemento que fica | O que foi **cortado** e por quê |
+|---|---|---|
+| Identidade | **Nome + "Dados → IA" pintados na parede** (HTML sobre a imagem) | Nome no HUD (12.1) e nome grande da 11.3: viraram o mesmo elemento na parede |
+| Contato rápido | **Post-it "Fale comigo!"** colado na parede, ao lado do nome → LinkedIn | CTA do LinkedIn no HUD: era um segundo CTA na mesma tela |
+| Rótulo + "dá para clicar" | **8 post-its**, um em cada objeto. O post-it **é** o link do objeto | **Pinos/marcadores numerados** (11.1, 12.8) e o balão do pino: três sinais para a mesma coisa. Os estados "próximo" e "lido" passam para o post-it |
+| Navegação entre capítulos (quarto) | Post-its (clique livre) + **tour pela rolagem** | **Pílula numerada 01…08** (11.4, 12.1): repetia os post-its |
+| Progresso | **Trilho do tour** (só durante o tour, não interativo) + "Sair do tour" e "Ir para o monitor" | Números clicáveis no trilho: seriam um terceiro caminho para os mesmos destinos |
+| Guia | **2 anotações à mão** ("comece aqui" e "role para o tour") que **somem após a 1ª interação** | Anotações factuais sobre a estante e o lenço: o cartão do tour já mostra esses fatos |
+| Tema | **Interruptor** no canto | Botão de tema anterior (5.7) |
+| Controles | HUD só com "Modo recrutador", PT\|EN e interruptor | — |
+
+**O que o visitante vê na 1ª tela (desktop), no total:** 2 HUDs pequenos nos cantos, o nome na parede com o post-it "Fale comigo!", 8 post-its e 2 anotações (que somem).
+
+#### 12.13.1 Monitor como "SO"
+
+**Recomendação: o SO é só o capítulo 01 (Vértice), e não a navegação principal.**
+- **Por quê:**
+  - Se as pastas fossem capítulos, cada capítulo teria dois caminhos (objeto e pasta), justamente a repetição que o Matheus rejeitou.
+  - O Vértice é a prova principal (estratégia §4) e é o único conteúdo com "arquivos" naturais (como foi construído, stack, próximo passo).
+  - O SO também é o **final do tour**: começar e terminar no que ele está construindo.
+- **Alternativa não recomendada:** pôr `Projetos/` no SO e transformar o caderno em decoração. O resultado seriam 7 objetos clicáveis e o capítulo 04 escondido dentro de outro.
+
+**Conteúdo** (a mesma `section#vertice`, reorganizada em "arquivos"; cada arquivo é um `<article>` com `id` próprio):
+
+| Arquivo (pt / en) | `id` | Conteúdo |
+|---|---|---|
+| `LEIA-ME.txt` / `README.txt` (**aberto ao entrar**) | `vertice-leiame` | O que é, selos (Em desenvolvimento, Repositório privado), 2026 – atual, CTA "Ver o site real ↗" |
+| `como-foi-construido/` / `how-it-was-built/` | `vertice-construcao` | Pipeline: especificação, agentes por papel, 49 arquivos de testes no backend, CI + deploy, monitoramento |
+| `funcionalidades.md` / `features.md` | `vertice-funcionalidades` | O que faz |
+| `stack.json` | `vertice-stack` | Chips de stack |
+| `proximo-passo.md` / `next-step.md` | `vertice-proximo` | Integração com a API oficial da Riot Games `[● Em andamento]` |
+| `origem.md` / `origin.md` | `vertice-origem` | Campeonatos entre amigos → link para `#alem-games` |
+| `verticetour.com.br ↗` (atalho) | — | Link externo real |
+
+**Visual próprio:**
+- **Papel de parede:** a assinatura (6) em grande, com a linha da carreira que dobra em 2026 rumo a "IA", sobre `--bg` com uma grade de pontos discreta.
+- **Ícones:** pastas flat em `--accent-tint` com aba e arquivos como folhas `--surface` com canto dobrado. O nome fica abaixo, em mono 13 `--text`.
+- **Janela:** card `--surface` com `--radius-md`; barra de título `--surface-2` com o nome do arquivo em mono e um botão "×" à direita.
+- **Barra de tarefas:** faixa `--surface-2` de 40 px na base, com o monograma "MMN" (não interativo), a aba da janela aberta e o selo "● Em desenvolvimento".
+- **Sem** semáforos do macOS, menu Iniciar, chanfros de Windows 9x, tela de CRT, mascote ou fonte pixel. Monitor **moderno widescreen**, não retrô (o retrô é da referência).
+
+**Teclado e acessibilidade:**
+- Área de trabalho: `<div role="region" aria-label="{so.rotulo}">`. Os ícones são `<button aria-controls aria-expanded>` numa lista, todos na ordem do `Tab`; as setas movem entre os ícones.
+- `Enter`/`Espaço` abre o arquivo: a janela aparece e o foco vai para o título dela (`h3`, `tabindex="-1"`).
+- **Uma janela por vez**, sem arrastar nem redimensionar (não há interação que dependa de ponteiro).
+- **Esc** fecha a janela e devolve o foco ao ícone. Um **segundo Esc** sai do monitor (fecha a vista com zoom de volta). O `cancel` do `<dialog>` é interceptado enquanto há janela aberta.
+- O botão "×" tem nome acessível "Fechar {arquivo}".
+- **Modo recrutador e sem JS:** os ícones somem, e os `<article>`s aparecem em sequência como subseções normais de "Projeto Vértice" (mesmo HTML).
+- **Mobile:** o SO ocupa a tela cheia com ícones em grade de 3 colunas (alvos ≥ 72 px). Cada arquivo abre em tela cheia com "← Área de trabalho" no topo. A barra de tarefas fica fixa na base.
+
+**Zoom no monitor:** é a **exceção de escala, até 3×**, só no monitor. A área de trabalho em HTML cobre a tela inteira do monitor, então a perda de nitidez do raster não aparece. A moldura do SO fica com `min(92vw, 1100px)` × `min(86dvh, 700px)`, e o bisel é desenhado em CSS.
+
+#### 12.13.2 Tour guiado pela rolagem (unifica o "rolar para entrar")
+
+**Modelo: *scrollytelling* por passos**, sem sequestrar a rolagem. O palco (a caixa da imagem) fica `position: sticky; top: 0; height: 100dvh`. Por cima dele, numa coluna, **cartões HTML reais rolam no fluxo normal da página**, um por passo, cada um com 100dvh de altura e conteúdo centralizado. Quando um cartão entra no centro da tela (`IntersectionObserver`, sem *listener* de `scroll`), a câmera vai para o objeto daquele passo.
+
+| Passo | Câmera | Cartão (ao lado do objeto, no lado oposto) |
+|---|---|---|
+| 0 · visão geral | quarto inteiro | **nenhum**. Aparecem o nome na parede, os post-its e as 2 anotações |
+| 1 · 01 | monitor, 1.6× | "01 de 08 · O monitor · Projeto Vértice" + `{tour.vertice.resumo}` + [Abrir capítulo] + "o tour termina aqui dentro" |
+| 2–8 · 02…08 | objeto do capítulo, 1.6–2× | "0N de 08 · {tema} · {comum}" + `{tour.<id>.resumo}` (1–2 frases com lastro) + [Abrir capítulo] |
+| 9 · fim | volta ao monitor, 3× | **o SO embutido na tela**, sem modal (12.13.1) |
+
+- **Transição de câmera:** 500 ms `--ease-out` por passo (`transform`, 12.5). **Reduced motion:** corte direto em cada passo, e os cartões ficam como uma **lista** sem efeito.
+- **Cartão:** `.papel`, `--radius-md`, `--shadow-panel`, largura `min(420px, 34vw)`, no lado oposto ao objeto (`tour.lado` na config). Título em Bricolage 700 e texto em Atkinson 17. [Abrir capítulo] abre a vista do capítulo (mesmo destino do post-it, mas **dentro do contexto do tour**; é o único interativo do cartão).
+- **Snap:** `scroll-snap-type: y proximity` e `scroll-snap-align: center` nos cartões. **Nunca `mandatory`.**
+- **Nunca prende:**
+  - a rolagem é nativa, sem `preventDefault` em `wheel`, `touchmove` ou teclas;
+  - `Home` e `End` funcionam;
+  - **trilho do tour** fixo na borda direita (só nos passos 1–9), com 8 traços numerados + 1 ícone de monitor, preenchidos até o passo atual (`aria-hidden`; para leitores de tela, o progresso está no texto "0N de 08" de cada cartão);
+  - abaixo do trilho, dois botões sempre visíveis: **"↑ Sair do tour"** (volta ao topo e ao passo 0, instantâneo) e **"⤓ Ir para o monitor"** (vai ao passo 9);
+  - **Esc** durante o tour = "Sair do tour".
+- **Clique livre:** em qualquer passo, os objetos visíveis continuam clicáveis e abrem suas vistas (modal). Ao fechar, a página volta ao passo em que estava.
+- **Fim do tour (passo 9):**
+  - A `section#vertice` é movida para dentro da tela do monitor, **sem `<dialog>`**: é conteúdo normal, alcançável por `Tab` em sequência. Rolar para cima sai, e não há foco preso.
+  - Se o visitante clicar no monitor fora do tour, o SO abre no `<dialog>` (12.5/5.6). É a mesma interface, num único nó movido.
+- **Teclado:** `Tab` passa pelos post-its e depois pelos botões [Abrir capítulo] dos cartões, na ordem dos passos. Focar um cartão rola até ele (comportamento nativo), e a câmera acompanha. `Espaço`/`PageDown` avançam os passos pela rolagem nativa.
+- **URL:** o tour **não** altera o histórico (sem `pushState` por passo). As vistas abertas a partir dele seguem 5.6.
+- **Intro:** rolar durante a intro equivale a "Pular".
+- **Mobile e telas em retrato:** **não há câmera nem tour de rolagem**. O tour **vira a sequência vertical de nichos** (12.3), em **1 coluna**:
+  - cada nicho é um recorte da imagem (4:3) com o post-it do capítulo, `{tour.<id>.resumo}` e a ação de toque para abrir;
+  - a ordem é 01…08, e o 01 abre o SO em tela cheia;
+  - o toque basta; a rolagem é só leitura.
+- **Modo recrutador, sem JS e LCP:** sem tour. Os cartões não existem no modo recrutador (o conteúdo completo já está nas seções). O passo 0 é idêntico à 1ª tela, e a trilha de rolagem fica abaixo da dobra, sem imagens extras. O LCP não muda.
+
+#### 12.13.3 Nome na parede
+
+- `<h1>` com o nome e "Dados → IA" ficam como **texto HTML posicionado em % sobre uma área de parede lisa reservada** na imagem (`paredeNome` na config, alvo **x 26–60%, y 4–15%**), alinhados à esquerda.
+  - Nome: Bricolage 800, `clamp(2rem, 3.4vw, 3.5rem)`.
+  - "Dados → IA": Atkinson Hyperlegible Mono 500, 18 px, com a seta em SVG `--accent`.
+  - Leve rotação de 0°, como pintado.
+- **Contraste AA garantido com halo:** texto `--text` com um halo de 3 px na cor `--halo` (`#FFFFFF` no dia e `#12141A` à noite), via `paint-order: stroke fill` + `-webkit-text-stroke: 6px var(--halo)`, com *fallback* de 8 `text-shadow`s de 2 px.
+  - O fundo imediato de cada letra é o halo, então o contraste fica em **17.93:1** no dia e **15.06:1** à noite, sobre qualquer imagem.
+  - O prompt pede a parede lisa ali para o halo ficar discreto.
+- **Post-it "Fale comigo!"** colado logo à direita do nome (âncora x ≈ 61%, y ≈ 6%, −5°): é o CTA do LinkedIn. O texto grande "Fale comigo!" fica na fonte manuscrita, e abaixo vem o texto literal "Conversar no LinkedIn ↗" em Atkinson 14 (regra do CTA literal, estratégia §8.1).
+- **Durante o tour e a vista:** o nome sai junto com a câmera, porque está preso à caixa da imagem.
+- **Mobile:** o nome e o post-it ficam sobre o herói recortado, no cartão translúcido da base (12.3).
+
+#### 12.13.4 Post-its como menu e marcador
+
+- **Cada objeto clicável tem um único `<a class="objeto">`**: a área de clique sobre o objeto **mais** o post-it colado nele, que é o rótulo visível do link (dentro do mesmo `<a>`). Isso dá 1 parada de `Tab` por objeto e nenhum destino repetido.
+- **Post-it:** quadrado de `clamp(88px, 7vw, 120px)` com cantos retos e sombra chapada `--shadow-1`, rotação de −5° a +5° (config). Mostra:
+  - o número em mono 12 `--text-muted`;
+  - o **nome comum** na fonte manuscrita, 22 px, `--text`.
+  - O rótulo temático entra no nome acessível ("01 · O monitor, Projeto Vértice") e no título da vista.
+- **Cores** (ilha clara, como o papel):
+
+| Token | Dia | Noite | Texto `#15171C` | Número `#4F545C` |
+|---|---|---|---|---|
+| `--postit` | `#FFF1B8` | `#E8D98F` | **15.82 / 12.60:1** | **6.72 / 5.35:1** |
+
+- **Estados:**
+
+| Estado | Post-it |
+|---|---|
+| Repouso | como acima |
+| **Próximo sugerido** | uma **fita adesiva** `--accent` de 28×10 px no topo, e balanço de ±1.5° em 1,6 s × 3 (≤ 5 s); estático em reduced motion |
+| **Lido** | ✓ `#1E6B5A` de 14 px no canto (≥ 3:1 nos dois tons) e texto oculto "lido" |
+| Hover / foco | sobe 3 px, rotação vai a 0° e o objeto ganha o contorno de destaque. Foco: anel duplo (3.3) em volta do post-it |
+| Durante tour (passo ≥ 1), zoom ou intro | ocultos (o cartão do tour nomeia o objeto) |
+
+- **Posições** em `postit: { x, y, rot }` na config (12.13.7). O validador garante que o post-it não cobre outro objeto, o nome, o HUD ou outro post-it.
+- **Mobile:** o rótulo de cada nicho é o mesmo post-it.
+
+#### 12.13.5 Anotações à mão
+
+- **Fonte manuscrita: Patrick Hand** (Google Fonts, SIL OFL), auto-hospedada, peso único, subset latin + latin-ext (≈ 20 KB), `font-display: optional` (sem a fonte, entra Atkinson em itálico).
+- **Só 2 anotações**, ambas `aria-hidden` (a mesma instrução está em `{quarto.ajuda}`):
+
+| `id` | Texto pt / en | Posição (âncora em %) | Seta |
+|---|---|---|---|
+| `comece` | "comece aqui" / "start here" | x 8, y 60 | curva até o post-it 01 |
+| `role` | "role para um tour pelos 8 capítulos" / "scroll for a tour of the 8 chapters" | x 40, y 88 | reta, para baixo |
+
+- **Visual:** 24 px, `--text`, com o mesmo **halo de 3 px** do nome (17.93 / 15.06:1 sobre qualquer imagem). As setas são SVG à mão-livre desenhadas por nós (`stroke` 2.5 px `--text` + halo de 3 px `--halo`), com ponta aberta.
+- **Comportamento:** aparecem no passo 0 depois da intro, com a seta se desenhando em 500 ms (estáticas em reduced motion). **Somem depois da 1ª interação** (abrir um objeto ou iniciar o tour), com a decisão guardada em `sessionStorage`. Não aparecem abaixo de 1024 px nem no modo recrutador.
+- **Configuráveis** em `anotacoes[]` na config: `id`, `x`, `y`, `rot`, `larguraMax`, `seta: { de: [x,y], para: [x,y], curva }` (em %) e `ate: 'primeira-interacao'`.
+- **Lastro factual:** "8 capítulos" é a estrutura do site. As anotações não fazem afirmações sobre o Matheus.
+
+#### 12.13.6 Interruptor dia/noite
+
+- **Toggle em forma de interruptor de parede:** `<button type="button" class="interruptor" aria-pressed="false|true" aria-label="{topo.luz.rotuloAcessivel}">` ("Luz apagada"; `aria-pressed="true"` = escuro).
+  - Espelho `--surface` de 44×64 px com borda 1.5 px `--border-strong` (3.72 / 3.32:1) e tecla `--text` que **desce** quando a luz apaga (160 ms; instantâneo em reduced motion).
+  - A partir de lg, o texto visível ao lado é "Apagar a luz"/"Acender a luz".
+  - Fica no **HUD direito**, depois do PT|EN.
+- Substitui o botão de tema de 5.7. O comportamento (localStorage, script do `<head>`, troca de imagem dia/noite de 12.4) não muda.
+
+#### 12.13.7 Composição atualizada (% da imagem; substitui a tabela de 12.6)
+
+O monitor ficou **maior** (para o zoom 3× e o SO) e foi aberta uma área de parede para o nome.
+
+| Cap. | Objeto | `clique` (x, y, l, a) | `postit` (x, y, rot) | `vista.camera` (cx, cy, esc.) | `tour.camera` / lado do cartão | `janela` |
+|---|---|---|---|---|---|---|
+| 01 | Monitor moderno widescreen | 16, 26, 22, 28 | 33, 49, 4° | 27, 39, **3** | 27, 40, 1.6 / direita | tela: 17.5, 28, 19, 21 |
+| 02 | Porta-retrato | 39, 46, 5, 10 | 40, 57, −3° | 52, 51, 2 | 47, 51, 1.8 / direita | — |
+| 03 | Mural de cortiça | 47, 16, 13, 20 | 56, 17, 3° | 53.5, 30, 1.8 | 53.5, 30, 1.6 / esquerda | cortiça: 48, 17.5, 11, 17 |
+| 04 | Caderno na mesinha | 49, 58, 8, 6 | 50, 65, −2° | 60, 60, 2 | 55, 60, 1.8 / direita | — |
+| 05 | Caixa de ferramentas | 57, 72, 8, 9 | 58, 79, 2° | 66, 72, 2 | 63, 70, 1.8 / esquerda | — |
+| 06 | Estante | 63, 22, 13, 52 | 70, 23, −3° | 69.5, 48, 1.6 | 69.5, 48, 1.5 / esquerda | prateleiras: 64, 24, 11, 48 |
+| 07 | Lenço (gancho da porta) | 80, 32, 4, 10 | 79.5, 44, −4° | 72, 40, 2 | 75, 40, 1.8 / esquerda | — |
+| 08 | Envelope / caixa de correio | 85, 46, 6, 8 | 85, 55, 3° | 75, 52, 2 | 75, 52, 1.8 / esquerda | — |
+| — | Parede do nome | 26, 4, 34, 11 (reservada) | "Fale comigo!": 61, 6, −5° | — | — | — |
+
+Áreas reservadas (sem objetos importantes no prompt e checadas pelo validador):
+- HUD esquerdo: x 0–22%, y 0–10%;
+- HUD direito: x 80–100%, y 0–12%;
+- parede do nome: x 26–60%, y 4–15%;
+- anotação "role": x 36–64%, y 86–96%;
+- trilho do tour: x 96–100%, y 25–75%.
+
+Os valores são o alvo do prompt e serão **calibrados** quando a imagem chegar (tarefa 11).
+
+#### 12.13.8 Orçamento (atualiza 12.2 e 12.9)
+
+- **Imagem mais densa:** AVIF com no máximo 100 KB (1280w), 180 KB (1920w), 290 KB (2560w) e 500 KB (3840w); WebP com cerca de +45%. Herói mobile 720w ≤ 85 KB.
+- **Fontes:** ≤ 130 KB (Patrick Hand entra com `optional`, sem preload).
+- **JS do módulo:** ≤ 13 KB gzip (+ tour, SO e post-its; − pílula e pinos). O tour usa só `IntersectionObserver` e `transform`, sem *listener* de `scroll`.
+- **CSS:** ≤ 24 KB gzip.
+- Metas mantidas: LCP mobile ≤ 2,5 s, CLS ≤ 0,02, TBT ≤ 100 ms, INP ≤ 200 ms.
+
+#### 12.13.9 Chaves de texto e tarefas novas
+
+**Chaves novas (pt / en, ilustrativas):**
+
+| Chave | pt | en |
+|---|---|---|
+| `parede.direcao` | "Dados → IA" | "Data → AI" |
+| `postit.contato.titulo` / `.cta` | "Fale comigo!" / "Conversar no LinkedIn" | "Let's talk!" / "Let's talk on LinkedIn" |
+| `anotacoes.comece` / `anotacoes.role` | "comece aqui" / "role para um tour pelos 8 capítulos" | "start here" / "scroll for a tour of the 8 chapters" |
+| `tour.progresso` (formato) | "{n} de 08" | "{n} of 08" |
+| `tour.abrir` | "Abrir capítulo" | "Open chapter" |
+| `tour.sair` / `tour.irMonitor` | "Sair do tour" / "Ir para o monitor" | "Leave the tour" / "Go to the monitor" |
+| `tour.<id>.resumo` (8) | 1–2 frases **com lastro em `perfil.json`**, ex.: Vértice: "Plataforma de campeonatos que estou construindo com agentes de IA. Em desenvolvimento." | idem |
+| `tour.vertice.fim` | "O tour termina aqui dentro." | "The tour ends inside here." |
+| `so.rotulo` | "Área de trabalho do Vértice" | "Vértice desktop" |
+| `so.arquivos.{leiame,construcao,funcionalidades,stack,proximo,origem,site}` | "LEIA-ME.txt", "como-foi-construido/", "funcionalidades.md", "stack.json", "proximo-passo.md", "origem.md", "verticetour.com.br" | "README.txt", "how-it-was-built/", "features.md", "stack.json", "next-step.md", "origin.md", "verticetour.com.br" |
+| `so.fechar` (formato) | "Fechar {arquivo}" | "Close {file}" |
+| `so.voltarArea` (mobile) | "Área de trabalho" | "Desktop" |
+| `topo.luz.apagar` / `.acender` / `.rotuloAcessivel` | "Apagar a luz" / "Acender a luz" / "Luz apagada" | "Turn off the light" / "Turn on the light" / "Light off" |
+
+**Saem:** `menu.*` (pílula), `quarto.pino.balao`, `quarto.legenda*` e `topo.luz` antigos, se forem diferentes destes.
+
+**Tarefas novas para o `dev-frontend` (prevalecem sobre as tarefas 3, 5, 9 e 12 de 12.11):**
+
+14. **Remover** a pílula, os pinos, o balão do pino, o nome e o LinkedIn do HUD e o botão de tema antigo.
+15. **HUD só de controles:** à esquerda, "Modo recrutador" (1º focável); à direita, PT|EN e o interruptor (12.13.6). Fundo translúcido de 12.1.
+16. **Nome na parede + post-it "Fale comigo!"** (12.13.3), com halo e posições da config.
+17. **Post-its como links dos objetos** (12.13.4), com os estados próximo e lido; incluir `--postit` nos tokens.
+18. **Anotações** (12.13.5): componente `Anotacao` com seta gerada a partir de `{de, para, curva}`; Patrick Hand auto-hospedada; sumir na 1ª interação.
+19. **Tour** (12.13.2):
+    - palco sticky, cartões no fluxo, `IntersectionObserver` e câmera por `transform`;
+    - snap `proximity`, trilho, "Sair do tour" e "Ir para o monitor", Esc;
+    - passo 9 com o SO embutido, sem modal;
+    - sem tour no modo recrutador e com largura < 768 ou proporção < 1.3; corte direto em reduced motion.
+20. **SO** (12.13.1): `section#vertice` em arquivos (`<article>`s com `id`), ícones, janela única, barra de tarefas, Esc em dois níveis, modo recrutador linear, mobile em tela cheia; escala 3× só no monitor.
+21. **Mobile:** nichos em 1 coluna, como tour (recorte 4:3, post-it, resumo e toque).
+22. **Config e validador:** novos campos (`postit`, `tour`, `anotacoes`, `paredeNome`, áreas reservadas) e valores da 12.13.7.
+23. **Textos:** chaves da 12.13.9 em pt e en; o `verificador-fatos` revisa `tour.*.resumo`.
+24. **Verificação adicional:**
+    - rolagem do início ao fim e de volta com mouse, trackpad, teclado (`Espaço`, `PageDown`, `Home`, `End`) e leitor de tela;
+    - Esc e "Sair do tour" em qualquer passo;
+    - clique em objeto no meio do tour;
+    - reduced motion (cortes + lista);
+    - nenhuma diferença de LCP e CLS no passo 0;
+    - contraste do nome e das anotações medido sobre a área mais clara e a mais escura da parede, nos dois temas.
