@@ -6,18 +6,18 @@
  */
 
 /* ---------- Cores de tema ---------- */
-:root {
+.caixa {
   --lqip: var(--lqip-dia);
   --lqip-heroi: var(--lqip-heroi-dia);
 }
 
-:root[data-theme='dark'] {
+:root[data-theme='dark'] .caixa {
   --lqip: var(--lqip-noite);
   --lqip-heroi: var(--lqip-heroi-noite);
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
+  :root:not([data-theme='light']) .caixa {
     --lqip: var(--lqip-noite);
     --lqip-heroi: var(--lqip-heroi-noite);
   }
@@ -220,16 +220,13 @@
 
   /* ---------- Post-it (12.13.4): rótulo e link de cada objeto ---------- */
   .postit {
-    --ps: clamp(88px, 7vw, 120px);
     position: absolute;
     z-index: 2;
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    width: var(--ps);
-    height: var(--ps);
-    padding: 7px 8px;
-    overflow: hidden;
+    gap: 1px;
+    width: var(--pw, clamp(72px, 6vw, 100px));
+    padding: 4px 6px 5px;
     background: var(--postit);
     box-shadow: var(--shadow-1);
     color: #15171c;
@@ -242,20 +239,35 @@
 
   .p-num {
     color: #4f545c;
-    font: 500 12px/1 var(--ff-mono);
+    font: 500 11px/1 var(--ff-mono);
   }
 
+  /* Em repouso, até 2 linhas; o nome inteiro aparece no hover e no foco */
   .p-nome {
-    font: 400 calc(var(--ps) * 0.17) / 1.05 var(--font-hand);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    font: 400 clamp(12px, 0.95vw, 15px) / 1.05 var(--font-hand);
     overflow-wrap: anywhere;
-    hyphens: auto;
+  }
+
+  .objeto:is(:hover, :focus-visible) .p-nome {
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    overflow: visible;
+  }
+
+  .objeto:is(:hover, :focus-visible) .postit {
+    z-index: 5;
   }
 
   .p-check {
     display: none;
     position: absolute;
-    top: 5px;
-    right: 5px;
+    top: 3px;
+    right: 3px;
     color: #1e6b5a;
   }
 
@@ -405,9 +417,15 @@
   }
 
   .nicho .postit {
-    --ps: 100px;
+    --pw: 104px;
     top: 12px;
     left: 12px;
+  }
+
+  .nicho .p-nome {
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    font-size: 1.125rem;
   }
 
   .nichos li:nth-child(even) .nicho .postit {
@@ -519,8 +537,9 @@
   }
 
   .objeto .postit {
-    left: calc(var(--px) * 1cqw - var(--ps) / 2);
-    top: calc(var(--py) * 1cqh - var(--ps) / 2);
+    left: calc(var(--px) * 1cqw);
+    top: calc(var(--py) * 1cqh);
+    transform: translate(-50%, -50%);
   }
 
   /* Hover: contorno de destaque no objeto e o post-it sobe 3 px e endireita */

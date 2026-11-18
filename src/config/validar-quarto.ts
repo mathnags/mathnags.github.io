@@ -13,7 +13,10 @@ export const AREA_SEGURA: Rect = { x: 6, y: 15, l: 88, a: 71 };
 /** Mínimo do clique: ≥ 44 px na menor tela em tela cheia (12.6). */
 const CLIQUE_MIN = { l: 3.3, a: 5.8 };
 /** Post-it nominal em % da imagem (7vw = 89,6 px em 1280×720, o caso mais apertado com a imagem inteira). */
-export const POSTIT = { l: 7, a: 12.5 };
+export const POSTIT = { l: 6, a: 8 };
+/** Área máxima de cada post-it (% × %) e distância máxima até a borda do próprio objeto (%). */
+const POSTIT_AREA_MAX = 60;
+const POSTIT_DISTANCIA_MAX = 2;
 /** Post-it "Fale comigo!" (âncora = canto superior esquerdo). */
 export const POSTIT_CONTATO = { l: 8.5, a: 15 };
 const ESCALA_MAX = 2;
@@ -61,6 +64,10 @@ export function errosDoQuarto(q: ConfigQuarto): string[] {
     const p = caixaDoPostit(o.postit);
     if (!dentroDe(p, TELA)) erros.push(`${nome}: post-it fora da imagem`);
     if (!dentroDe(p, { ...AREA_SEGURA, y: 12, a: 74 })) erros.push(`${nome}: post-it fora da área segura`);
+    if (p.l * p.a > POSTIT_AREA_MAX) erros.push(`${nome}: post-it com área ${p.l * p.a} (máximo ${POSTIT_AREA_MAX})`);
+    const dx = Math.max(0, clique.x - (p.x + p.l), p.x - (clique.x + clique.l));
+    const dy = Math.max(0, clique.y - (p.y + p.a), p.y - (clique.y + clique.a));
+    if (Math.hypot(dx, dy) > POSTIT_DISTANCIA_MAX) erros.push(`${nome}: post-it longe da borda do objeto (${Math.hypot(dx, dy).toFixed(1)}%, máximo ${POSTIT_DISTANCIA_MAX})`);
     for (const r of reservadas) if (sobrepoe(p, r.area)) erros.push(`${nome}: post-it cobre "${r.nome}"`);
     if (sobrepoe(p, contato)) erros.push(`${nome}: post-it cobre o "Fale comigo!"`);
     for (const b of q.objetos) if (b.id !== o.id && sobrepoe(p, b.clique)) erros.push(`${nome}: post-it cobre a área de clique de "${b.id}"`);

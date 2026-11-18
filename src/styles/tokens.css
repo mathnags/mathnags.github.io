@@ -47,7 +47,7 @@
   --hud-borda: rgb(21 23 28 / 0.12);
   --halo: #ffffff;
   --postit: #fff1b8;
-  --pelicula-intro: rgb(246 244 238 / 0.7);
+  --pelicula-intro: rgb(246 244 238 / 0.4);
   --pelicula-vista: rgb(18 20 26 / 0.25);
 
   /* 2.5 Sombras (chapadas) */
@@ -134,7 +134,7 @@
   --hud-borda: rgb(236 232 223 / 0.14);
   --halo: #12141a;
   --postit: #e8d98f;
-  --pelicula-intro: rgb(18 20 26 / 0.7);
+  --pelicula-intro: rgb(18 20 26 / 0.4);
   --room-wall-shade: #191c28;
   --room-wood: #4e3a2b;
   --room-wood-dark: #3a2b20;
@@ -174,7 +174,7 @@
     --hud-borda: rgb(236 232 223 / 0.14);
     --halo: #12141a;
     --postit: #e8d98f;
-    --pelicula-intro: rgb(18 20 26 / 0.7);
+    --pelicula-intro: rgb(18 20 26 / 0.4);
     --room-wall-shade: #191c28;
     --room-wood: #4e3a2b;
     --room-wood-dark: #3a2b20;

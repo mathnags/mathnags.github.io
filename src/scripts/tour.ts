@@ -6,7 +6,7 @@
  * Sem tour no modo recrutador e na estratégia mobile (os nichos fazem esse papel).
  */
 import * as cam from './camera';
-import { clamp, caixa, html, mobile, modoQuarto, palco, principais, type Camera, type Rect } from './ctx';
+import { clamp, html, mobile, modoQuarto, palco, principais, type Camera, type Rect } from './ctx';
 import { interagiu } from './anotacoes';
 import * as so from './so';
 
@@ -34,7 +34,7 @@ export const cameraDeRepouso = () => cameraDoPasso(passo);
 /** Retângulo (px, na tela) da janela do SO centrada na tela do monitor, limitado à tela. topo = faixa livre de HUD. */
 export function retanguloTela(topo: number): Rect {
   const j = monitor().vista.janela!;
-  const r = caixa.getBoundingClientRect();
+  const r = cam.retanguloFinal(cam.cameraAtual());
   const cx = r.left + ((j.x + j.l / 2) / 100) * r.width;
   const cy = r.top + ((j.y + j.a / 2) / 100) * r.height;
   const vw = html.clientWidth;

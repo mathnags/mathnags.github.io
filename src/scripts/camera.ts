@@ -10,6 +10,16 @@ export const GERAL: Camera = { cx: 50, cy: 50, escala: 1 };
 let atual: Camera = GERAL;
 let anim: Animation | null = null;
 
+/** Retângulo (px, na tela) que a caixa terá com a câmera "c" já aplicada, sem esperar a animação. */
+export function retanguloFinal(c: Camera) {
+  const L = caixa.offsetWidth;
+  const A = caixa.offsetHeight;
+  const s = c.escala;
+  const [tx, ty] = (transformDe(c).match(/-?[0-9.]+(?=px)/g) ?? ['0', '0']).map(Number);
+  const pr = palco.getBoundingClientRect();
+  return { left: pr.left + palco.clientWidth / 2 + tx - (L * s) / 2, top: pr.top + palco.clientHeight / 2 + ty - (A * s) / 2, width: L * s, height: A * s };
+}
+
 /** transform que leva o ponto (cx, cy) da imagem ao centro da tela, sem mostrar nada fora da imagem. */
 export function transformDe(c: Camera): string {
   const L = caixa.offsetWidth;

@@ -47,3 +47,26 @@ Ressalva (baixo, ajustar): a query retorna uma lista de "ano, capitulo", mas o r
 Totais da revisão 5: bloqueia 0, ajustar 0 novos. Pendências anteriores (URL do JSON-LD e `sameAs`) continuam abertas.
 
 ## Veredito: APROVADO
+
+---
+
+# Revisão 6 (tour, SO do monitor, post-its, anotações)
+
+Verificados: `tour.*`, `so.*`, `anotacoes.*`, `postit.*`, `parede.*`, `quarto.imagemAlt` e `quarto.ajuda` (pt/en), `Vertice.astro` (arquivos do SO), `Quarto.astro` e `dist/`.
+
+| Arquivo | Chave / linha | Afirmação | Problema | Correção | Severidade |
+|---|---|---|---|---|---|
+| `src/components/secoes/Contato.astro` | linhas 34-36 (`<p class="so-na-vista carta-github">`) | Link do GitHub dentro da seção Contato (dist: 3 ocorrências de github.com/mathnags por página: JSON-LD, Contato, rodapé) | Regressão do item 1 da primeira rodada. Regra: GitHub só no rodapé; contato só pelo LinkedIn | Remover esse `<p>` e manter só o link do `Rodape.astro` | bloqueia |
+
+Conferido sem problemas:
+- `tour.*` pt/en: todos os resumos têm lastro (SQL na Cushman, protótipos na Salesforce, auditoria de controles de TI na KPMG, 2 MVPs FIAP, Excel avançado e demais básico, Pós Tech em andamento, escotismo desde 2019, contato pelo LinkedIn). Vértice marcado "Em desenvolvimento".
+- `so.*`: nomes de arquivos (LEIA-ME, funcionalidades.md, stack.json, proximo-passo.md, origem.md) apenas rotulam conteúdo já verificado de `vertice.*` (funcionalidades, stack, próximo passo, origem, como foi construído). Não há texto factual novo no componente. Selo "Repositório privado" e "Em desenvolvimento" conferem com `perfil.json`. A lombada/monograma "MMN" vem das iniciais do nome.
+- `anotacoes`, `postit` (LinkedIn), `parede.direcao` ("Dados → IA"): ok. `imagemAlt` e `quarto.ajuda` ("8 capítulos em 8 objetos"): coerentes entre si.
+- `dist/`: sem pôquer, e-mail, telefone, CONFIRMAR, "em produção" ou "no ar"; sem métricas novas. pt e en equivalentes.
+
+Pendências antigas: URL do JSON-LD (`mathnags.github.io`) a confirmar; `sameAs` com GitHub (baixo).
+
+Totais da revisão 6: bloqueia 1, ajustar 0 novos.
+
+## Veredito: REPROVADO
+Corrigir o link do GitHub em Contato e reverificar.

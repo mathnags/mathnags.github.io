@@ -8,7 +8,7 @@ import { interagiu } from './anotacoes';
 import { marcarLido } from './lidos';
 import * as so from './so';
 import * as tour from './tour';
-import { cfg, clamp, css, dialog, html, linkDe, mobile, modoQuarto, objetoDe, palco, caixa, principais, reduz, type ObjCfg } from './ctx';
+import { cfg, clamp, css, dialog, html, linkDe, mobile, modoQuarto, objetoDe, palco, principais, reduz, type ObjCfg } from './ctx';
 
 type Estado = 'repouso' | 'aproximando' | 'aberto' | 'afastando';
 
@@ -53,7 +53,7 @@ function geometria(obj: ObjCfg) {
   } else if (obj.vista.janela) {
     // Vista "dentro": a moldura cobre a janela do objeto (depois do zoom), com mínimo de legibilidade.
     const j = obj.vista.janela;
-    const r = caixa.getBoundingClientRect();
+    const r = cam.retanguloFinal(cam.cameraAtual());
     const jx = r.left + (j.x / 100) * r.width;
     const jy = r.top + (j.y / 100) * r.height;
     const jl = (j.l / 100) * r.width;
@@ -159,8 +159,10 @@ async function mostrar(obj: ObjCfg, alvoId: string, animar: boolean, viajando = 
   definirEstado('aproximando');
   interagiu();
   if (viajando) dialog.dataset.fase = 'trocando';
-  if (!mobile.matches) {
-    const chegou = await cam.ir(obj.vista.camera, 400, '--ease-out', comAnimacao);
+  // O painel não espera o zoom: aparece junto com ele (fade de 200 ms), já na posição final.
+  const zoom = mobile.matches ? Promise.resolve(true) : cam.ir(obj.vista.camera, 400, '--ease-out', comAnimacao);
+  if (viajando && !mobile.matches) {
+    const chegou = await zoom;
     if (!chegou || minha !== rodada) return;
   }
   colocar(obj);
@@ -176,7 +178,10 @@ async function mostrar(obj: ObjCfg, alvoId: string, animar: boolean, viajando = 
   else document.getElementById('vertice-leiame-titulo')?.focus({ preventScroll: true });
   if (comAnimacao && !jaAberto) {
     if (mobile.matches) await flip(true);
-    else await Promise.all([fade(moldura, 0, 1, 160), fade(barra, 0, 1, 160)]);
+    else {
+      void fade(moldura, 0, 1, 200);
+      void fade(barra, 0, 1, 200);
+    }
   }
 }
 
