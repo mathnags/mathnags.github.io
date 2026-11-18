@@ -1,0 +1,24 @@
+---
+/**
+ * Ícones SVG inline, desenhados aqui (nada de pacote de terceiros), sempre decorativos (aria-hidden).
+ * O texto que explica o ícone (ex.: "para", "abre site externo") vem de textos.<lang>.json > ui e é escrito
+ * pelo componente que usa o ícone, como sr-only.
+ */
+interface Props {
+  nome: 'seta' | 'externo' | 'cadeado' | 'casa' | 'menu' | 'interruptor' | 'check';
+  /** Tamanho em px (padrão 16). */
+  tamanho?: number;
+  class?: string;
+}
+const { nome, tamanho = 16, class: classe } = Astro.props;
+---
+
+<svg class:list={['icone', classe]} width={tamanho} height={tamanho} viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+  {nome === 'seta' && <path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />}
+  {nome === 'externo' && <path d="M5 11l6-6M6 4.5h5.5V10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />}
+  {nome === 'cadeado' && <><rect x="3" y="7" width="10" height="7" rx="1.5" fill="currentColor" /><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.6" /></>}
+  {nome === 'casa' && <path d="M2 8l6-5 6 5v6H10v-4H6v4H2z" fill="currentColor" />}
+  {nome === 'menu' && <path d="M2 4h12M2 8h12M2 12h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />}
+  {nome === 'interruptor' && <><rect x="3.5" y="1.5" width="9" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.6" /><rect class="icone-tecla" x="6" y="4" width="4" height="4" rx="1" fill="currentColor" /></>}
+  {nome === 'check' && <path d="M3 8.5l3.2 3.2L13 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />}
+</svg>

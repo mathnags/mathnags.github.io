@@ -1,0 +1,85 @@
+---
+/** 01 · O monitor · Projeto Vértice (#vertice). O "site" é desenhado por nós, sem captura de tela. */
+import DualLabel from '../ui/DualLabel.astro';
+import Selo from '../ui/Selo.astro';
+import Chip from '../ui/Chip.astro';
+import BotaoCTA from '../ui/BotaoCTA.astro';
+import { getTextos } from '../../lib/textos';
+import { getUi } from '../../lib/ui';
+import { getProjetos } from '../../lib/projetos';
+import { rotuloSecao } from '../../lib/quarto';
+import { ANCORA_GAMES } from '../../i18n/secoes';
+import type { Idioma } from '../../i18n/idiomas';
+
+interface Props {
+  lang: Idioma;
+}
+const { lang } = Astro.props;
+const t = getTextos(lang);
+const v = t.vertice;
+const ui = getUi(lang);
+const { destaque } = await getProjetos(lang);
+const rotulo = rotuloSecao(lang, 'vertice');
+const stack = destaque?.stack ?? [];
+---
+
+<section id="vertice" class="secao secao-vertice" aria-labelledby={rotulo.id}>
+  <div class="secao-in">
+    <DualLabel nivel="h2" {...rotulo} />
+    <div class="site">
+      <div class="site-barra" aria-hidden="true">
+        <span class="site-pontos"><i></i><i></i><i></i></span>
+        <span class="site-endereco">{v.navegador.endereco}</span>
+      </div>
+      <div class="site-corpo">
+        <div class="site-cab">
+          <p class="site-nome">{v.nome}</p>
+          <ul class="selos" aria-label={ui.selosStatus}>
+            <Selo variante="dev" texto={t.selos.emDesenvolvimento} />
+            {destaque?.repositorioPrivado && <Selo variante="privado" texto={t.selos.repositorioPrivado} />}
+          </ul>
+          <p class="site-periodo">{v.periodo}</p>
+        </div>
+        <p class="site-resumo">{v.resumo}</p>
+        <div class="site-acoes">
+          <BotaoCTA lang={lang} href={v.siteUrl} texto={v.ctaSiteReal} variante="secundario" externo />
+        </div>
+        <div class="site-blocos">
+          <div class="bloco">
+            <h3>{v.comoFoiConstruidoTitulo}</h3>
+            <ul class="lista">{v.comoFoiConstruido.map((i) => <li>{i}</li>)}</ul>
+          </div>
+          <div class="bloco">
+            <h3>{v.oQueFazTitulo}</h3>
+            <ul class="lista">{v.oQueFaz.map((i) => <li>{i}</li>)}</ul>
+          </div>
+          {
+            stack.length > 0 && (
+              <div class="bloco">
+                <h3>{v.stackTitulo}</h3>
+                <ul class="chips">{stack.map((s) => <li><Chip nome={s} /></li>)}</ul>
+              </div>
+            )
+          }
+        </div>
+        {
+          v.proximoPasso && (
+            <div class="site-linha">
+              <p><strong>{v.proximoPassoRotulo}:</strong> {v.proximoPasso}</p>
+              <ul class="selos" aria-label={ui.selosStatus}><Selo variante="estado" texto={t.selos.emAndamento} /></ul>
+            </div>
+          )
+        }
+        <div class="site-linha">
+          <p>
+            <strong>{v.origemRotulo}:</strong> {v.origem} <a href={`#${ANCORA_GAMES}`}>{v.origemLink}</a>
+          </p>
+        </div>
+        <div class="site-acoes">
+          <BotaoCTA lang={lang} href={t.contato.linkedinUrl} texto={v.ctaLinkedin} externo />
+        </div>
+        <p class="site-nota">{v.navegador.nota}</p>
+      </div>
+    </div>
+  </div>
+</section>

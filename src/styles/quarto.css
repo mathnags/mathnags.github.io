@@ -1,0 +1,402 @@
+/*
+ * O quarto (design 4.1 a 4.3, 5.3 a 5.5). Tudo em @media screen e visível só com data-modo='quarto'
+ * (global.css esconde #quarto por padrão). Nenhuma coordenada aqui: as posições chegam por custom
+ * properties (--x, --y, --w, --h, --ex, --ey, --vb-l, --vb-a) escritas pelo Quarto.astro a partir da config.
+ */
+
+/* ---------- Cores da ilustração (classes f-*) ---------- */
+.f-wall { fill: var(--room-wall); }
+.f-wall-shade { fill: var(--room-wall-shade); }
+.f-floor { fill: var(--room-floor); }
+.f-wood { fill: var(--room-wood); }
+.f-wood-dark { fill: var(--room-wood-dark); }
+.f-metal { fill: var(--room-metal); }
+.f-screen { fill: var(--room-screen); }
+.f-cork { fill: var(--room-cork); }
+.f-paper { fill: var(--room-paper); }
+.f-fabric { fill: var(--room-fabric); }
+.f-sky { fill: var(--room-sky); }
+.f-city { fill: var(--room-city); }
+.f-moon { fill: var(--room-moon); }
+.f-boff { fill: var(--bulb-off); }
+.f-bon { fill: var(--bulb-on); }
+.f-glow { fill: var(--glow); }
+.f-red { fill: var(--fan-red); }
+.f-blue { fill: var(--fan-blue); }
+.f-coral { fill: var(--fan-coral); }
+.f-hg { fill: var(--fan-herb-green); }
+.f-hr { fill: var(--fan-herb-red); }
+.f-muted { fill: var(--text-muted); }
+.f-accent { fill: var(--accent); }
+.f-fio { stroke: var(--room-metal); }
+
+/* Chave de luz: 1 só à noite (janelinhas, interruptor), 0 de dia */
+.noite { opacity: var(--noite); }
+.dia { opacity: calc(1 - var(--noite)); }
+
+/* A tela que dobra (design 6) */
+.tela-base { stroke: var(--text-muted); }
+.tela-linha,
+.tela-anel { stroke: var(--accent); }
+.tela-linha { stroke-dasharray: 1; stroke-dashoffset: 0; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .tela-linha { animation: desenha var(--dur-draw) var(--ease-out) 0.3s both; }
+}
+
+@keyframes desenha {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+
+.lombada {
+  fill: var(--paper-text);
+  font: 500 14px var(--ff-mono);
+}
+
+@media (max-width: 1023px) {
+  .lombada { display: none; }
+}
+
+/* Lâmpadas do varal */
+.bulbo { fill: var(--bulb-off); }
+.brilho { opacity: 0; }
+.lampada[data-lido] .bulbo { fill: var(--bulb-on); }
+.lampada[data-lido] .brilho { opacity: var(--noite); }
+
+.obj { transition: transform var(--dur-2) var(--ease-out); }
+.obj.ativo { transform: translateY(-8px); }
+.realce { stroke: var(--text); stroke-width: 3; opacity: 0; }
+.obj.ativo .realce { opacity: 1; }
+
+@media screen {
+  .cena * { transition: fill var(--dur-light) var(--ease-std); }
+  .cena .obj { transition: transform var(--dur-2) var(--ease-out); }
+
+  /* ---------- Palco ---------- */
+  .palco {
+    position: relative;
+    width: 100%;
+    aspect-ratio: var(--vb-l) / var(--vb-a);
+    container-type: inline-size;
+  }
+
+  .cena {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--radius-md);
+  }
+
+  .objetos {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    transition: opacity 120ms var(--ease-std);
+  }
+
+  .palco:not([data-estado='repouso']) .objetos {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .objeto {
+    position: absolute;
+    left: calc(var(--x) / var(--vb-l) * 100%);
+    top: calc(var(--y) / var(--vb-a) * 100%);
+    display: block;
+    width: calc(var(--w) / var(--vb-l) * 100%);
+    height: calc(var(--h) / var(--vb-a) * 100%);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .objeto:hover { text-decoration: none; }
+
+  .objeto:focus-visible {
+    outline: 3px solid var(--ring-out);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--ring-in);
+  }
+
+  .objeto:active { transform: scale(0.98); }
+
+  .ladrilho-arte,
+  .ladrilho-lampada { display: none; }
+
+  /* ---------- Etiqueta (design 5.3) ---------- */
+  .etiqueta {
+    position: absolute;
+    left: calc(var(--ex) / var(--vb-l) * 100cqw);
+    top: calc(var(--ey) / var(--vb-l) * 100cqw);
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 8px;
+    background: var(--surface);
+    border: 1.5px solid var(--text);
+    border-radius: var(--radius-xs);
+    box-shadow: var(--shadow-1);
+    color: var(--text);
+    font: 500 var(--fs-label)/1 var(--ff-mono);
+    letter-spacing: var(--ls-label);
+    white-space: nowrap;
+    transform: translate(0, -50%);
+  }
+
+  .etq-dir .etiqueta { transform: translate(-100%, -50%); }
+
+  .objeto:hover .etiqueta,
+  .objeto:focus-visible .etiqueta { background: var(--surface-2); }
+
+  .etiqueta .check { display: none; color: var(--pine); }
+  .objeto[data-lido] .etiqueta .check { display: block; }
+
+  .objeto[data-proximo] .etiqueta::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background: var(--accent);
+    animation: anel 1.2s ease-out 2;
+  }
+
+  @keyframes anel {
+    from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent); }
+    to { box-shadow: 0 0 0 10px transparent; }
+  }
+
+  /*
+   * Visualmente oculto, mas lido: por padrão a etiqueta mostra só o número (as etiquetas de nome inteiro
+   * colidiriam entre si). A partir de 1280 px os objetos principais mostram o nome comum (cortado se longo);
+   * em hover ou foco, qualquer etiqueta mostra o nome inteiro. O tema só aparece no ladrilho (mobile).
+   */
+  .etiqueta .tema,
+  .etiqueta .sr-only + .comum {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .etiqueta .sep { display: none; }
+
+  @media (min-width: 768px) {
+    .objeto:hover .etiqueta,
+    .objeto:focus-visible .etiqueta { z-index: 3; }
+
+    .objeto:is(:hover, :focus-visible) .etiqueta .sep { display: inline; }
+
+    .objeto:is(:hover, :focus-visible) .etiqueta .sr-only + .comum {
+      position: static;
+      width: auto;
+      height: auto;
+      max-width: none;
+      overflow: visible;
+      clip: auto;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .objeto[data-papel='principal'] .etiqueta .sep { display: inline; }
+
+    .objeto[data-papel='principal'] .etiqueta .sr-only + .comum {
+      position: static;
+      width: auto;
+      height: auto;
+      max-width: 20ch;
+      overflow: hidden;
+      clip: auto;
+      text-overflow: ellipsis;
+    }
+  }
+
+
+  /* ---------- Legenda (design 5.5) ---------- */
+  .legenda {
+    display: grid;
+    gap: 4px;
+    min-height: 76px;
+    margin-top: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+  }
+
+  .legenda p { margin: 0; }
+  .leg-linha { font-size: var(--fs-body); }
+  .leg-nome { font-weight: 700; }
+
+  .leg-dica {
+    color: var(--text-muted);
+    font: 500 var(--fs-label)/var(--lh-label) var(--ff-mono);
+  }
+
+  .leg-teclas { display: none; }
+  .palco:has(.objeto:focus-visible) + .legenda .leg-teclas { display: inline; }
+  .palco:has(.objeto:focus-visible) + .legenda .leg-ponteiro { display: none; }
+
+  /* ---------- Mobile: parede de nichos (design 4.3) ---------- */
+  @media (max-width: 767px) {
+    .palco { aspect-ratio: auto; }
+
+    .cena {
+      width: 0;
+      height: 0;
+      overflow: hidden;
+    }
+
+    .legenda { display: none; }
+
+    .objetos {
+      position: static;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-5) var(--space-3);
+      padding: var(--space-4) 0 var(--space-2);
+    }
+
+    .objetos li.sec { display: none; }
+
+    .objeto {
+      position: relative;
+      left: auto;
+      top: auto;
+      display: grid;
+      grid-template-rows: 96px auto;
+      gap: var(--space-2);
+      align-content: start;
+      width: auto;
+      height: auto;
+      min-height: 168px;
+      padding: var(--space-3);
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-1), 0 8px 0 -2px var(--room-wood);
+    }
+
+    .objeto:hover { box-shadow: var(--shadow-2), 0 8px 0 -2px var(--room-wood); }
+
+    .objeto:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+      box-shadow: var(--shadow-1), 0 8px 0 -2px var(--room-wood);
+    }
+
+    .ladrilho-arte {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 6px;
+      height: 96px;
+    }
+
+    .mini {
+      width: auto;
+      min-width: 0;
+      max-width: 100%;
+      height: 100%;
+    }
+
+    .ladrilho-lampada {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: block;
+      width: 12px;
+      height: 12px;
+      border-radius: var(--radius-full);
+      background: var(--bulb-off);
+    }
+
+    .objeto[data-lido] .ladrilho-lampada { background: var(--bulb-on); }
+
+    .etiqueta {
+      position: static;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: 2px var(--space-2);
+      height: auto;
+      padding: 0;
+      background: none;
+      border: 0;
+      box-shadow: none;
+      white-space: normal;
+      transform: none;
+    }
+
+    .etq-dir .etiqueta { transform: none; }
+
+    .etiqueta .sep { display: none; }
+
+    .etiqueta .num {
+      grid-column: 1;
+      grid-row: 1;
+      color: var(--text-muted);
+    }
+
+    .etiqueta .check {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .etiqueta .sr-only + .comum {
+      position: static;
+      grid-column: 1 / -1;
+      grid-row: 2;
+      width: auto;
+      height: auto;
+      overflow: visible;
+      clip: auto;
+      font: 700 1rem/1.3 var(--ff-text);
+      letter-spacing: 0;
+      white-space: normal;
+    }
+
+    .etiqueta .tema {
+      position: static;
+      grid-column: 1 / -1;
+      grid-row: 3;
+      width: auto;
+      height: auto;
+      overflow: visible;
+      clip: auto;
+      color: var(--text-muted);
+      white-space: normal;
+    }
+
+    .objeto[data-proximo] .etiqueta::before {
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: start;
+    }
+  }
+
+  @media (max-width: 339px), (max-height: 499px) and (max-width: 767px) {
+    .objetos { grid-template-columns: 1fr; }
+
+    .objeto {
+      grid-template-columns: 64px 1fr;
+      grid-template-rows: auto;
+      align-items: center;
+      min-height: 0;
+    }
+
+    .ladrilho-arte { height: 64px; }
+  }
+}
+
+@media (forced-colors: active) {
+  .objeto,
+  .etiqueta { border: 2px solid CanvasText; }
+}

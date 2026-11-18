@@ -1,0 +1,48 @@
+---
+/** 04 · O caderno · Outros projetos (#projetos). Projeto sem stack confirmada fica sem chips. */
+import DualLabel from '../ui/DualLabel.astro';
+import Selo from '../ui/Selo.astro';
+import Chip from '../ui/Chip.astro';
+import { getTextos } from '../../lib/textos';
+import { getUi } from '../../lib/ui';
+import { getProjetos } from '../../lib/projetos';
+import { rotuloSecao } from '../../lib/quarto';
+import type { Idioma } from '../../i18n/idiomas';
+
+interface Props {
+  lang: Idioma;
+}
+const { lang } = Astro.props;
+const t = getTextos(lang);
+const ui = getUi(lang);
+const { outros } = await getProjetos(lang);
+const rotulo = rotuloSecao(lang, 'projetos');
+---
+
+<section id="projetos" class="secao secao-projetos" aria-labelledby={rotulo.id}>
+  <div class="secao-in">
+    <DualLabel nivel="h2" {...rotulo} />
+    <ul class="cards">
+      {
+        outros.map((p) => (
+          <li class="card" id={p.ancora}>
+            {p.categoria === 'academico' && (
+              <ul class="selos" aria-label={ui.selosStatus}>
+                <Selo variante="neutro" texto={t.selos.projetoAcademico} />
+                <Selo variante="neutro" texto={t.selos.emGrupo} />
+              </ul>
+            )}
+            <h3>{p.titulo}</h3>
+            {p.texto && <p>{p.texto.resumo}</p>}
+            {p.texto?.papel && (
+              <p>
+                <strong>{t.projetos.rotuloPapel}:</strong> {p.texto.papel}
+              </p>
+            )}
+            {p.stack.length > 0 && <ul class="chips">{p.stack.map((s) => <li><Chip nome={s} /></li>)}</ul>}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

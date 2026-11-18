@@ -1,0 +1,58 @@
+---
+/** 06 · A estante · Formação e certificações (#formacao, #formacao-ia, #certificacoes). */
+import DualLabel from '../ui/DualLabel.astro';
+import BookItem from './BookItem.astro';
+import { getTextos } from '../../lib/textos';
+import { getUi } from '../../lib/ui';
+import { rotuloSecao } from '../../lib/quarto';
+import { ANCORA_CERTIFICACOES, ANCORA_FORMACAO_IA } from '../../i18n/secoes';
+import type { Idioma } from '../../i18n/idiomas';
+
+interface Props {
+  lang: Idioma;
+}
+const { lang } = Astro.props;
+const t = getTextos(lang);
+const f = t.formacao;
+const ui = getUi(lang);
+const rotulo = rotuloSecao(lang, 'formacao');
+const base = { selos: t.selos, rotuloSelos: ui.selosStatus };
+---
+
+<section id="formacao" class="secao secao-formacao" aria-labelledby={rotulo.id}>
+  <div class="secao-in">
+    <DualLabel nivel="h2" {...rotulo} />
+    <nav class="atalhos" aria-label={t.quarto.titulo}>
+      <a href={`#${ANCORA_CERTIFICACOES}`}>{t.vista.atalho.certificacoes}</a>
+    </nav>
+
+    <div class="prateleira" id={ANCORA_FORMACAO_IA}>
+      <h3 class="plaquinha">{f.prateleiras.ia}</h3>
+      <ul class="livros">{f.ia.map((l, i) => <BookItem livro={l} grupo="ia" indice={i} {...base} />)}</ul>
+    </div>
+
+    <div class="prateleira">
+      <h3 class="plaquinha">{f.prateleiras.concluida}</h3>
+      <ul class="livros">{f.concluida.map((l, i) => <BookItem livro={l} grupo="formacao" indice={i} {...base} />)}</ul>
+    </div>
+
+    <div class="prateleira" id={ANCORA_CERTIFICACOES}>
+      <h3 class="plaquinha">{f.prateleiras.certificacoes}</h3>
+      {
+        f.certificacoes.map((g) => (
+          <div class="grupo-cert">
+            <h4>{g.nome}</h4>
+            <ul class="livros">{g.itens.map((l, i) => <BookItem livro={l} grupo="cert" indice={i} {...base} />)}</ul>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="idiomas">
+      <h3>{f.idiomasTitulo}</h3>
+      <ul class="lista-idiomas">
+        {f.idiomas.map((i) => <li><strong>{i.idioma}</strong> · {i.nivel}</li>)}
+      </ul>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,59 @@
+---
+/** 07 · O lenço · Além do trabalho (#alem, #alem-escotismo, #alem-games, #alem-volei). */
+import DualLabel from '../ui/DualLabel.astro';
+import Selo from '../ui/Selo.astro';
+import { getTextos } from '../../lib/textos';
+import { getUi, VARIANTE_SELO } from '../../lib/ui';
+import { rotuloSecao } from '../../lib/quarto';
+import { ANCORA_ESCOTISMO, ANCORA_GAMES, ANCORA_VOLEI } from '../../i18n/secoes';
+import type { Idioma } from '../../i18n/idiomas';
+
+interface Props {
+  lang: Idioma;
+}
+const { lang } = Astro.props;
+const t = getTextos(lang);
+const a = t.alem;
+const ui = getUi(lang);
+const rotulo = rotuloSecao(lang, 'alem');
+const statusEscotismo = a.escotismo.status;
+---
+
+<section id="alem" class="secao secao-alem" aria-labelledby={rotulo.id}>
+  <div class="secao-in">
+    <DualLabel nivel="h2" {...rotulo} />
+    <nav class="atalhos" aria-label={t.quarto.titulo}>
+      <a href={`#${ANCORA_VOLEI}`}>{t.vista.atalho.volei}</a>
+      <a href={`#${ANCORA_GAMES}`}>{t.vista.atalho.games}</a>
+    </nav>
+
+    <div class="cards-alem">
+      <article class="card-alem" id={ANCORA_ESCOTISMO} aria-labelledby="alem-escotismo-titulo">
+        <h3 id="alem-escotismo-titulo">{a.escotismo.titulo}</h3>
+        <p class="alem-meta">{a.escotismo.cargo} · {a.escotismo.periodo}</p>
+        {
+          statusEscotismo && (
+            <ul class="selos" aria-label={ui.selosStatus}>
+              <Selo variante={VARIANTE_SELO[statusEscotismo]} texto={t.selos[statusEscotismo]} />
+            </ul>
+          )
+        }
+        <p>{a.escotismo.texto}</p>
+      </article>
+
+      <article class="card-alem" id={ANCORA_GAMES} aria-labelledby="alem-games-titulo">
+        <DualLabel nivel="h3" id="alem-games-titulo" tema={a.games.tema} comum={a.games.titulo} />
+        <p>{a.games.texto}</p>
+        <ul class="lista">{a.games.lista.map((j) => <li>{j}</li>)}</ul>
+        <p>{a.games.filmes}</p>
+        <p>{a.games.origemVertice}</p>
+        <p><a href="#vertice">{a.games.linkVertice}</a></p>
+      </article>
+
+      <article class="card-alem" id={ANCORA_VOLEI} aria-labelledby="alem-volei-titulo">
+        <DualLabel nivel="h3" id="alem-volei-titulo" tema={a.volei.tema} comum={a.volei.titulo} />
+        <p>{a.volei.texto}</p>
+      </article>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,13 @@
+---
+/** Decoração "Luminaria" (não clicável; SVG flat, classes f-* = var(--room-*)), em coordenadas locais. Posição: src/config/quarto.ts. */
+import type { PropsDesenho } from '../props';
+
+export type Props = PropsDesenho;
+---
+
+<g data-desenho="Luminaria">
+  <rect class="f-metal" x="38" y="0" width="4" height="52"></rect>
+  <path class="f-metal" d="M20 52h40l16 46H4z"></path>
+  <circle class="f-bon dia" cx="40" cy="98" r="10"></circle>
+  <circle class="f-boff noite" cx="40" cy="98" r="10"></circle>
+</g>

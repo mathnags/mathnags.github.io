@@ -1,0 +1,19 @@
+---
+/**
+ * Rótulo duplo (design 5.1): "03 · O mural · Experiência". No modo recrutador, .cap, .tema e .sep somem
+ * (CSS) e fica só o nome comum. O leitor de tela lê "O mural Experiência" no modo quarto.
+ */
+interface Props {
+  nivel: 'h1' | 'h2' | 'h3';
+  id: string;
+  /** "03" (estrutura). Omitido em sub-blocos sem capítulo. */
+  cap?: string;
+  tema: string;
+  comum: string;
+}
+const { nivel: Tag, id, cap, tema, comum } = Astro.props;
+---
+
+<Tag id={id} class="dual">
+  {cap && <span class="cap" aria-hidden="true">{cap} · </span>}<span class="tema">{tema}</span><span class="sep" aria-hidden="true"> · </span><span class="comum">{comum}</span>
+</Tag>

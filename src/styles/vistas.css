@@ -1,0 +1,402 @@
+/*
+ * Vistas (design 4.4, 5.6): um <dialog id="vista"> com 8 molduras temáticas (data-vista).
+ * O texto é HTML real em tamanho real sobre a moldura; ele nunca é escalado pelo zoom.
+ * A geometria chega por custom properties escritas pelo JS a partir da config (--qx/--qy/--qw/--qh do palco e
+ * --mx/--my/--mw/--mh da moldura, em px). Sem coordenadas aqui.
+ */
+
+@media screen {
+  html:has(#vista[open]) { overflow: hidden; }
+
+  #vista {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    background: transparent;
+    border: 0;
+    color: var(--text);
+  }
+
+  #vista[data-fase='trocando'] .vista-moldura { visibility: hidden; }
+
+  #vista::backdrop { background: rgb(18 20 26 / 0.35); }
+
+  #vista:is([data-vista='tela'], [data-vista='cortica'], [data-vista='estante'])::backdrop { background: transparent; }
+
+  .vista-quadro {
+    position: absolute;
+    left: var(--qx, 0);
+    top: var(--qy, 0);
+    width: var(--qw, 100%);
+    height: var(--qh, 100%);
+  }
+
+  /* ---------- Barra ---------- */
+  .vista-barra {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 3;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-3);
+    height: 56px;
+    padding: 0 var(--space-3);
+    background: color-mix(in srgb, var(--surface) 94%, transparent);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    box-shadow: var(--shadow-1);
+  }
+
+  .vista-voltar,
+  .vista-ant,
+  .vista-prox {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 44px;
+    padding: 0 var(--space-3);
+    background: transparent;
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font: 700 0.9375rem/1 var(--ff-text);
+    cursor: pointer;
+  }
+
+  .vista-voltar:hover,
+  .vista-ant:hover,
+  .vista-prox:hover { background: var(--surface-2); }
+
+  .vista-voltar:active,
+  .vista-ant:active,
+  .vista-prox:active { transform: translateY(1px); }
+
+  .seta-volta { transform: scaleX(-1); }
+
+  .vista-nav {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .vista-alvo {
+    display: none;
+    font: 500 var(--fs-label)/1 var(--ff-mono);
+    white-space: nowrap;
+  }
+
+  @media (min-width: 1024px) {
+    .vista-alvo { display: inline; }
+  }
+
+  .vista-ant[hidden],
+  .vista-prox[hidden] { display: none; }
+
+  .vista-titulo { min-width: 0; }
+
+  .vista-titulo .dual {
+    font: 700 1.25rem/1.1 var(--ff-display);
+  }
+
+  .vista-titulo .dual:focus { outline: none; }
+
+  /* ---------- Moldura e miolo ---------- */
+  .vista-moldura {
+    position: absolute;
+    left: var(--mx);
+    top: var(--my);
+    width: var(--mw);
+    height: var(--mh);
+    display: flex;
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-panel);
+  }
+
+  .vista-miolo {
+    flex: 1;
+    min-width: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    border-radius: inherit;
+  }
+
+  #vista .secao { padding: 0; }
+  #vista .secao-in { max-width: none; padding: var(--space-5); }
+
+  /* tela (monitor): bisel de 12 px */
+  #vista[data-vista='tela'] .vista-moldura { padding: 12px; background: var(--room-metal); }
+  #vista[data-vista='tela'] .vista-miolo { background: var(--surface); border-radius: var(--radius-xs); }
+
+  /* cortiça (mural) */
+  #vista[data-vista='cortica'] .vista-moldura {
+    padding: 12px;
+    background: var(--room-cork);
+    border: 10px solid var(--room-wood);
+  }
+
+  #vista[data-vista='cortica'] .vista-miolo { background: transparent; }
+
+  #vista[data-vista='cortica'] .linha-tempo {
+    display: grid;
+    gap: var(--space-5);
+    padding: 6px;
+  }
+
+  @container (min-width: 640px) {
+    #vista[data-vista='cortica'] .linha-tempo { grid-template-columns: 1fr 1fr; }
+    #vista[data-vista='cortica'] .linha-tempo > .exp:first-child { grid-column: 1 / -1; }
+  }
+
+  #vista .exp {
+    display: block;
+    padding: 20px;
+    border: 0;
+    border-radius: var(--radius-xs);
+    box-shadow: var(--shadow-1);
+  }
+
+  #vista .exp::before { display: none; }
+
+  #vista .exp .tachinha {
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    display: block;
+    width: 12px;
+    height: 12px;
+    margin-left: -6px;
+    border-radius: var(--radius-full);
+    background: var(--bulb-on);
+  }
+
+  #vista .exp:nth-child(odd) { transform: rotate(-0.6deg); }
+  #vista .exp:nth-child(even) { transform: rotate(0.6deg); }
+
+  @media (prefers-reduced-motion: reduce) {
+    #vista .exp:nth-child(n) { transform: none; }
+  }
+
+  /* estante */
+  #vista[data-vista='estante'] .vista-moldura {
+    padding: 0 8px;
+    background: var(--room-wood-dark);
+    border-inline: 12px solid var(--room-wood);
+  }
+
+  #vista[data-vista='estante'] .vista-miolo { background: transparent; }
+
+  #vista[data-vista='estante'] .secao-in { padding: var(--space-4); }
+
+  #vista[data-vista='estante'] .prateleira {
+    padding-bottom: var(--space-3);
+    border-bottom: 10px solid var(--room-wood);
+  }
+
+  #vista[data-vista='estante'] .plaquinha { color: var(--text); }
+  #vista[data-vista='estante'] .grupo-cert h4,
+  #vista[data-vista='estante'] .idiomas { color: var(--paper-text); }
+
+  #vista[data-vista='estante'] .idiomas {
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface);
+    --text: #15171c;
+    border-radius: var(--radius-xs);
+  }
+
+  #vista[data-vista='estante'] .grupo-cert h4 {
+    display: inline-block;
+    padding: 2px 10px;
+    background: var(--surface);
+    color: var(--text);
+    border-radius: var(--radius-xs);
+  }
+
+  #vista .livro {
+    position: relative;
+    margin-left: var(--desl);
+    padding: var(--space-3) var(--space-4) var(--space-3) calc(var(--space-4) + 8px);
+    min-height: 44px;
+    border-radius: var(--radius-xs);
+  }
+
+  #vista .livro-faixa {
+    position: absolute;
+    inset: 0 auto 0 0;
+    display: block;
+    width: 8px;
+    border-radius: var(--radius-xs) 0 0 var(--radius-xs);
+  }
+
+  #vista .livro-ia .livro-faixa { background: var(--room-fabric); }
+  #vista .livro-formacao .livro-faixa { background: var(--room-wood); }
+  #vista .livro-cert .livro-faixa { background: var(--fan-blue); }
+
+  @media (prefers-reduced-motion: reduce) {
+    #vista .livro { margin-left: 0; }
+  }
+
+  /* porta-retrato */
+  #vista[data-vista='porta-retrato'] .vista-moldura {
+    background: var(--paper-bg);
+    border: 14px solid var(--room-wood);
+  }
+
+  #vista[data-vista='porta-retrato'] .sobre-papel { border: 0; box-shadow: none; }
+
+  /* caderno: margem vermelha e pauta de 28 px alinhadas ao texto */
+  #vista[data-vista='caderno'] .vista-miolo {
+    line-height: 28px;
+    background-image:
+      linear-gradient(to right, transparent 36px, var(--fan-red) 36px 38px, transparent 38px),
+      repeating-linear-gradient(to bottom, transparent 0 27px, var(--border) 27px 28px);
+    background-attachment: local;
+  }
+
+  #vista[data-vista='caderno'] .secao-in { padding-left: 52px; }
+
+  #vista[data-vista='caderno'] .cards {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  #vista[data-vista='caderno'] .card {
+    gap: 0;
+    padding: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+  }
+
+  #vista[data-vista='caderno'] .card h3 { line-height: 28px; }
+
+  /* caixa de ferramentas */
+  #vista[data-vista='caixa'] .vista-moldura {
+    background: var(--surface-2);
+    border-top: 16px solid var(--room-metal);
+  }
+
+  #vista[data-vista='caixa'] .vista-miolo { background: transparent; }
+
+  #vista[data-vista='caixa'] .grupos {
+    gap: 0;
+    background: var(--border-strong);
+    border: 2px solid var(--border-strong);
+  }
+
+  #vista[data-vista='caixa'] .grupo {
+    gap: var(--space-3);
+    background: var(--surface-2);
+    border: 0;
+    border-radius: 0;
+    outline: 1px solid var(--border-strong);
+  }
+
+  /* tecido (lenço, bola, headset, estojos) */
+  #vista[data-vista='tecido'] .vista-moldura {
+    background: var(--bg);
+    border-top: 28px solid var(--room-fabric);
+  }
+
+  #vista[data-vista='tecido'] .vista-moldura::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: var(--space-5);
+    border-top: 22px solid var(--room-fabric);
+    border-inline: 22px solid transparent;
+    transform: translateY(0);
+  }
+
+  #vista[data-vista='tecido'] .vista-miolo { background: transparent; }
+
+  /* carta */
+  #vista[data-vista='carta'] .vista-moldura { background: var(--room-paper); }
+
+  #vista[data-vista='carta'] .vista-moldura::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 1;
+    height: 28px;
+    background: var(--room-wall-shade);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    pointer-events: none;
+  }
+
+  #vista[data-vista='carta'] .secao-in { padding-top: 40px; }
+  #vista[data-vista='carta'] .carta { border: 0; box-shadow: none; max-width: none; }
+
+  /* ---------- Mobile: tela cheia (design 4.4) ---------- */
+  @media (max-width: 767px) {
+    .vista-quadro {
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .vista-barra {
+      position: fixed;
+      inset: 0 0 auto;
+      grid-template-columns: auto minmax(0, 1fr);
+      border-radius: 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .vista-voltar span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .vista-voltar { justify-content: center; min-width: 44px; padding: 0; }
+
+    .vista-titulo .dual { font-size: 1.0625rem; }
+
+    .vista-nav {
+      position: fixed;
+      inset: auto 0 0;
+      z-index: 3;
+      justify-content: space-between;
+      height: 56px;
+      padding: 6px var(--space-3);
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+
+    .vista-alvo { display: inline; }
+
+    .vista-moldura {
+      inset: 56px 0 56px;
+      left: 0;
+      top: 56px;
+      width: auto;
+      height: auto;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    #vista[data-vista='tela'] .vista-moldura { padding: 8px; }
+    #vista[data-vista='cortica'] .vista-moldura { padding: 8px; border-width: 8px; }
+    #vista[data-vista='estante'] .vista-moldura { border-inline-width: 8px; padding: 0 4px; }
+    #vista[data-vista='porta-retrato'] .vista-moldura { border-width: 8px; }
+    #vista .secao-in { padding: var(--space-4); }
+    #vista[data-vista='caderno'] .secao-in { padding-left: 52px; }
+    #vista .atalhos { display: flex; }
+  }
+}
+
+@media (forced-colors: active) {
+  .vista-moldura,
+  .vista-barra { border: 2px solid CanvasText; }
+}
+
+#vista .atalhos {
+  width: fit-content;
+  padding: 0 var(--space-3);
+  background: var(--surface);
+  border-radius: var(--radius-xs);
+}

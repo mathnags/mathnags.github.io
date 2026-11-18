@@ -1,0 +1,21 @@
+---
+/** Botão de CTA (design 5.10): sempre <a>; links externos levam ↗ e abrem na mesma aba. */
+import Icone from './Icone.astro';
+import { getUi } from '../../lib/ui';
+import type { Idioma } from '../../i18n/idiomas';
+
+interface Props {
+  lang: Idioma;
+  href: string;
+  texto: string;
+  variante?: 'primario' | 'secundario';
+  externo?: boolean;
+}
+const { lang, href, texto, variante = 'primario', externo = false } = Astro.props;
+const ui = externo ? getUi(lang) : null;
+---
+
+<a class={`cta cta-${variante}`} href={href}>
+  <span>{texto}</span>
+  {externo && ui && <><Icone nome="externo" class="cta-seta" /><span class="sr-only">{ui.linkExterno}</span></>}
+</a>

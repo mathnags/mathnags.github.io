@@ -1,0 +1,128 @@
+---
+/**
+ * Palco do quarto (design 4.0, 4.2, 5.3, 5.5): <svg> decorativo + <ol> de <a class="objeto"> (os controles reais)
+ * + legenda. Tudo sai de src/config/quarto.ts e de textos.<lang>.json > quarto. Visível só com data-modo="quarto".
+ * No mobile (< 768) o mesmo <ol> vira a grade de ladrilhos, que reaproveita os desenhos com <use>.
+ */
+import Icone from '../ui/Icone.astro';
+import { cliqueDe, objetosEmOrdem, quarto } from '../../config/quarto';
+import { numeroDoCapitulo } from '../../i18n/secoes';
+import { getTextos } from '../../lib/textos';
+import { DESENHOS_DECORACAO, DESENHOS_OBJETO, Varal } from './registro';
+import type { Idioma } from '../../i18n/idiomas';
+
+interface Props {
+  lang: Idioma;
+}
+const { lang } = Astro.props;
+const t = getTextos(lang);
+const vb = quarto.viewBox;
+const { piso, porta } = quarto.fundo;
+const lombadas = [...t.alem.games.lista, t.alem.games.lombadaExtra];
+const lampadas = objetosEmOrdem.flatMap((o) => (o.papel === 'principal' && o.lampada ? [{ x: o.lampada.x, capitulo: o.capitulo }] : []));
+
+const itens = objetosEmOrdem.map((o) => {
+  const c = cliqueDe(o);
+  // Objetos perto da borda direita ancoram a etiqueta pela direita, para ela não sair do palco.
+  const aDireita = o.caixa.x + o.caixa.l / 2 > vb.l * 0.8;
+  const ex = (aDireita ? (o.etiqueta?.x ?? o.caixa.x + o.caixa.l) : (o.etiqueta?.x ?? o.caixa.x)) - c.x;
+  const ey = (o.etiqueta?.y ?? o.caixa.y) - c.y;
+  const txt = t.quarto.objetos[o.id];
+  return {
+    o,
+    c,
+    aDireita,
+    estilo: `--x:${c.x};--y:${c.y};--w:${c.l};--h:${c.a};--ex:${ex};--ey:${ey}`,
+    txt,
+    cap: numeroDoCapitulo(o.capitulo),
+    minis: o.mobile.desenhos.map((nome) => quarto.objetos.find((x) => x.componente === nome)!),
+  };
+});
+---
+
+<nav id="quarto" aria-label={t.quarto.titulo}>
+  <p class="sr-only">{t.quarto.ajuda}</p>
+  <div class="palco" data-estado="repouso" style={`--vb-l:${vb.l};--vb-a:${vb.a}`}>
+    <svg class="cena" viewBox={`0 0 ${vb.l} ${vb.a}`} aria-hidden="true" focusable="false">
+      <rect class="f-wall" x="0" y="0" width={vb.l} height={piso}></rect>
+      <rect class="f-wall-shade" x="0" y={piso - 20} width={vb.l} height="20"></rect>
+      <rect class="f-floor" x="0" y={piso} width={vb.l} height={vb.a - piso}></rect>
+      <rect class="f-wood" x={porta.x} y={porta.y} width={porta.l} height={porta.a} rx="8"></rect>
+      <rect class="f-wood-dark" x={porta.x + 14} y={porta.y + 14} width={porta.l - 28} height={Math.round(porta.a * 0.4)} rx="6"></rect>
+      <rect class="f-wood-dark" x={porta.x + 14} y={porta.y + Math.round(porta.a * 0.4) + 28} width={porta.l - 28} height={Math.round(porta.a * 0.5)} rx="6"></rect>
+      <circle class="f-metal" cx={porta.x + 12} cy={porta.y + Math.round(porta.a * 0.5)} r="6"></circle>
+
+      {
+        quarto.decoracao.map((d) => {
+          const Desenho = DESENHOS_DECORACAO[d.componente];
+          return (
+            <svg x={d.caixa.x} y={d.caixa.y} width={d.caixa.l} height={d.caixa.a} viewBox={`0 0 ${d.caixa.l} ${d.caixa.a}`} overflow="visible">
+              <Desenho l={d.caixa.l} a={d.caixa.a} />
+            </svg>
+          );
+        })
+      }
+
+      <Varal l={vb.l} a={vb.a} y={quarto.varal.y} de={quarto.varal.de} ate={quarto.varal.ate} lampadas={lampadas} />
+
+      {
+        itens.map(({ o }) => {
+          const Desenho = DESENHOS_OBJETO[o.componente];
+          return (
+            <g class="obj" data-g={o.id}>
+              <rect class="realce" x={o.caixa.x - 6} y={o.caixa.y - 6} width={o.caixa.l + 12} height={o.caixa.a + 12} rx="12" fill="none"></rect>
+              <svg x={o.caixa.x} y={o.caixa.y} width={o.caixa.l} height={o.caixa.a} viewBox={`0 0 ${o.caixa.l} ${o.caixa.a}`} overflow="visible">
+                <g id={`d-${o.id}`}>
+                  <Desenho l={o.caixa.l} a={o.caixa.a} lombadas={lombadas} />
+                </g>
+              </svg>
+            </g>
+          );
+        })
+      }
+    </svg>
+
+    <ol class="objetos">
+      {
+        itens.map(({ o, estilo, txt, cap, aDireita, minis }) => (
+          <li class:list={[o.papel === 'secundario' && 'sec']}>
+            <a
+              class:list={['objeto', aDireita && 'etq-dir']}
+              href={`#${o.destino}`}
+              data-objeto={o.id}
+              data-cap={o.capitulo}
+              data-num={cap}
+              data-papel={o.papel}
+              data-tema={txt.tema}
+              data-comum={txt.comum}
+              data-legenda={txt.legenda}
+              style={estilo}
+            >
+              <span class="ladrilho-arte" aria-hidden="true">
+                {minis.map((m) => (
+                  <svg class="mini" viewBox={`0 0 ${m.caixa.l} ${m.caixa.a}`} focusable="false">
+                    <use href={`#d-${m.id}`} />
+                  </svg>
+                ))}
+              </span>
+              <span class="ladrilho-lampada" aria-hidden="true"></span>
+              <span class="etiqueta">
+                <span class="num">{cap}</span>
+                <Icone nome="check" tamanho={12} class="check" />
+                <span class="sep" aria-hidden="true"> · </span>
+                <span class="tema">{txt.tema}</span><span class="sr-only">, </span>
+                <span class="comum">{txt.comum}</span>
+                <span class="sr-only estado" data-lido={t.quarto.estado.lido} data-proximo={t.quarto.estado.proximo}></span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+
+  <div class="legenda" aria-hidden="true">
+    <p class="leg-linha"><strong class="leg-nome"></strong> <span class="leg-texto"></span></p>
+    <p class="leg-dica"><span class="leg-teclas">{t.quarto.legendaTeclas}</span><span class="leg-ponteiro">{t.quarto.legendaPonteiro}</span></p>
+  </div>
+</nav>

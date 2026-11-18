@@ -1,0 +1,24 @@
+---
+/** 03 · O mural · Experiência (#experiencia). */
+import DualLabel from '../ui/DualLabel.astro';
+import ExperienceItem from './ExperienceItem.astro';
+import { getTextos } from '../../lib/textos';
+import { rotuloSecao } from '../../lib/quarto';
+import type { Idioma } from '../../i18n/idiomas';
+
+interface Props {
+  lang: Idioma;
+}
+const { lang } = Astro.props;
+const t = getTextos(lang);
+const rotulo = rotuloSecao(lang, 'experiencia');
+---
+
+<section id="experiencia" class="secao secao-experiencia" aria-labelledby={rotulo.id}>
+  <div class="secao-in">
+    <DualLabel nivel="h2" {...rotulo} />
+    <ol class="linha-tempo">
+      {t.experiencia.itens.map((item) => <ExperienceItem item={item} rotuloAprendizado={t.experiencia.rotuloAprendizado} />)}
+    </ol>
+  </div>
+</section>

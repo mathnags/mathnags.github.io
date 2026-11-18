@@ -1,0 +1,58 @@
+---
+/**
+ * Página única do portfólio, igual nos dois idiomas; só muda o "lang".
+ * Estrutura do DOM em docs/design.md 4.0: header.topo → main#conteudo (#ficha, nav#quarto e as 8 seções na
+ * ordem dos capítulos) → footer → dialog#vista. A ordem do DOM é a ordem dos capítulos e do Tab.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Topo from './secoes/Topo.astro';
+import Resumo from './secoes/Resumo.astro';
+import Vertice from './secoes/Vertice.astro';
+import Sobre from './secoes/Sobre.astro';
+import Experiencia from './secoes/Experiencia.astro';
+import Projetos from './secoes/Projetos.astro';
+import Habilidades from './secoes/Habilidades.astro';
+import Formacao from './secoes/Formacao.astro';
+import Alem from './secoes/Alem.astro';
+import Contato from './secoes/Contato.astro';
+import Rodape from './secoes/Rodape.astro';
+import Quarto from './quarto/Quarto.astro';
+import Vista from './quarto/Vista.astro';
+import { configCliente } from '../config/quarto';
+import { getTextos } from '../lib/textos';
+import { ID_CONFIG_QUARTO } from '../i18n/secoes';
+import type { Idioma } from '../i18n/idiomas';
+import '../styles/layout.css';
+import '../styles/quarto.css';
+import '../styles/vistas.css';
+
+interface Props {
+  lang: Idioma;
+}
+
+const { lang } = Astro.props;
+const t = getTextos(lang);
+---
+
+<BaseLayout lang={lang}>
+  <Topo lang={lang} />
+  <main id="conteudo" tabindex="-1">
+    <Resumo lang={lang} />
+    <Quarto lang={lang} />
+    <Vertice lang={lang} />
+    <Sobre lang={lang} />
+    <Experiencia lang={lang} />
+    <Projetos lang={lang} />
+    <Habilidades lang={lang} />
+    <Formacao lang={lang} />
+    <Alem lang={lang} />
+    <Contato lang={lang} />
+  </main>
+  <Rodape lang={lang} />
+  <Vista lang={lang} />
+  <p id="status-modo" class="sr-only" role="status" data-recrutador={t.status.modoAtivado.recrutador} data-quarto={t.status.modoAtivado.quarto}></p>
+  <script is:inline type="application/json" id={ID_CONFIG_QUARTO} set:html={JSON.stringify(configCliente())} />
+  <script>
+    import '../scripts/quarto';
+  </script>
+</BaseLayout>

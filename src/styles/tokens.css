@@ -1,0 +1,229 @@
+/*
+ * Tokens de docs/design.md §2 (versão "O quarto"). Não invente valores: mude primeiro o design.md.
+ * Fontes: --font-text, --font-display e --font-mono são criadas pelo <Font /> do Astro
+ * (astro.config.mjs > fonts) e já incluem as fontes de reserva.
+ * Breakpoints (não podem ser variáveis em @media): md 768px, lg 1024px, xl 1280px.
+ */
+
+:root {
+  /* 2.1 Interface e texto: luz acesa */
+  --bg: #f6f4ee;
+  --surface: #ffffff;
+  --surface-2: #ece8dd;
+  --text: #15171c;
+  --text-muted: #4f545c;
+  --accent: #b8400f;
+  --accent-strong: #9a3409;
+  --accent-tint: #f7e6dc;
+  --on-accent: #ffffff;
+  --pine: #1e6b5a;
+  --pine-tint: #e2eee9;
+  --border: #d6d2c6;
+  --border-strong: #8a8476;
+  --focus: #b8400f;
+  --badge-progress-fg: #9a3409;
+  --link: var(--accent);
+  --ring-in: #ffffff;
+  --ring-out: #15171c;
+
+  /* Papel */
+  --paper-bg: #fffdf7;
+  --paper-text: #15171c;
+  --paper-muted: #4f545c;
+
+  /* Ilustração (decorativa) */
+  --room-wall: #efe9dc;
+  --room-wall-shade: #e2daca;
+  --room-floor: #c9b79a;
+  --room-wood: #a9774e;
+  --room-wood-dark: #7c5536;
+  --room-metal: #2b2f38;
+  --room-screen: #f2f6f4;
+  --room-cork: #c89b63;
+  --room-paper: #fffdf7;
+  --room-fabric: #6f8f86;
+  --room-sky: #bfdde8;
+  --room-city: #9fb3bf;
+  --room-moon: transparent;
+  --bulb-off: #d6d2c6;
+  --bulb-on: #f2b84b;
+  --glow: transparent;
+  --noite: 0; /* chave (não é cor): 1 com a luz apagada */
+  --fan-red: #c8352e;
+  --fan-blue: #2d4f8e;
+  --fan-coral: #ff5f57;
+  --fan-herb-green: #4f8a3c;
+  --fan-herb-red: #c2413a;
+
+  /* 2.5 Sombras (chapadas) */
+  --shadow-1: 0 2px 0 rgb(21 23 28 / 0.08);
+  --shadow-2: 0 6px 0 -2px rgb(21 23 28 / 0.14);
+  --shadow-panel: 0 16px 40px -16px rgb(21 23 28 / 0.35);
+
+  color-scheme: light;
+
+  /* 2.2 Tipografia */
+  --ff-display: var(--font-display);
+  --ff-text: var(--font-text);
+  --ff-mono: var(--font-mono);
+
+  --fs-display: clamp(2rem, 1.5rem + 2.4vw, 3rem);
+  --fs-h2: clamp(1.5rem, 1.3rem + 1vw, 2.125rem);
+  --fs-h3: clamp(1.125rem, 1.05rem + 0.4vw, 1.375rem);
+  --fs-lead: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+  --fs-body: clamp(1rem, 0.97rem + 0.15vw, 1.0625rem);
+  --fs-small: 0.875rem;
+  --fs-label: 0.8125rem;
+
+  --lh-display: 1.05;
+  --lh-h2: 1.15;
+  --lh-h3: 1.25;
+  --lh-lead: 1.45;
+  --lh-body: 1.6;
+  --lh-small: 1.5;
+  --lh-label: 1.4;
+  --ls-display: -0.02em;
+  --ls-label: 0.02em;
+
+  /* 2.3 Espaçamento e grade (base 4px) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --container-quarto: 1280px;
+  --container-recrutador: 1120px;
+  --margem: 16px; /* 24px a partir de md e 32px a partir de lg: ajuste em global.css */
+
+  /* 2.4 Raios */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-full: 999px;
+
+  /* 2.6 Animação */
+  --dur-1: 120ms;
+  --dur-2: 180ms;
+  --dur-zoom: 400ms;
+  --dur-zoom-out: 320ms;
+  --dur-reveal: 160ms;
+  --dur-light: 320ms;
+  --dur-draw: 700ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-std: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Luz apagada por escolha manual (interruptor grava data-theme no <html>) */
+:root[data-theme='dark'] {
+  --bg: #12141a;
+  --surface: #1b1e26;
+  --surface-2: #252933;
+  --text: #ece8df;
+  --text-muted: #a3a6ae;
+  --accent: #ff8a4c;
+  --accent-strong: #ffa470;
+  --accent-tint: #3a2218;
+  --on-accent: #12141a;
+  --pine: #5cc2a4;
+  --pine-tint: #17312b;
+  --border: #2e3240;
+  --border-strong: #6b6f7a;
+  --focus: #ff8a4c;
+  --badge-progress-fg: #ff8a4c;
+  --paper-bg: #cfcabd;
+  --room-wall: #1e2230;
+  --room-wall-shade: #191c28;
+  --room-floor: #2a2622;
+  --room-wood: #4e3a2b;
+  --room-wood-dark: #3a2b20;
+  --room-metal: #0e1015;
+  --room-screen: #10241f;
+  --room-cork: #5a4430;
+  --room-paper: #cfcabd;
+  --room-fabric: #2e4640;
+  --room-sky: #0b1430;
+  --room-city: #1a2440;
+  --room-moon: #f2e8c9;
+  --bulb-off: #3a3d48;
+  --bulb-on: #ffd27a;
+  --glow: rgb(255 210 122 / 0.18);
+  --noite: 1;
+  --fan-red: #7a2420;
+  --fan-blue: #1c2f57;
+  --fan-coral: #9a3d38;
+  --fan-herb-green: #2f5426;
+  --fan-herb-red: #74271f;
+  --shadow-1: none;
+  --shadow-2: 0 0 0 1px var(--border-strong);
+  --shadow-panel: 0 0 0 1px var(--border-strong);
+  color-scheme: dark;
+}
+
+/* Sem JS ou sem escolha salva: segue o sistema. Mesmos valores do bloco acima. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #12141a;
+    --surface: #1b1e26;
+    --surface-2: #252933;
+    --text: #ece8df;
+    --text-muted: #a3a6ae;
+    --accent: #ff8a4c;
+    --accent-strong: #ffa470;
+    --accent-tint: #3a2218;
+    --on-accent: #12141a;
+    --pine: #5cc2a4;
+    --pine-tint: #17312b;
+    --border: #2e3240;
+    --border-strong: #6b6f7a;
+    --focus: #ff8a4c;
+    --badge-progress-fg: #ff8a4c;
+    --paper-bg: #cfcabd;
+    --room-wall: #1e2230;
+    --room-wall-shade: #191c28;
+    --room-floor: #2a2622;
+    --room-wood: #4e3a2b;
+    --room-wood-dark: #3a2b20;
+    --room-metal: #0e1015;
+    --room-screen: #10241f;
+    --room-cork: #5a4430;
+    --room-paper: #cfcabd;
+    --room-fabric: #2e4640;
+    --room-sky: #0b1430;
+    --room-city: #1a2440;
+    --room-moon: #f2e8c9;
+    --bulb-off: #3a3d48;
+    --bulb-on: #ffd27a;
+    --glow: rgb(255 210 122 / 0.18);
+    --noite: 1;
+    --fan-red: #7a2420;
+    --fan-blue: #1c2f57;
+    --fan-coral: #9a3d38;
+    --fan-herb-green: #2f5426;
+    --fan-herb-red: #74271f;
+    --shadow-1: none;
+    --shadow-2: 0 0 0 1px var(--border-strong);
+    --shadow-panel: 0 0 0 1px var(--border-strong);
+    color-scheme: dark;
+  }
+}
+
+/* Ilha clara do papel (design 2.1 e 3.4): vale nos dois temas */
+.papel {
+  background: var(--paper-bg);
+  --text: #15171c;
+  --text-muted: #4f545c;
+  --link: #8a2e07;
+  --accent: #b8400f;
+  --accent-strong: #9a3409;
+  --on-accent: #ffffff;
+  --focus: #b8400f;
+  --pine: #1e6b5a;
+  --pine-tint: #e2eee9;
+  --surface-2: #ece8dd;
+  --border-strong: #8a8476;
+  color: var(--text);
+}

@@ -1,0 +1,91 @@
+---
+/**
+ * Casca HTML comum aos dois idiomas: <html lang>, metadados, SEO, fontes e o script de início.
+ * Não contém texto próprio: título e descrição vêm de textos.<lang>.json > meta.
+ *
+ * Modo recrutador = HTML/CSS base. O modo quarto é uma camada: só existe quando o script abaixo
+ * define <html data-modo="quarto"> (JS ativo e sem ?modo=recrutador nem escolha salva).
+ */
+import { Font } from 'astro:assets';
+import { getAbsoluteLocaleUrl } from 'astro:i18n';
+import '../styles/global.css';
+import { getTextos } from '../lib/textos';
+import { comBase } from '../lib/url';
+import { CONFIG_IDIOMA, IDIOMAS, IDIOMA_PADRAO, type Idioma } from '../i18n/idiomas';
+
+interface Props {
+  lang: Idioma;
+}
+
+const { lang } = Astro.props;
+const t = getTextos(lang);
+// Canonical sem ?modo e sem hash (design 9.4).
+const canonical = getAbsoluteLocaleUrl(lang);
+const ogImagem = new URL(comBase('og.png'), Astro.site).href;
+const outroLocale = CONFIG_IDIOMA[lang === 'pt' ? 'en' : 'pt'].ogLocale;
+const pessoa = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: t.hero.nome,
+  jobTitle: t.hero.rotulo,
+  url: canonical,
+  sameAs: [t.contato.linkedinUrl, t.rodape.githubUrl],
+};
+---
+
+<!doctype html>
+<html lang={CONFIG_IDIOMA[lang].htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--
+      Script de início (design 1.4), antes de qualquer CSS ou pintura, ≤ 1 KB:
+      tema salvo, classe "js" e modo. Chaves de localStorage: "tema" (light|dark) e "modo" (quarto|recrutador).
+    -->
+    <script is:inline>
+      (function () {
+        const d = document.documentElement;
+        d.classList.add('js');
+        let tema = null;
+        let modo = null;
+        try {
+          tema = localStorage.getItem('tema');
+          modo = localStorage.getItem('modo');
+        } catch {}
+        if (tema === 'dark' || tema === 'light') d.dataset.theme = tema;
+        const q = new URLSearchParams(location.search).get('modo');
+        if (q === 'recrutador' || q === 'quarto') modo = q;
+        if (modo !== 'recrutador') d.dataset.modo = 'quarto';
+      })();
+    </script>
+    <title>{t.meta.title}</title>
+    <meta name="description" content={t.meta.description} />
+    <link rel="canonical" href={canonical} />
+    {IDIOMAS.map((l) => <link rel="alternate" hreflang={CONFIG_IDIOMA[l].hreflang} href={getAbsoluteLocaleUrl(l)} />)}
+    <link rel="alternate" hreflang="x-default" href={getAbsoluteLocaleUrl(IDIOMA_PADRAO)} />
+    <link rel="sitemap" href={comBase('sitemap-index.xml')} />
+    <link rel="icon" href={comBase('favicon.svg')} type="image/svg+xml" />
+    <meta name="color-scheme" content="light dark" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={t.meta.title} />
+    <meta property="og:description" content={t.meta.description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={CONFIG_IDIOMA[lang].ogLocale} />
+    <meta property="og:locale:alternate" content={outroLocale} />
+    <meta property="og:image" content={ogImagem} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={t.meta.title} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json" set:html={JSON.stringify(pessoa)} />
+
+    <!-- Dois preloads (design 2.2): texto e títulos. -->
+    <Font cssVariable="--font-text" preload={[{ subset: "latin" }]} />
+    <Font cssVariable="--font-display" preload={[{ subset: "latin", weight: 800 }]} />
+    <Font cssVariable="--font-mono" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

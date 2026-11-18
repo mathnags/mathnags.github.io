@@ -1,0 +1,24 @@
+---
+/** Desenho de "Monitor" (SVG flat, só preenchimentos e classes f-* = var(--room-*)), em coordenadas locais. Posição e vista: src/config/quarto.ts. */
+import type { PropsDesenho } from '../props';
+
+export type Props = PropsDesenho;
+---
+
+<g data-desenho="Monitor">
+  <rect class="f-metal" x="108" y="222" width="64" height="12" rx="4"></rect>
+  <rect class="f-metal" x="130" y="196" width="20" height="30"></rect>
+  <rect class="f-metal" x="100" y="238" width="80" height="12" rx="5"></rect>
+  <rect class="f-metal" x="0" y="0" width="280" height="206" rx="14"></rect>
+  <rect class="f-screen" x="14" y="12" width="252" height="158" rx="4"></rect>
+  <circle class="f-wall-shade" cx="140" cy="188" r="4"></circle>
+  <!-- A tela que dobra (design 6): sem texto, sem eixo, sem valores -->
+  <path class="tela-base" d="M36 120H183" fill="none" stroke-width="4" stroke-linecap="round"></path>
+  <circle class="f-muted" cx="36" cy="120" r="6"></circle>
+  <circle class="f-muted" cx="57" cy="120" r="6"></circle>
+  <circle class="f-muted" cx="78" cy="120" r="6"></circle>
+  <circle class="f-muted" cx="120" cy="120" r="6"></circle>
+  <path class="tela-linha" d="M183 120L238 62" pathLength="1" fill="none" stroke-width="5" stroke-linecap="round"></path>
+  <path class="f-accent" d="M183 106l14 14-14 14-14-14z"></path>
+  <circle class="tela-anel" cx="244" cy="54" r="10" fill="none" stroke-width="4"></circle>
+</g>

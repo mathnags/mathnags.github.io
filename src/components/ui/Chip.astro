@@ -1,0 +1,16 @@
+---
+/** Chip de habilidade ou de stack (design 5.9). Não é interativo. */
+interface Props {
+  nome: string;
+  /** Contexto real: 2º segmento em --pine. */
+  contexto?: string;
+  /** Prefixo sr-only do contexto (habilidades.rotuloContextoReal). */
+  rotuloContexto?: string;
+}
+const { nome, contexto = '', rotuloContexto = '' } = Astro.props;
+---
+
+<span class:list={['chip', contexto && 'chip-real']}>
+  <span class="chip-nome">{nome}</span>
+  {contexto && <span class="chip-ctx">{rotuloContexto && <span class="sr-only">{rotuloContexto} </span>}{contexto}</span>}
+</span>

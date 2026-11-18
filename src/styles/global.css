@@ -1,0 +1,132 @@
+/*
+ * Base global mínima. Estilo de componente fica no <style> do próprio componente (escopo do Astro).
+ * Regras de docs/design.md: foco (5), movimento reduzido (8), modos (1.4, 4.0, 4.6).
+ */
+@import './tokens.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --margem: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --margem: 32px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--ff-text);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  transition:
+    background-color var(--dur-light) var(--ease-std),
+    color var(--dur-light) var(--ease-std);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--ff-display);
+  margin: 0;
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: var(--link);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/*
+ * MODOS. O modo recrutador é o HTML/CSS base (sem JS, impressão, buscadores).
+ * Tudo que é do quarto fica sob html[data-modo='quarto'] e só em tela (@media screen),
+ * para que a impressão saia sempre no modo recrutador.
+ */
+#quarto,
+.so-quarto {
+  display: none;
+}
+
+html:not(.js) .so-js {
+  display: none;
+}
+
+@media screen {
+  html[data-modo='quarto'] #quarto,
+  html[data-modo='quarto'] .so-quarto {
+    display: revert;
+  }
+
+  html[data-modo='quarto'] .so-recrutador {
+    display: none;
+  }
+
+  /* No quarto, as seções só aparecem dentro da vista (o JS as move para o <dialog id="vista">). */
+  html[data-modo='quarto'] main > section:not(#ficha) {
+    display: none;
+  }
+
+  /* Fallback só com CSS, antes do JS (design 4.0): a seção alvo aparece como painel simples. */
+  html[data-modo='quarto'] main > section:target,
+  #vista section {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

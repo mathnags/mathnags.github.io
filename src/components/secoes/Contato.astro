@@ -1,0 +1,35 @@
+---
+/** 08 · A correspondência · Contato (#contato). Papel de carta com o convite e o CTA. */
+import DualLabel from '../ui/DualLabel.astro';
+import Selo from '../ui/Selo.astro';
+import BotaoCTA from '../ui/BotaoCTA.astro';
+import { getTextos } from '../../lib/textos';
+import { getUi } from '../../lib/ui';
+import { rotuloSecao } from '../../lib/quarto';
+import type { Idioma } from '../../i18n/idiomas';
+
+interface Props {
+  lang: Idioma;
+}
+const { lang } = Astro.props;
+const t = getTextos(lang);
+const ui = getUi(lang);
+const rotulo = rotuloSecao(lang, 'contato');
+---
+
+<section id="contato" class="secao secao-contato" aria-labelledby={rotulo.id}>
+  <div class="secao-in">
+    <DualLabel nivel="h2" {...rotulo} />
+    <div class="papel carta">
+      <h3>{t.contato.convite}</h3>
+      <p>{t.contato.texto}</p>
+      <ul class="selos" aria-label={ui.selosStatus}>
+        <Selo variante="estado" texto={t.contato.status} />
+      </ul>
+      <div class="carta-acoes">
+        <BotaoCTA lang={lang} href={t.contato.linkedinUrl} texto={t.contato.cta} externo />
+      </div>
+      <p class="assinatura">{t.contato.assinatura}</p>
+    </div>
+  </div>
+</section>

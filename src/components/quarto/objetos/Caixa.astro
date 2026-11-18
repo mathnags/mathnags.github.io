@@ -1,0 +1,15 @@
+---
+/** Desenho de "Caixa" (SVG flat, só preenchimentos e classes f-* = var(--room-*)), em coordenadas locais. Posição e vista: src/config/quarto.ts. */
+import type { PropsDesenho } from '../props';
+
+export type Props = PropsDesenho;
+---
+
+<g data-desenho="Caixa">
+  <path class="f-metal" d="M52 26V14a12 12 0 0 1 12-12h42a12 12 0 0 1 12 12v12h-12V16H64v10z"></path>
+  <rect class="f-metal" x="0" y="24" width="170" height="76" rx="8"></rect>
+  <rect class="f-wood-dark" x="0" y="52" width="170" height="8"></rect>
+  <rect class="f-fabric" x="20" y="44" width="24" height="16" rx="3"></rect>
+  <rect class="f-fabric" x="126" y="44" width="24" height="16" rx="3"></rect>
+  <rect class="f-wall-shade" x="14" y="72" width="142" height="6" rx="3"></rect>
+</g>

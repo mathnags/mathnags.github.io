@@ -1,0 +1,38 @@
+---
+/** Livro da estante (vista estante) e item de lista (modo recrutador) (design 5.13). Não é interativo. */
+import Selo from '../ui/Selo.astro';
+import { VARIANTE_SELO } from '../../lib/ui';
+import type { Textos } from '../../schemas/conteudo';
+
+interface Props {
+  livro: Textos['formacao']['ia'][number];
+  /** Cor da faixa decorativa: ia | formacao | cert. */
+  grupo: 'ia' | 'formacao' | 'cert';
+  /** Textos dos selos (dicionário "selos"). */
+  selos: Textos['selos'];
+  /** aria-label da lista de selos. */
+  rotuloSelos: string;
+  /** Índice, para o deslocamento fixo (0–16 px) que faz a pilha. */
+  indice: number;
+}
+const { livro, grupo, selos, rotuloSelos, indice } = Astro.props;
+const deslocamento = [0, 12, 4, 16, 8][indice % 5];
+---
+
+<li class={`livro livro-${grupo}`} style={`--desl:${deslocamento}px`}>
+  <span class="livro-faixa" aria-hidden="true"></span>
+  <div class="livro-corpo">
+    <p class="livro-nome">{livro.nome}</p>
+    {livro.traducao && <p class="livro-traducao">{livro.traducao}</p>}
+    <p class="livro-meta">
+      <span>{livro.emissor}</span>{livro.periodo && <> · <span>{livro.periodo}</span></>}
+    </p>
+    {
+      livro.status && (
+        <ul class="selos" aria-label={rotuloSelos}>
+          <Selo variante={VARIANTE_SELO[livro.status]} texto={selos[livro.status]} />
+        </ul>
+      )
+    }
+  </div>
+</li>

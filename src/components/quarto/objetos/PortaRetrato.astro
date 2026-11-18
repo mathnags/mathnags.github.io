@@ -1,0 +1,13 @@
+---
+/** Desenho de "PortaRetrato" (SVG flat, só preenchimentos e classes f-* = var(--room-*)), em coordenadas locais. Posição e vista: src/config/quarto.ts. */
+import type { PropsDesenho } from '../props';
+
+export type Props = PropsDesenho;
+---
+
+<g data-desenho="PortaRetrato">
+  <rect class="f-wood" x="0" y="0" width="90" height="120" rx="8"></rect>
+  <rect class="f-fabric" x="8" y="8" width="74" height="104" rx="4"></rect>
+  <circle class="f-metal" cx="45" cy="50" r="18"></circle>
+  <path class="f-metal" d="M16 112C16 80 74 80 74 112z"></path>
+</g>

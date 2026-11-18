@@ -1,0 +1,31 @@
+---
+/** Decoração "Janela" (não clicável; SVG flat, classes f-* = var(--room-*)), em coordenadas locais. Posição: src/config/quarto.ts. */
+import type { PropsDesenho } from '../props';
+
+export type Props = PropsDesenho;
+// Prédios genéricos e janelinhas (acesas só à noite, por CSS: --noite).
+const predios = [
+  { x: 12, y: 230, l: 44, a: 138 },
+  { x: 60, y: 270, l: 36, a: 98 },
+  { x: 104, y: 210, l: 48, a: 158 },
+  { x: 156, y: 258, l: 32, a: 110 },
+];
+const luzes = [
+  [22, 246], [38, 246], [22, 274], [38, 274], [22, 302], [70, 290], [70, 318],
+  [114, 228], [132, 228], [114, 256], [132, 284], [114, 312], [164, 276], [164, 304],
+];
+---
+
+<g data-desenho="Janela">
+  <rect class="f-wood" x="0" y="0" width="200" height="380" rx="8"></rect>
+  <rect class="f-sky" x="12" y="12" width="176" height="356"></rect>
+  <circle class="f-moon" cx="140" cy="70" r="22"></circle>
+  <circle class="f-sky" cx="150" cy="64" r="20"></circle>
+  {predios.map((p) => <rect class="f-city" x={p.x} y={p.y} width={p.l} height={p.a} />)}
+  {luzes.map(([x, y]) => <rect class="f-bon noite" x={x} y={y} width="8" height="10" />)}
+  <rect class="f-wood" x="94" y="12" width="12" height="356"></rect>
+  <rect class="f-wood" x="12" y="176" width="176" height="10"></rect>
+  <path class="f-fabric" d="M12 12h40c-6 80-6 180 0 280H12z"></path>
+  <path class="f-fabric" d="M188 12h-40c6 80 6 180 0 280h40z"></path>
+  <rect class="f-wood-dark" x="-0" y="364" width="200" height="16" rx="4"></rect>
+</g>

@@ -1,0 +1,14 @@
+---
+/** Desenho de "Lenco" (SVG flat, só preenchimentos e classes f-* = var(--room-*)), em coordenadas locais. Posição e vista: src/config/quarto.ts. */
+import type { PropsDesenho } from '../props';
+
+export type Props = PropsDesenho;
+---
+
+<g data-desenho="Lenco">
+  <rect class="f-metal" x="43" y="0" width="4" height="12"></rect>
+  <circle class="f-metal" cx="45" cy="14" r="6"></circle>
+  <path class="f-fabric" d="M45 18L86 26 45 118 4 26z"></path>
+  <path class="f-wall-shade" d="M45 18L86 26 70 44H20L4 26z"></path>
+  <circle class="f-wood-dark" cx="45" cy="34" r="8"></circle>
+</g>

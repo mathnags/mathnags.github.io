@@ -1,0 +1,57 @@
+---
+/** #ficha: resumo (design 4.5). h1 com o nome; nenhum número, nível ou barra. */
+import Icone from '../ui/Icone.astro';
+import Selo from '../ui/Selo.astro';
+import BotaoCTA from '../ui/BotaoCTA.astro';
+import { getTextos } from '../../lib/textos';
+import { getUi } from '../../lib/ui';
+import type { Idioma } from '../../i18n/idiomas';
+
+interface Props {
+  lang: Idioma;
+}
+const { lang } = Astro.props;
+const t = getTextos(lang);
+const ui = getUi(lang);
+// "Dados → IA": a seta vira SVG com texto sr-only (design 2.2); o texto vem de hero.rotulo.
+const [antes, depois] = t.hero.rotulo.split('→').map((s) => s.trim());
+---
+
+<section id="ficha" class="ficha" aria-labelledby="ficha-titulo">
+  <div class="ficha-in">
+    <div class="ficha-col">
+    <div class="ficha-topo">
+      <p class="eyebrow">
+        {depois === undefined ? antes : <>{antes}{' '}<Icone nome="seta" /><span class="sr-only">{ui.setaPara}</span>{' '}{depois}</>}
+      </p>
+      <ul class="selos" aria-label={ui.selosStatus}>
+        <Selo variante="transicao" texto={t.resumo.transicao} />
+      </ul>
+    </div>
+    <h1 id="ficha-titulo">{t.hero.nome}</h1>
+    <p class="frase">{t.hero.frase}</p>
+    <div class="ficha-acoes">
+      <BotaoCTA lang={lang} href={t.contato.linkedinUrl} texto={t.hero.cta} externo />
+      <a class="so-recrutador link-vertice" href="#vertice">{t.hero.ctaSecundario}</a>
+    </div>
+    </div>
+    <div class="ficha-col">
+    <dl class="dados">
+      {
+        t.hero.dados.map((d) => (
+          <div class={`dado dado-${d.id}`}>
+            <dt>{d.rotulo}</dt>
+            <dd>{d.valor}</dd>
+          </div>
+        ))
+      }
+    </dl>
+    <ul class="provas">
+      {t.hero.provas.map((p) => <li>{p}</li>)}
+    </ul>
+    <p class="dica so-quarto">
+      <span class="dica-ponteiro">{t.quarto.dica.ponteiro}</span><span class="dica-toque">{t.quarto.dica.toque}</span>
+    </p>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,63 @@
+---
+/** Cabeçalho (design 4.0, 5.2, 5.7, 5.8): botão de modo (1º focável), "pular" (2º), nome, nav, idioma e luz. */
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import Icone from '../ui/Icone.astro';
+import { getTextos } from '../../lib/textos';
+import { SECOES } from '../../i18n/secoes';
+import { CONFIG_IDIOMA, IDIOMAS, type Idioma } from '../../i18n/idiomas';
+
+interface Props {
+  lang: Idioma;
+}
+const { lang } = Astro.props;
+const t = getTextos(lang);
+const itensNav = SECOES.flatMap((s) => (s.chaveNav ? [{ id: s.id, texto: t.nav[s.chaveNav] }] : []));
+---
+
+<header class="topo">
+  <div class="topo-in">
+    <a class="btn-modo so-js" href="?modo=recrutador" data-modo-botao>
+      <Icone nome="menu" class="so-quarto" />
+      <Icone nome="casa" class="so-recrutador" />
+      <span class="so-quarto">{t.topo.modoRecrutador}</span>
+      <span class="so-recrutador">{t.topo.explorarQuarto}</span>
+    </a>
+    <a class="pular" href="#conteudo">{t.topo.pularConteudo}</a>
+    <p class="topo-nome">{t.hero.nome}</p>
+
+    <button class="btn-menu so-recrutador so-js" type="button" aria-expanded="false" aria-controls="nav-modo" data-menu-botao>
+      <Icone nome="menu" />
+      <span>{t.topo.menu}</span>
+    </button>
+    <nav id="nav-modo" class="topo-nav so-recrutador" aria-label={t.topo.menu}>
+      <ul>
+        {itensNav.map((i) => <li><a href={`#${i.id}`}>{i.texto}</a></li>)}
+      </ul>
+    </nav>
+
+    <nav class="idioma" aria-label={t.topo.idioma.rotulo}>
+      {
+        IDIOMAS.map((l) => (
+          <a
+            href={getRelativeLocaleUrl(l)}
+            hreflang={CONFIG_IDIOMA[l].hreflang}
+            lang={CONFIG_IDIOMA[l].htmlLang}
+            aria-label={`${l.toUpperCase()}, ${t.topo.idioma[l]}`}
+            aria-current={l === lang ? 'true' : undefined}
+            data-idioma
+          >
+            {l.toUpperCase()}
+          </a>
+        ))
+      }
+    </nav>
+
+    <button class="btn-luz so-js" type="button" aria-pressed="false" data-luz>
+      <Icone nome="interruptor" />
+      <span class="sr-only">{t.topo.luz.rotuloAcessivel}</span>
+      <span class="luz-txt" aria-hidden="true">
+        <span class="luz-apagar">{t.topo.luz.apagar}</span><span class="luz-acender">{t.topo.luz.acender}</span>
+      </span>
+    </button>
+  </div>
+</header>

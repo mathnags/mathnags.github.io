@@ -1,0 +1,16 @@
+---
+/** Desenho de "Bola" (SVG flat, só preenchimentos e classes f-* = var(--room-*)), em coordenadas locais. Posição e vista: src/config/quarto.ts. */
+import type { PropsDesenho } from '../props';
+
+export type Props = PropsDesenho;
+---
+
+<g data-desenho="Bola">
+  <ellipse class="f-wall-shade" cx="50" cy="96" rx="46" ry="4"></ellipse>
+  <circle class="f-paper" cx="50" cy="48" r="44"></circle>
+  <path class="f-fabric" d="M8 38C30 24 70 24 92 38 70 32 30 32 8 38z"></path>
+  <path class="f-fabric" d="M24 84C28 60 42 36 62 6 52 38 46 62 50 92z"></path>
+  <path class="f-fabric" d="M90 62C70 60 52 66 40 92 56 74 72 68 90 62z"></path>
+  <rect class="f-metal" x="100" y="48" width="34" height="46" rx="14"></rect>
+  <rect class="f-metal" x="108" y="30" width="30" height="40" rx="13" transform="rotate(10 123 50)"></rect>
+</g>

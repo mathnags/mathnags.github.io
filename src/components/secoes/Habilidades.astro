@@ -1,0 +1,53 @@
+---
+/** 05 · A caixa de ferramentas · Habilidades (#habilidades). O nível é texto, no cabeçalho do grupo. */
+import DualLabel from '../ui/DualLabel.astro';
+import Chip from '../ui/Chip.astro';
+import { getTextos } from '../../lib/textos';
+import { rotuloSecao } from '../../lib/quarto';
+import type { Idioma } from '../../i18n/idiomas';
+
+interface Props {
+  lang: Idioma;
+}
+const { lang } = Astro.props;
+const h = getTextos(lang).habilidades;
+const rotulo = rotuloSecao(lang, 'habilidades');
+---
+
+<section id="habilidades" class="secao secao-habilidades" aria-labelledby={rotulo.id}>
+  <div class="secao-in">
+    <DualLabel nivel="h2" {...rotulo} />
+    <p class="legenda-ctx"><span class="amostra" aria-hidden="true"></span>{h.legendaContextoReal}</p>
+    {h.nota && <p class="nota-hab">{h.nota}</p>}
+    <div class="grupos">
+      {
+        h.grupos.map((g) => (
+          <div class={`grupo grupo-${g.id}`}>
+            <h3>{g.nome}</h3>
+            <ul class="skills">
+              {g.itens.map((i) => (
+                <li class="skill">
+                  <Chip nome={i.nome} contexto={i.contextoReal} rotuloContexto={h.rotuloContextoReal} />
+                  {i.detalhe && <span class="detalhe">{i.detalhe}</span>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+    <div class="como-trabalho">
+      <h3>{h.comoTrabalho.titulo}</h3>
+      <ul class="lista">
+        {
+          h.comoTrabalho.itens.map((i) => (
+            <li>
+              {i.nome}
+              {i.evidencia && <span class="evid">{i.evidencia}</span>}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>

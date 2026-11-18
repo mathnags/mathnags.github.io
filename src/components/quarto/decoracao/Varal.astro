@@ -1,0 +1,34 @@
+---
+/**
+ * Varal de luzinhas (decoração, aria-hidden no SVG pai). Desenhado nas coordenadas do palco inteiro (l × a).
+ * Uma lâmpada por capítulo; ela acende (data-lido) quando o capítulo é lido (JS) e brilha à noite (CSS).
+ */
+import type { PropsDesenho } from '../props';
+
+export interface Props extends PropsDesenho {
+  y: number;
+  de: number;
+  ate: number;
+  /** x de cada lâmpada, com o número do capítulo. */
+  lampadas: { x: number; capitulo: number }[];
+}
+const { y, de, ate, lampadas } = Astro.props;
+const queda = 24;
+const largura = ate - de;
+// Parábola: y(x) = y + 4·queda·t·(1−t), com t = (x − de) / largura.
+const yEm = (x: number) => Math.round(y + 4 * queda * ((x - de) / largura) * (1 - (x - de) / largura));
+const fio = `M${de} ${y}Q${de + largura / 2} ${y + 2 * queda} ${ate} ${y}`;
+---
+
+<g data-desenho="Varal">
+  <path class="f-fio" d={fio} fill="none" stroke-width="3"></path>
+  {
+    lampadas.map((p) => (
+      <g class="lampada" data-cap={p.capitulo}>
+        <circle class="brilho f-glow" cx={p.x} cy={yEm(p.x) + 20} r="26"></circle>
+        <rect class="f-metal" x={p.x - 4} y={yEm(p.x) - 2} width="8" height="12" rx="2"></rect>
+        <circle class="bulbo" cx={p.x} cy={yEm(p.x) + 20} r="11"></circle>
+      </g>
+    ))
+  }
+</g>

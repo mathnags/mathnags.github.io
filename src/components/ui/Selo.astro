@@ -1,0 +1,17 @@
+---
+/** Selo (design 5.11). Sempre dentro de <ul class="selos" aria-label={ui.selosStatus}>. */
+import Icone from './Icone.astro';
+
+interface Props {
+  /** dev = Em desenvolvimento (ponto que pulsa 2×) · estado = andamento/atual/concluído · transicao · privado · neutro */
+  variante: 'dev' | 'estado' | 'transicao' | 'privado' | 'neutro';
+  texto: string;
+}
+const { variante, texto } = Astro.props;
+---
+
+<li class={`selo selo-${variante}`}>
+  {(variante === 'dev' || variante === 'estado') && <span class="selo-ponto" aria-hidden="true" />}
+  {variante === 'privado' && <Icone nome="cadeado" tamanho={14} />}
+  <span>{texto}</span>
+</li>

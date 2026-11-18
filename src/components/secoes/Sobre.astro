@@ -1,0 +1,25 @@
+---
+/** 02 · O porta-retrato · Sobre mim (#sobre). Sem foto. */
+import DualLabel from '../ui/DualLabel.astro';
+import { getTextos } from '../../lib/textos';
+import { rotuloSecao } from '../../lib/quarto';
+import type { Idioma } from '../../i18n/idiomas';
+
+interface Props {
+  lang: Idioma;
+}
+const { lang } = Astro.props;
+const t = getTextos(lang);
+const rotulo = rotuloSecao(lang, 'sobre');
+---
+
+<section id="sobre" class="secao secao-sobre" aria-labelledby={rotulo.id}>
+  <div class="secao-in">
+    <DualLabel nivel="h2" {...rotulo} />
+    <div class="papel sobre-papel">
+      <p class="lead">{t.sobre.p1}</p>
+      <p>{t.sobre.p2}</p>
+      <p>{t.sobre.p3}</p>
+    </div>
+  </div>
+</section>

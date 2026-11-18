@@ -1,0 +1,55 @@
+---
+/** Página 404: textos de textos.<lang>.json > ui.erro404; links para / e /en/ (design 4.0, tarefa T22). */
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getUi } from '../lib/ui';
+import { CONFIG_IDIOMA, IDIOMAS } from '../i18n/idiomas';
+import '../styles/layout.css';
+
+// A 404 do GitHub Pages é uma só para o site todo: o idioma padrão fala primeiro e o outro vem logo abaixo.
+const lang = 'pt';
+---
+
+<BaseLayout lang={lang}>
+  <main id="conteudo" class="erro">
+    {
+      IDIOMAS.map((l) => {
+        const e = getUi(l).erro404;
+        return (
+          <article class="erro-bloco" lang={CONFIG_IDIOMA[l].htmlLang} aria-labelledby={`erro-${l}`}>
+            <h1 id={`erro-${l}`}>{e.titulo}</h1>
+            <p>{e.texto}</p>
+            <a class="cta cta-primario" href={getRelativeLocaleUrl(l)}>
+              {e.voltar}
+            </a>
+          </article>
+        );
+      })
+    }
+  </main>
+</BaseLayout>
+
+<style>
+  .erro {
+    display: grid;
+    gap: var(--space-7);
+    max-width: var(--container-recrutador);
+    margin-inline: auto;
+    padding: var(--space-8) var(--margem);
+  }
+
+  .erro-bloco {
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+  }
+
+  h1 {
+    font: 800 var(--fs-display) / var(--lh-display) var(--ff-display);
+  }
+
+  p {
+    margin: 0;
+    font-size: var(--fs-lead);
+  }
+</style>

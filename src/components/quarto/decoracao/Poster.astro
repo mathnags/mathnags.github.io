@@ -1,0 +1,17 @@
+---
+/** Decoração "Poster" (não clicável; SVG flat, classes f-* = var(--room-*)), em coordenadas locais. Posição: src/config/quarto.ts. */
+import type { PropsDesenho } from '../props';
+
+export type Props = PropsDesenho;
+---
+
+<g data-desenho="Poster">
+  <rect class="f-wood-dark" x="0" y="0" width="100" height="220" rx="4"></rect>
+  <path class="f-red" d="M6 6h88L6 214z"></path>
+  <path class="f-blue" d="M94 6v208H6z"></path>
+  <!-- Teia geométrica própria: 5 raios + 3 arcos, até 1/3 do pôster -->
+  <g fill="none" stroke-width="2" stroke-linecap="round" stroke="var(--room-paper)">
+    <path d="M94 6L40 12M94 6L48 40M94 6L62 62M94 6L82 70M94 6L94 74"></path>
+    <path d="M70 9Q72 28 91 34M54 12Q58 44 94 52M86 8Q87 14 91 18"></path>
+  </g>
+</g>

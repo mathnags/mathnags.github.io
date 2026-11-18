@@ -1,0 +1,44 @@
+---
+/**
+ * <dialog id="vista"> único (design 5.6). Nasce vazio de seções: o JS move a <section> do capítulo para
+ * .vista-miolo ao abrir e a devolve ao fechar (ids nunca duplicam). O h2 da seção vai para .vista-titulo.
+ * Os textos dos botões vêm de textos.<lang>.json > vista; o texto de anterior/próximo (número + nome) é montado
+ * pelo JS a partir dos próprios objetos do quarto.
+ */
+import Icone from '../ui/Icone.astro';
+import { getTextos } from '../../lib/textos';
+import type { Idioma } from '../../i18n/idiomas';
+
+interface Props {
+  lang: Idioma;
+}
+const { lang } = Astro.props;
+const t = getTextos(lang);
+---
+
+<dialog id="vista">
+  <div class="vista-quadro">
+    <div class="vista-barra">
+      <button class="vista-voltar" type="button" data-vista-voltar>
+        <Icone nome="seta" class="seta-volta" />
+        <span>{t.vista.voltar}</span>
+      </button>
+      <div class="vista-titulo"></div>
+      <div class="vista-nav">
+        <button class="vista-ant" type="button" data-vista-dir="-1">
+          <Icone nome="seta" class="seta-volta" />
+          <span class="sr-only">{t.vista.anterior}</span>
+          <span class="vista-alvo"></span>
+        </button>
+        <button class="vista-prox" type="button" data-vista-dir="1">
+          <span class="sr-only">{t.vista.proximo}</span>
+          <span class="vista-alvo"></span>
+          <Icone nome="seta" />
+        </button>
+      </div>
+    </div>
+    <div class="vista-moldura">
+      <div class="vista-miolo" role="region" tabindex="0"></div>
+    </div>
+  </div>
+</dialog>
