@@ -3,6 +3,7 @@
  * navegação anterior/próximo e histórico. Posições, destinos e enquadramentos vêm de #quarto-config.
  */
 import * as cam from './camera';
+import { marcarAtivo, paraDialog, paraPagina } from './capitulos';
 import * as hist from './historico';
 import { marcarLido } from './lidos';
 import { cfg, css, dialog, linkDe, mobile, modoQuarto, palco, porId, principais, reduz, type ObjCfg } from './ctx';
@@ -165,6 +166,8 @@ async function mostrar(obj: ObjCfg, alvoId: string, animar: boolean, viajando = 
   if (!jaAberto) dialog.showModal();
   definirEstado('aberto');
   marcarLido(obj.capitulo);
+  marcarAtivo(obj.capitulo);
+  paraDialog();
   rolarPara(alvoId, obj);
   h2?.focus({ preventScroll: true });
   if (comAnimacao && !jaAberto) {
@@ -187,6 +190,8 @@ async function fechar(animar: boolean) {
     dialog.close();
   }
   devolver();
+  paraPagina();
+  marcarAtivo(null);
   dialog.removeAttribute('data-fase');
   if (!mobile.matches) await cam.ir(cam.inteira(), 320, '--ease-std', comAnimacao);
   if (minha !== rodada) return;
@@ -201,6 +206,8 @@ export function fecharSemAnimar() {
   cam.parar();
   if (dialog.open) dialog.close();
   devolver();
+  paraPagina();
+  marcarAtivo(null);
   dialog.removeAttribute('data-fase');
   cam.ir(cam.inteira(), 0, '--ease-std', false);
   objAtual = null;
@@ -252,6 +259,18 @@ export function iniciarVista() {
     origem = a;
     hist.empurrar(obj.destino);
     void mostrar(obj, obj.destino, true);
+  });
+
+  // Pílula numerada (desktop) e lista do mobile: abre o capítulo, ou viaja de uma vista para outra.
+  document.addEventListener('click', (e) => {
+    const a = (e.target as Element).closest<HTMLAnchorElement>('[data-cap-link]');
+    if (!a || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    const alvo = principais.find((o) => o.capitulo === Number(a.dataset.cap));
+    if (!alvo) return;
+    document.getElementById('cap-popover')?.hidePopover?.();
+    if (estado === 'repouso' && modoQuarto()) linkDe(alvo).click();
+    else if (estado === 'aberto' && objAtual?.capitulo !== alvo.capitulo) irPara(alvo, alvo.destino);
   });
 
   dialog.addEventListener('cancel', (e) => {

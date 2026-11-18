@@ -1,0 +1,11 @@
+---
+/** Piso em trapézio (design 11.5): da base da parede (y = piso) até a borda inferior, alargando-se para quem olha. */
+interface Props {
+  l: number;
+  a: number;
+  piso: number;
+}
+const { l, a, piso } = Astro.props;
+---
+
+<path class="f-floor" d={`M40 ${piso}H${l - 40}L${l} ${a}H0z`}></path>

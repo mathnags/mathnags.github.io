@@ -554,9 +554,21 @@ main:focus {
   letter-spacing: var(--ls-label);
 }
 
-.ficha h1 {
+/* O h1 é o 1º filho de <main> (design 11.3); visualmente continua no topo do resumo. */
+.nome-bloco {
+  max-width: var(--container-recrutador);
+  margin-inline: auto;
+  padding: var(--space-6) var(--margem) 0;
+}
+
+.nome-bloco h1 {
+  margin: 0;
   font: 800 var(--fs-display)/var(--lh-display) var(--ff-display);
   letter-spacing: var(--ls-display);
+}
+
+.nome-bloco + .ficha .ficha-in {
+  padding-top: var(--space-4);
 }
 
 .frase {
@@ -1210,8 +1222,14 @@ main:focus {
     gap: var(--space-3);
   }
 
-  html[data-modo='quarto'] .ficha h1 {
-    font-size: var(--fs-display);
+  html[data-modo='quarto'] .nome-bloco {
+    max-width: none;
+    margin: 0;
+    padding: 0 0 var(--space-3);
+  }
+
+  html[data-modo='quarto'] .nome-bloco + .ficha .ficha-in {
+    padding-top: var(--space-4);
   }
 }
 
@@ -1219,10 +1237,38 @@ main:focus {
   html[data-modo='quarto'] main {
     display: grid;
     grid-template-columns: 380px minmax(0, 1fr);
-    gap: var(--space-5);
+    grid-template-areas:
+      'resumo nome'
+      'resumo palco'
+      'resumo barra';
+    grid-template-rows: auto auto 1fr;
+    column-gap: var(--space-5);
     align-items: start;
-    padding-top: var(--space-5);
+    padding-top: var(--space-4);
   }
+
+  html[data-modo='quarto'] .nome-bloco {
+    grid-area: nome;
+    container-type: inline-size;
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+  }
+
+  /* O nome invade só a faixa livre de parede do topo do palco: 50 unidades do viewBox = 3.125cqi. */
+  html[data-modo='quarto'] .nome-bloco h1 {
+    font-size: clamp(2rem, 5.6cqi, 3rem);
+    line-height: 1.1;
+    white-space: nowrap;
+    margin-bottom: -3.125cqi;
+  }
+
+  html[data-modo='quarto'] .ficha { grid-area: resumo; }
+  html[data-modo='quarto'] #quarto { grid-area: palco; }
+  html[data-modo='quarto'] .capitulos-slot { grid-area: barra; }
 
   html[data-modo='quarto'] .ficha-in {
     grid-template-columns: 1fr;
@@ -1234,10 +1280,6 @@ main:focus {
     gap: var(--space-3);
   }
 
-  html[data-modo='quarto'] .ficha h1 {
-    font-size: var(--fs-h2);
-    line-height: var(--lh-h2);
-  }
 }
 
 @media screen and (max-width: 767px) {
@@ -1282,6 +1324,10 @@ main:focus {
 }
 
 @media (forced-colors: active) {
+  .marcador,
+  .capitulos,
+  .intro-cartao { border: 2px solid CanvasText; }
+  .cap-item[aria-current='true'] { background: Highlight; color: HighlightText; }
   .cta,
   .selo,
   .chip,

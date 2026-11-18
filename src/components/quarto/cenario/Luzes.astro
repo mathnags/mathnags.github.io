@@ -1,0 +1,21 @@
+---
+/**
+ * Luzes chapadas (design 11.5): sem filter, blur nem gradiente; só opacidade nos tokens (--led-halo, --lamp-cone, --window-light).
+ * "baixo" = antes dos móveis (no chão); "cima" = depois dos móveis e antes dos objetos.
+ */
+interface Props {
+  camada: 'baixo' | 'cima';
+}
+const { camada } = Astro.props;
+---
+
+{
+  camada === 'baixo' ? (
+    <>
+      <path class="f-window-light" d="M620 770H760L900 985H740z"></path>
+      <path class="f-led-halo" d="M60 905H540L600 955H20z"></path>
+    </>
+  ) : (
+    <path class="f-lamp-cone" d="M1128 106H1152L1290 900H940z"></path>
+  )
+}

@@ -23,6 +23,8 @@ const prateleiras = [0, 1, 2].map((p) => {
 ---
 
 <g data-desenho="Estante">
+  <path class="f-top" d="M0 0L-12 -14H228L240 0z"></path>
+  <path class="f-side" d="M0 0L-12 -14V326L0 340z"></path>
   <rect class="f-wood" x="0" y="0" width="240" height="340" rx="8"></rect>
   <rect class="f-wood-dark" x="12" y="15" width="216" height="310"></rect>
   {prateleiras.flat().map((b) => <rect class={b.c} x={b.x} y={b.y} width={b.l} height={b.a} rx="2" />)}

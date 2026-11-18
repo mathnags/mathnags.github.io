@@ -18,6 +18,13 @@ import {
 const PROPORCAO_CAMERA = 1.6;
 const TOLERANCIA_PROPORCAO = 0.01;
 const ALVO_MINIMO_PX = 44;
+/** Faixa reservada ao nome grande (design 11.3): y < 50 e x < 1060. */
+const FAIXA_NOME: Rect = { x: 0, y: 0, l: 1060, a: 50 };
+/** Caixas conservadoras (unidades do viewBox): círculo + ponta e etiqueta só com o número (palco de 812 px). */
+const MARCADOR_PX = 58;
+const FLUTUA = 8;
+const ETIQUETA_PRINCIPAL = 130;
+const ETIQUETA_SEC = 110;
 
 const dentroDe = (r: Rect, c: Rect) => r.x >= c.x && r.y >= c.y && r.x + r.l <= c.x + c.l && r.y + r.a <= c.y + c.a;
 const sobrepoe = (a: Rect, b: Rect) => a.x < b.x + b.l && b.x < a.x + a.l && a.y < b.y + b.a && b.y < a.y + a.a;
@@ -94,7 +101,37 @@ export function errosDoQuarto(q: ConfigQuarto): string[] {
     }
   });
 
+  // Lâmpadas-pino (design 11.1): dentro do viewBox, fora da faixa do nome, sem cobrir cliques, etiquetas ou outros marcadores.
+  const caixaMarcador = (o: ConfigQuarto['objetos'][number]): Rect => {
+    const mk = o.marcador!;
+    return { x: mk.x - MARCADOR_PX / 2, y: mk.y - MARCADOR_PX / 2 - FLUTUA, l: MARCADOR_PX, a: MARCADOR_PX + 2 * FLUTUA };
+  };
+  const caixaEtiqueta = (o: ConfigQuarto['objetos'][number]): Rect => {
+    const e = o.etiqueta ?? { x: o.caixa.x, y: o.caixa.y };
+    const l = o.papel === 'principal' ? ETIQUETA_PRINCIPAL : ETIQUETA_SEC;
+    const aDireita = o.caixa.x + o.caixa.l / 2 > q.viewBox.l * 0.8;
+    const x = aDireita ? (o.etiqueta?.x ?? o.caixa.x + o.caixa.l) - l : e.x;
+    return { x, y: e.y - 26, l, a: 52 };
+  };
+  const comMarcador = q.objetos.filter((o) => o.marcador);
+  for (const o of q.objetos) {
+    if (o.papel === 'principal' && !o.marcador) erros.push(`"${o.id}": principal sem marcador`);
+    if (o.papel === 'secundario' && o.marcador) erros.push(`"${o.id}": só os principais têm marcador (1 por capítulo)`);
+  }
+  for (const o of comMarcador) {
+    const m = caixaMarcador(o);
+    const nome = `marcador de "${o.id}"`;
+    if (!dentroDe(m, tela)) erros.push(`${nome}: fora do viewBox`);
+    if (sobrepoe(m, FAIXA_NOME)) erros.push(`${nome}: invade a faixa do nome`);
+    for (const b of q.objetos) {
+      if (b.id !== o.id && sobrepoe(m, b.clique ?? b.caixa)) erros.push(`${nome}: cobre a área de clique de "${b.id}"`);
+      if (sobrepoe(m, caixaEtiqueta(b))) erros.push(`${nome}: cobre a etiqueta de "${b.id}"`);
+      if (b.marcador && b.id > o.id && sobrepoe(m, caixaMarcador(b))) erros.push(`${nome}: colide com o marcador de "${b.id}"`);
+    }
+  }
+
   for (const d of q.decoracao) {
+    if (sobrepoe(d.caixa, FAIXA_NOME)) erros.push(`decoração "${d.id}": invade a faixa do nome`);
     if (!COMPONENTES_DECORACAO.includes(d.componente)) erros.push(`decoração "${d.id}": componente desconhecido`);
     if (!dentroDe(d.caixa, tela)) erros.push(`decoração "${d.id}": caixa fora do viewBox`);
   }

@@ -77,6 +77,8 @@ export interface ObjetoQuarto {
   clique?: Rect;
   /** Padrão = canto superior esquerdo da caixa. */
   etiqueta?: { x: number; y: number };
+  /** Lâmpada-pino (1 por capítulo): só nos principais. Âncora = centro do círculo, em parede ou chão livres; dir = para onde a ponta aponta. */
+  marcador?: { x: number; y: number; dir: 'baixo' | 'esquerda' | 'direita' };
   /** Só para 'principal'. */
   lampada?: { x: number };
   vista: {

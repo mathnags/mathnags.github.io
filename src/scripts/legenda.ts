@@ -1,4 +1,5 @@
 /** Legenda do palco e realce do objeto em hover/foco (design 5.3 e 5.5). A legenda é aria-hidden. */
+import { focoNoCapitulo } from './capitulos';
 import { cena, links, palco } from './ctx';
 import { aoRenderizar } from './lidos';
 
@@ -19,6 +20,7 @@ function ativar(l: HTMLAnchorElement | null) {
   cena.querySelectorAll('.obj.ativo').forEach((g) => g.classList.remove('ativo'));
   if (l) cena.querySelector(`.obj[data-g="${l.dataset.objeto}"]`)?.classList.add('ativo');
   ativo = l;
+  focoNoCapitulo(l ? Number(l.dataset.cap) : null);
   escrever(l);
 }
 

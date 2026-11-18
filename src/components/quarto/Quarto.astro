@@ -8,6 +8,10 @@ import Icone from '../ui/Icone.astro';
 import { cliqueDe, objetosEmOrdem, quarto } from '../../config/quarto';
 import { numeroDoCapitulo } from '../../i18n/secoes';
 import { getTextos } from '../../lib/textos';
+import Piso from './cenario/Piso.astro';
+import ParedesLaterais from './cenario/ParedesLaterais.astro';
+import Sombras from './cenario/Sombras.astro';
+import Luzes from './cenario/Luzes.astro';
 import { DESENHOS_DECORACAO, DESENHOS_OBJETO, Varal } from './registro';
 import type { Idioma } from '../../i18n/idiomas';
 
@@ -19,6 +23,18 @@ const t = getTextos(lang);
 const vb = quarto.viewBox;
 const { piso, porta } = quarto.fundo;
 const lombadas = [...t.alem.games.lista, t.alem.games.lombadaExtra];
+const PALAVRAS_SQL = /\b(SELECT|FROM|WHERE|AND|BETWEEN|ORDER BY)\b/g;
+const trechosSql = (linha: string) => {
+  const partes: { txt: string; kw: boolean }[] = [];
+  let fim = 0;
+  for (const m of linha.matchAll(PALAVRAS_SQL)) {
+    if (m.index > fim) partes.push({ txt: linha.slice(fim, m.index), kw: false });
+    partes.push({ txt: m[0], kw: true });
+    fim = m.index + m[0].length;
+  }
+  if (fim < linha.length) partes.push({ txt: linha.slice(fim), kw: false });
+  return partes;
+};
 const lampadas = objetosEmOrdem.flatMap((o) => (o.papel === 'principal' && o.lampada ? [{ x: o.lampada.x, capitulo: o.capitulo }] : []));
 
 const itens = objetosEmOrdem.map((o) => {
@@ -32,7 +48,7 @@ const itens = objetosEmOrdem.map((o) => {
     o,
     c,
     aDireita,
-    estilo: `--x:${c.x};--y:${c.y};--w:${c.l};--h:${c.a};--ex:${ex};--ey:${ey}`,
+    estilo: `--x:${c.x};--y:${c.y};--w:${c.l};--h:${c.a};--ex:${ex};--ey:${ey};${o.marcador ? `;--mx:${o.marcador.x - c.x};--my:${o.marcador.y - c.y}` : ''}`,
     txt,
     cap: numeroDoCapitulo(o.capitulo),
     minis: o.mobile.desenhos.map((nome) => quarto.objetos.find((x) => x.componente === nome)!),
@@ -45,8 +61,12 @@ const itens = objetosEmOrdem.map((o) => {
   <div class="palco" data-estado="repouso" style={`--vb-l:${vb.l};--vb-a:${vb.a}`}>
     <svg class="cena" viewBox={`0 0 ${vb.l} ${vb.a}`} aria-hidden="true" focusable="false">
       <rect class="f-wall" x="0" y="0" width={vb.l} height={piso}></rect>
-      <rect class="f-wall-shade" x="0" y={piso - 20} width={vb.l} height="20"></rect>
-      <rect class="f-floor" x="0" y={piso} width={vb.l} height={vb.a - piso}></rect>
+      <ParedesLaterais l={vb.l} a={vb.a} piso={piso} />
+      <rect class="f-wall-shade" x="40" y={piso - 20} width={vb.l - 80} height="20"></rect>
+      <Piso l={vb.l} a={vb.a} piso={piso} />
+      <Luzes camada="baixo" />
+      <Sombras />
+      <rect class="f-wood-dark" x={porta.x - 10} y={porta.y - 10} width={porta.l + 10} height={porta.a + 10} rx="6"></rect>
       <rect class="f-wood" x={porta.x} y={porta.y} width={porta.l} height={porta.a} rx="8"></rect>
       <rect class="f-wood-dark" x={porta.x + 14} y={porta.y + 14} width={porta.l - 28} height={Math.round(porta.a * 0.4)} rx="6"></rect>
       <rect class="f-wood-dark" x={porta.x + 14} y={porta.y + Math.round(porta.a * 0.4) + 28} width={porta.l - 28} height={Math.round(porta.a * 0.5)} rx="6"></rect>
@@ -63,6 +83,7 @@ const itens = objetosEmOrdem.map((o) => {
         })
       }
 
+      <Luzes camada="cima" />
       <Varal l={vb.l} a={vb.a} y={quarto.varal.y} de={quarto.varal.de} ate={quarto.varal.ate} lampadas={lampadas} />
 
       {
@@ -106,6 +127,13 @@ const itens = objetosEmOrdem.map((o) => {
                 ))}
               </span>
               <span class="ladrilho-lampada" aria-hidden="true"></span>
+              {
+                o.marcador && (
+                  <span class="marcador" aria-hidden="true" data-dir={o.marcador.dir}>
+                    <Icone nome="check" tamanho={10} class="m-check" />
+                  </span>
+                )
+              }
               <span class="etiqueta">
                 <span class="num">{cap}</span>
                 <Icone nome="check" tamanho={12} class="check" />
@@ -119,6 +147,25 @@ const itens = objetosEmOrdem.map((o) => {
         ))
       }
     </ol>
+
+    <div class="intro" data-intro-overlay>
+      <div class="intro-cartao">
+        <div aria-hidden="true">
+          {
+            t.intro.linhas.map((l, i) => (
+              <p class:list={['intro-linha', l.startsWith('--') && 'intro-comentario']} style={`--n:${i}`}>
+                {l.startsWith('--') ? l : trechosSql(l).map((p) => (p.kw ? <span class="kw">{p.txt}</span> : p.txt))}
+              </p>
+            ))
+          }
+          <div class="intro-exec">
+            <span class="intro-trilho"></span><span class="intro-exec-txt">{t.intro.executando}</span>
+          </div>
+          <p class="intro-resultado">&#10003; {t.intro.resultado}</p>
+        </div>
+        <button class="intro-pular" type="button" aria-label={t.intro.pularRotulo} data-intro-pular>{t.intro.pular}</button>
+      </div>
+    </div>
   </div>
 
   <div class="legenda" aria-hidden="true">

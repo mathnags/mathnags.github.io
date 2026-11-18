@@ -3,7 +3,9 @@
  * modo, tema, idioma, menu, e a camada do quarto (lidos, legenda, teclado, câmera, vista e histórico).
  * Nenhuma coordenada nem texto fixo: tudo vem de #quarto-config e dos atributos do HTML.
  */
+import { iniciarCapitulos } from './capitulos';
 import { iniciarIdioma } from './idioma';
+import { iniciarIntro } from './intro';
 import { iniciarLegenda } from './legenda';
 import { render } from './lidos';
 import { iniciarMenu } from './menu';
@@ -16,6 +18,8 @@ iniciarTema();
 iniciarIdioma();
 iniciarMenu();
 render();
+iniciarCapitulos();
+iniciarIntro();
 iniciarLegenda();
 iniciarTeclado();
 iniciarVista();

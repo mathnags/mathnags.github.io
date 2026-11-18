@@ -1,0 +1,11 @@
+---
+/** Paredes laterais estreitas, em ângulo, nas bordas do quarto (design 11.5): x 0–40 e l−40–l. */
+interface Props {
+  l: number;
+  a: number;
+  piso: number;
+}
+const { l, a, piso } = Astro.props;
+---
+
+<path class="f-sidewall" d={`M0 0L40 40V${piso}L0 ${a}zM${l} 0L${l - 40} 40V${piso}L${l} ${a}z`}></path>

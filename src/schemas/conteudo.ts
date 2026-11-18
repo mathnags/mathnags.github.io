@@ -133,6 +133,31 @@ export const textosSchema = z.strictObject({
     ctaSecundario: texto,
   }),
 
+  /* Revisão 5: h2 oculto do resumo, intro SQL e menu numerado */
+  ficha: z.strictObject({ titulo: texto }),
+  intro: z.strictObject({
+    linhas: z.array(texto).length(4),
+    executando: texto,
+    resultado: texto,
+    pular: texto,
+    pularRotulo: texto,
+  }),
+  menu: z.strictObject({
+    rotulo: texto,
+    /** Uma chave por seção com capítulo (mesmos ids de SECOES). */
+    itens: z.strictObject({
+      vertice: texto,
+      sobre: texto,
+      experiencia: texto,
+      projetos: texto,
+      habilidades: texto,
+      formacao: texto,
+      alem: texto,
+      contato: texto,
+    }),
+    todos: texto,
+  }),
+
   /* Quarto e vistas */
   quarto: z.strictObject({
     titulo: texto,

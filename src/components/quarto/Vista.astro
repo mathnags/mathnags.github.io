@@ -6,6 +6,7 @@
  * pelo JS a partir dos próprios objetos do quarto.
  */
 import Icone from '../ui/Icone.astro';
+import CapitulosLista from './CapitulosLista.astro';
 import { getTextos } from '../../lib/textos';
 import type { Idioma } from '../../i18n/idiomas';
 
@@ -30,6 +31,11 @@ const t = getTextos(lang);
           <span class="sr-only">{t.vista.anterior}</span>
           <span class="vista-alvo"></span>
         </button>
+        <button class="vista-cap" type="button" popovertarget="cap-popover">
+          <span class="vista-cap-rotulo"></span>
+          <span class="sr-only">{t.menu.todos}</span>
+          <Icone nome="seta" class="seta-baixo" />
+        </button>
         <button class="vista-prox" type="button" data-vista-dir="1">
           <span class="sr-only">{t.vista.proximo}</span>
           <span class="vista-alvo"></span>
@@ -40,5 +46,9 @@ const t = getTextos(lang);
     <div class="vista-moldura">
       <div class="vista-miolo" role="region" tabindex="0"></div>
     </div>
+  </div>
+  <div id="cap-popover" class="cap-popover" popover>
+    <p class="cap-popover-titulo">{t.menu.todos}</p>
+    <CapitulosLista lang={lang} classe="cap-lista-m" />
   </div>
 </dialog>

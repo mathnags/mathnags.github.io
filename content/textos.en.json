@@ -362,6 +362,35 @@
     "githubLabel": "GitHub",
     "githubUrl": "https://github.com/mathnags"
   },
+  "ficha": {
+    "titulo": "Summary"
+  },
+  "intro": {
+    "linhas": [
+      "-- loading Matheus Maki Nagano's room",
+      "SELECT year, chapter FROM journey",
+      "WHERE city = 'São Paulo' AND year BETWEEN 2019 AND 2026",
+      "ORDER BY year;"
+    ],
+    "executando": "running…",
+    "resultado": "8 chapters · 2019 Information Systems → 2026 Vértice · Data → AI",
+    "pular": "Skip",
+    "pularRotulo": "Skip intro"
+  },
+  "menu": {
+    "rotulo": "Chapters",
+    "itens": {
+      "vertice": "Vértice",
+      "sobre": "About",
+      "experiencia": "Experience",
+      "projetos": "Projects",
+      "habilidades": "Skills",
+      "formacao": "Education",
+      "alem": "Beyond work",
+      "contato": "Contact"
+    },
+    "todos": "All chapters"
+  },
   "ui": {
     "setaPara": "to",
     "linkExterno": "(opens external site)",

@@ -25,6 +25,7 @@ export function iniciarModo() {
     if (novo === 'recrutador') {
       fecharSemAnimar();
       delete html.dataset.modo;
+      delete html.dataset.intro;
     } else {
       html.dataset.modo = 'quarto';
     }
@@ -44,7 +45,7 @@ export function iniciarModo() {
 
     const alvo = hist.dono(hist.idDoHash());
     if (novo === 'recrutador') {
-      const titulo = (alvo?.sec ?? document.getElementById('ficha'))?.querySelector<HTMLElement>('h1, h2');
+      const titulo = alvo?.sec ? alvo.sec.querySelector<HTMLElement>('h1, h2') : document.getElementById('nome');
       if (titulo) {
         titulo.tabIndex = -1;
         titulo.focus();

@@ -23,8 +23,8 @@ const fio = `M${de} ${y}Q${de + largura / 2} ${y + 2 * queda} ${ate} ${y}`;
 <g data-desenho="Varal">
   <path class="f-fio" d={fio} fill="none" stroke-width="3"></path>
   {
-    lampadas.map((p) => (
-      <g class="lampada" data-cap={p.capitulo}>
+    lampadas.map((p, i) => (
+      <g class="lampada" data-cap={p.capitulo} style={`--i:${i}`}>
         <circle class="brilho f-glow" cx={p.x} cy={yEm(p.x) + 20} r="26"></circle>
         <rect class="f-metal" x={p.x - 4} y={yEm(p.x) - 2} width="8" height="12" rx="2"></rect>
         <circle class="bulbo" cx={p.x} cy={yEm(p.x) + 20} r="11"></circle>

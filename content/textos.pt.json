@@ -362,6 +362,35 @@
     "githubLabel": "GitHub",
     "githubUrl": "https://github.com/mathnags"
   },
+  "ficha": {
+    "titulo": "Resumo"
+  },
+  "intro": {
+    "linhas": [
+      "-- carregando o quarto de Matheus Maki Nagano",
+      "SELECT ano, capitulo FROM trajetoria",
+      "WHERE cidade = 'São Paulo' AND ano BETWEEN 2019 AND 2026",
+      "ORDER BY ano;"
+    ],
+    "executando": "executando…",
+    "resultado": "8 capítulos · 2019 Sistemas de Informação → 2026 Vértice · Dados → IA",
+    "pular": "Pular",
+    "pularRotulo": "Pular introdução"
+  },
+  "menu": {
+    "rotulo": "Capítulos",
+    "itens": {
+      "vertice": "Vértice",
+      "sobre": "Sobre",
+      "experiencia": "Experiência",
+      "projetos": "Projetos",
+      "habilidades": "Habilidades",
+      "formacao": "Formação",
+      "alem": "Além do trabalho",
+      "contato": "Contato"
+    },
+    "todos": "Todos os capítulos"
+  },
   "ui": {
     "setaPara": "para",
     "linkExterno": "(abre site externo)",

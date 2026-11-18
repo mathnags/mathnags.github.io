@@ -17,6 +17,7 @@ import Alem from './secoes/Alem.astro';
 import Contato from './secoes/Contato.astro';
 import Rodape from './secoes/Rodape.astro';
 import Quarto from './quarto/Quarto.astro';
+import Capitulos from './quarto/Capitulos.astro';
 import Vista from './quarto/Vista.astro';
 import { configCliente } from '../config/quarto';
 import { getTextos } from '../lib/textos';
@@ -37,8 +38,10 @@ const t = getTextos(lang);
 <BaseLayout lang={lang}>
   <Topo lang={lang} />
   <main id="conteudo" tabindex="-1">
+    <div class="nome-bloco"><h1 id="nome">{t.hero.nome}</h1></div>
     <Resumo lang={lang} />
     <Quarto lang={lang} />
+    <Capitulos lang={lang} />
     <Vertice lang={lang} />
     <Sobre lang={lang} />
     <Experiencia lang={lang} />

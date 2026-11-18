@@ -56,6 +56,15 @@ const pessoa = {
         const q = new URLSearchParams(location.search).get('modo');
         if (q === 'recrutador' || q === 'quarto') modo = q;
         if (modo !== 'recrutador') d.dataset.modo = 'quarto';
+        // Intro SQL (design 11.2): só no quarto, na 1ª visita, sem hash nem ?modo, sem movimento reduzido e com palco.
+        if (d.dataset.modo && !location.hash && !location.search.includes('modo=') && innerWidth > 767 && !matchMedia('(prefers-reduced-motion:reduce)').matches && !navigator.connection?.saveData) {
+          try {
+            if (!localStorage.getItem('quarto-intro-vista')) {
+              localStorage.setItem('quarto-intro-vista', '1');
+              d.dataset.intro = '';
+            }
+          } catch {}
+        }
       })();
     </script>
     <title>{t.meta.title}</title>

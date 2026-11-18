@@ -54,6 +54,16 @@
   --fan-coral: #ff5f57;
   --fan-herb-green: #4f8a3c;
   --fan-herb-red: #c2413a;
+  /* 11.5 Profundidade 3/4 e luzes (decorativos) */
+  --room-top: #c08e62;
+  --room-side: #8e6240;
+  --room-metal-top: #3a3f4a;
+  --room-sidewall: #e6dfd0;
+  --shadow-floor: rgb(21 23 28 / 0.12);
+  --led-off: #d6d2c6;
+  --led-halo: transparent;
+  --lamp-cone: rgb(242 184 75 / 0.12);
+  --window-light: rgb(255 253 247 / 0.35);
 
   /* 2.5 Sombras (chapadas) */
   --shadow-1: 0 2px 0 rgb(21 23 28 / 0.08);
@@ -157,6 +167,15 @@
   --fan-coral: #9a3d38;
   --fan-herb-green: #2f5426;
   --fan-herb-red: #74271f;
+  --room-top: #5e4634;
+  --room-side: #3f2f23;
+  --room-metal-top: #1a1d24;
+  --room-sidewall: #1a1e2b;
+  --shadow-floor: rgb(0 0 0 / 0.35);
+  --led: #5cc2a4;
+  --led-halo: rgb(92 194 164 / 0.22);
+  --lamp-cone: transparent;
+  --window-light: rgb(255 210 122 / 0.09);
   --shadow-1: none;
   --shadow-2: 0 0 0 1px var(--border-strong);
   --shadow-panel: 0 0 0 1px var(--border-strong);
@@ -204,6 +223,15 @@
     --fan-coral: #9a3d38;
     --fan-herb-green: #2f5426;
     --fan-herb-red: #74271f;
+    --room-top: #5e4634;
+    --room-side: #3f2f23;
+    --room-metal-top: #1a1d24;
+    --room-sidewall: #1a1e2b;
+    --shadow-floor: rgb(0 0 0 / 0.35);
+    --led: #5cc2a4;
+    --led-halo: rgb(92 194 164 / 0.22);
+    --lamp-cone: transparent;
+    --window-light: rgb(255 210 122 / 0.09);
     --shadow-1: none;
     --shadow-2: 0 0 0 1px var(--border-strong);
     --shadow-panel: 0 0 0 1px var(--border-strong);

@@ -30,6 +30,19 @@
 .f-accent { fill: var(--accent); }
 .f-fio { stroke: var(--room-metal); }
 
+/* Profundidade 3/4 e luzes (design 11.5): formas chapadas, sem filter, blur nem gradiente */
+.f-top { fill: var(--room-top); }
+.f-side { fill: var(--room-side); }
+.f-mtop { fill: var(--room-metal-top); }
+.f-sidewall { fill: var(--room-sidewall); }
+.f-shadow { fill: var(--shadow-floor); }
+.f-led { fill: var(--led, var(--led-off)); }
+.f-led-halo { fill: var(--led-halo); }
+.f-lamp-cone { fill: var(--lamp-cone); }
+.f-window-light { fill: var(--window-light); }
+.f-fabric-top { fill: color-mix(in srgb, var(--room-fabric) 78%, #fff); }
+.f-fabric-side { fill: color-mix(in srgb, var(--room-fabric) 72%, #000); }
+
 /* Chave de luz: 1 só à noite (janelinhas, interruptor), 0 de dia */
 .noite { opacity: var(--noite); }
 .dia { opacity: calc(1 - var(--noite)); }
@@ -159,18 +172,108 @@
   .etiqueta .check { display: none; color: var(--pine); }
   .objeto[data-lido] .etiqueta .check { display: block; }
 
-  .objeto[data-proximo] .etiqueta::before {
-    content: '';
-    width: 8px;
-    height: 8px;
+  /* ---------- Marcador: lâmpada-pino (design 11.1) ---------- */
+  .marcador {
+    --rot: 0deg;
+    --pino: 15px;
+    position: absolute;
+    left: calc(var(--mx) / var(--vb-l) * 100cqw);
+    top: calc(var(--my) / var(--vb-l) * 100cqw);
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    background: var(--surface);
+    border: 2px solid var(--accent);
     border-radius: var(--radius-full);
-    background: var(--accent);
-    animation: anel 1.2s ease-out 2;
+    box-shadow: 0 0 0 1.5px var(--text);
+    transition: transform var(--dur-1) var(--ease-std), background-color var(--dur-1) var(--ease-std);
   }
 
-  @keyframes anel {
-    from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent); }
-    to { box-shadow: 0 0 0 10px transparent; }
+  .marcador[data-dir='esquerda'] { --rot: 90deg; }
+  .marcador[data-dir='direita'] { --rot: -90deg; }
+
+  .marcador::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: var(--radius-full);
+    background: var(--accent);
+  }
+
+  /* A ponta de 6 px, voltada para o objeto */
+  .marcador::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 8px;
+    height: 6px;
+    margin: -3px 0 0 -4px;
+    background: var(--text);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform: rotate(var(--rot)) translateY(var(--pino));
+  }
+
+  .marcador .m-check { display: none; color: var(--pine); }
+
+  .objeto[data-papel='secundario'] .marcador {
+    --pino: 12px;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+  }
+
+  .objeto[data-papel='secundario'] .marcador::before { width: 4px; height: 4px; }
+  .objeto[data-papel='secundario'] .marcador .m-check { width: 8px; height: 8px; }
+
+  .objeto[data-lido] .marcador {
+    background: var(--pine-tint);
+    border-color: var(--pine);
+  }
+
+  .objeto[data-lido] .marcador::before { display: none; }
+  .objeto[data-lido] .marcador .m-check { display: block; }
+
+  .objeto[data-proximo] .marcador {
+    --pino: 17px;
+    width: 24px;
+    height: 24px;
+    margin: -12px 0 0 -12px;
+    background: var(--accent);
+  }
+
+  .objeto[data-proximo] .marcador::before { background: var(--on-accent); }
+
+  .objeto:is(:hover, :focus-visible):not([data-lido]) .marcador {
+    transform: scale(1.15);
+    background: var(--accent);
+  }
+
+  .objeto:is(:hover, :focus-visible):not([data-lido]) .marcador::before { background: var(--on-accent); }
+
+  /* Flutua 3 ciclos (4,8 s, WCAG 2.2.2) e para. O seletor só vale em repouso: a cada volta ao quarto a animação recomeça. */
+  @media (prefers-reduced-motion: no-preference) {
+    .palco[data-estado='repouso'] .objeto:not([data-lido]) .marcador {
+      animation: flutua 1.6s ease-in-out 3;
+    }
+
+    .palco[data-estado='repouso'] .objeto[data-proximo] .marcador {
+      animation: flutua 1.6s ease-in-out 3, pulsa 1.2s ease-out 2;
+    }
+  }
+
+  @keyframes flutua {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 -4px; }
+  }
+
+  @keyframes pulsa {
+    from { box-shadow: 0 0 0 1.5px var(--text), 0 0 0 0 color-mix(in srgb, var(--accent) 70%, transparent); }
+    to { box-shadow: 0 0 0 1.5px var(--text), 0 0 0 10px transparent; }
   }
 
   /*
@@ -206,19 +309,6 @@
     }
   }
 
-  @media (min-width: 1280px) {
-    .objeto[data-papel='principal'] .etiqueta .sep { display: inline; }
-
-    .objeto[data-papel='principal'] .etiqueta .sr-only + .comum {
-      position: static;
-      width: auto;
-      height: auto;
-      max-width: 20ch;
-      overflow: hidden;
-      clip: auto;
-      text-overflow: ellipsis;
-    }
-  }
 
 
   /* ---------- Legenda (design 5.5) ---------- */
@@ -233,6 +323,12 @@
   }
 
   .legenda p { margin: 0; }
+
+  @media (min-width: 1280px) {
+    .legenda { min-height: 0; margin-top: var(--space-2); padding: var(--space-2) var(--space-4); }
+    .leg-dica { display: none; }
+    .palco:has(.objeto:focus-visible) + .legenda .leg-dica { display: block; }
+  }
   .leg-linha { font-size: var(--fs-body); }
   .leg-nome { font-weight: 700; }
 
@@ -318,7 +414,6 @@
       background: var(--bulb-off);
     }
 
-    .objeto[data-lido] .ladrilho-lampada { background: var(--bulb-on); }
 
     .etiqueta {
       position: static;
@@ -375,11 +470,20 @@
       white-space: normal;
     }
 
-    .objeto[data-proximo] .etiqueta::before {
-      grid-column: 2;
-      grid-row: 1;
-      justify-self: start;
+    /* Nichos: o marcador fica no canto superior direito, estático, com os mesmos estados. */
+    .ladrilho-lampada { display: none; }
+
+    .marcador {
+      left: auto;
+      top: 8px;
+      right: 8px;
+      margin: 0;
+      animation: none !important;
+      translate: none;
     }
+
+    .objeto[data-proximo] .marcador { top: 6px; right: 6px; margin: 0; }
+    .marcador::after { display: none; }
   }
 
   @media (max-width: 339px), (max-height: 499px) and (max-width: 767px) {
@@ -399,4 +503,296 @@
 @media (forced-colors: active) {
   .objeto,
   .etiqueta { border: 2px solid CanvasText; }
+}
+
+/* ---------- Intro: "query carregando o quarto" (design 11.2). Linha do tempo só em CSS (2,5 s). ---------- */
+.intro { display: none; }
+
+@media screen and (min-width: 768px) {
+  html[data-intro] .intro {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    display: grid;
+    place-items: center;
+    transition: opacity 120ms var(--ease-std);
+    animation: intro-fim 1ms linear 2500ms forwards;
+  }
+
+  .intro.saindo { opacity: 0; }
+
+  html[data-intro] .cena { animation: intro-cena 2500ms linear both; }
+
+  html[data-intro] .objeto {
+    visibility: hidden;
+    animation: intro-revela 1ms linear 2500ms forwards;
+  }
+
+  html[data-intro] .lampada .bulbo {
+    animation: intro-pisca 300ms ease-out calc(2100ms + var(--i, 0) * 60ms) backwards;
+  }
+
+  .intro-cartao {
+    display: grid;
+    gap: var(--space-3);
+    width: min(92%, 640px);
+    padding: var(--space-4) var(--space-5);
+    background: var(--surface);
+    border: 1.5px solid var(--text);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-2);
+    color: var(--text);
+    font: 500 15px/1.55 var(--ff-mono);
+    animation: intro-sai 400ms var(--ease-std) 2100ms forwards;
+  }
+
+  .intro-linha {
+    margin: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    animation: intro-linha 120ms var(--ease-out) calc(var(--n) * 300ms) backwards;
+  }
+
+  .intro-comentario { color: var(--text-muted); }
+  .intro-linha .kw { color: var(--accent); font-weight: 700; }
+
+  .intro-exec {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-2);
+    animation: intro-aparece 120ms linear 1200ms backwards;
+  }
+
+  .intro-trilho {
+    flex: 1;
+    height: 8px;
+    overflow: hidden;
+    background: var(--surface-2);
+    border-radius: var(--radius-full);
+  }
+
+  .intro-trilho::after {
+    content: '';
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    transform-origin: left;
+    animation: intro-enche 600ms linear 1200ms both;
+  }
+
+  .intro-exec-txt { color: var(--text-muted); font-size: 13px; }
+
+  .intro-resultado {
+    margin: var(--space-2) 0 0;
+    color: var(--pine);
+    animation: intro-aparece 300ms linear 1800ms backwards;
+  }
+
+  .intro-pular {
+    justify-self: end;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 var(--space-4);
+    background: var(--surface);
+    border: 1.5px solid var(--text);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font: 700 0.9375rem/1 var(--ff-text);
+    cursor: pointer;
+  }
+
+  .intro-pular:hover { background: var(--surface-2); }
+
+  /* Os marcadores entram no fim da intro (os objetos ficam ocultos até lá) */
+  html[data-intro] .palco[data-estado='repouso'] .objeto:not([data-lido]) .marcador { animation-delay: 2500ms; }
+
+  @keyframes intro-fim { to { visibility: hidden; } }
+  @keyframes intro-revela { to { visibility: visible; } }
+  @keyframes intro-cena { 0%, 84% { opacity: 0.3; } 100% { opacity: 1; } }
+  @keyframes intro-sai { to { opacity: 0; } }
+  @keyframes intro-aparece { from { opacity: 0; } }
+  @keyframes intro-enche { from { transform: scaleX(0); } }
+  @keyframes intro-linha {
+    from { opacity: 0; clip-path: inset(0 100% 0 0); }
+    to { opacity: 1; clip-path: inset(0); }
+  }
+  @keyframes intro-pisca { 50% { fill: var(--bulb-on); } }
+}
+
+@media print {
+  .intro { display: none !important; }
+}
+
+/* ---------- Pílula numerada de capítulos (design 11.4) ---------- */
+.capitulos-slot,
+.cap-popover,
+.vista-cap { display: none; }
+
+@media screen and (min-width: 768px) {
+  html[data-modo='quarto'] .capitulos-slot {
+    position: sticky;
+    bottom: 16px;
+    z-index: 4;
+    display: flex;
+    justify-content: center;
+    margin-top: var(--space-3);
+    container: barra / inline-size;
+    pointer-events: none;
+  }
+
+  html[data-modo='quarto'] #vista .capitulos-slot {
+    position: fixed;
+    z-index: 5;
+    margin: 0;
+  }
+
+  .capitulos {
+    display: flex;
+    align-items: center;
+    height: 52px;
+    max-width: 100%;
+    padding: 0 4px;
+    background: var(--surface);
+    border: 1.5px solid var(--text);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-2);
+    pointer-events: auto;
+  }
+
+  .cap-lista {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .cap-item {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 8px;
+    border-radius: var(--radius-full);
+    color: var(--text);
+    text-decoration: none;
+    transition: background-color 200ms var(--ease-std);
+  }
+
+  .cap-item:hover { text-decoration: none; }
+  .cap-item:hover,
+  .cap-item[data-foco] { background: var(--surface-2); }
+
+  .cap-item .num { color: var(--text-muted); font: 500 13px/1 var(--ff-mono); }
+
+  .cap-item .nome {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    font: 500 14px/1 var(--ff-text);
+  }
+
+  @container barra (min-width: 900px) {
+    .cap-item .nome {
+      position: static;
+      width: auto;
+      height: auto;
+      overflow: visible;
+      clip: auto;
+    }
+  }
+
+  .cap-item[aria-current='true'] { background: var(--text); color: var(--surface); }
+  .cap-item[aria-current='true'] .num { color: var(--surface); }
+
+  .cap-item[data-lido] .num::after {
+    content: '\2713';
+    position: absolute;
+    top: 4px;
+    right: 2px;
+    color: var(--pine);
+    font: 700 10px/1 var(--ff-text);
+  }
+
+  .cap-item[data-proximo] .num::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 4px;
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: var(--radius-full);
+  }
+
+  .cap-item[aria-current='true'][data-lido] .num::after { color: var(--surface); }
+}
+
+/* Mobile: lista de capítulos num popover, aberta pelo botão central do rodapé da vista */
+@media screen and (max-width: 767px) {
+  .vista-cap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: 44px;
+    padding: 0 var(--space-3);
+    margin-inline: auto;
+    background: transparent;
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font: 700 0.9375rem/1 var(--ff-text);
+    cursor: pointer;
+  }
+
+  .seta-baixo { transform: rotate(90deg); }
+
+  .cap-popover:popover-open {
+    position: fixed;
+    inset: auto var(--space-3) 64px;
+    display: block;
+    max-height: 70dvh;
+    margin: 0;
+    padding: var(--space-2);
+    overflow: auto;
+    background: var(--surface);
+    border: 1.5px solid var(--text);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-panel);
+    color: var(--text);
+  }
+
+  .cap-popover-titulo {
+    margin: var(--space-2) var(--space-3);
+    color: var(--text-muted);
+    font: 500 var(--fs-label)/1 var(--ff-mono);
+  }
+
+  .cap-lista-m { margin: 0; padding: 0; list-style: none; }
+
+  .cap-lista-m .cap-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 48px;
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .cap-lista-m .num { color: var(--text-muted); font: 500 13px/1 var(--ff-mono); }
+  .cap-lista-m .cap-item[aria-current='true'] { background: var(--text); color: var(--surface); }
+  .cap-lista-m .cap-item[aria-current='true'] .num { color: var(--surface); }
+  .cap-lista-m .cap-item[data-lido]::after { content: '\2713'; margin-left: auto; color: var(--pine); font-weight: 700; }
+  .cap-lista-m .cap-item[aria-current='true'][data-lido]::after { color: var(--surface); }
 }

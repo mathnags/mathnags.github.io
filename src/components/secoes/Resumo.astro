@@ -18,6 +18,7 @@ const [antes, depois] = t.hero.rotulo.split('→').map((s) => s.trim());
 ---
 
 <section id="ficha" class="ficha" aria-labelledby="ficha-titulo">
+  <h2 id="ficha-titulo" class="sr-only">{t.ficha.titulo}</h2>
   <div class="ficha-in">
     <div class="ficha-col">
     <div class="ficha-topo">
@@ -28,7 +29,6 @@ const [antes, depois] = t.hero.rotulo.split('→').map((s) => s.trim());
         <Selo variante="transicao" texto={t.resumo.transicao} />
       </ul>
     </div>
-    <h1 id="ficha-titulo">{t.hero.nome}</h1>
     <p class="frase">{t.hero.frase}</p>
     <div class="ficha-acoes">
       <BotaoCTA lang={lang} href={t.contato.linkedinUrl} texto={t.hero.cta} externo />
