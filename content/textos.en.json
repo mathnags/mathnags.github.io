@@ -1,0 +1,375 @@
+{
+  "meta": {
+    "lang": "en",
+    "title": "Matheus Maki Nagano | Data → AI",
+    "description": "Portfolio of Matheus Maki Nagano, based in São Paulo, Brazil, moving into Artificial Intelligence. Information Systems and Data Science graduate with basic-level SQL, Python and Power BI. See Vértice, in development with AI agents."
+  },
+  "topo": {
+    "modoRecrutador": "Recruiter mode",
+    "explorarQuarto": "Explore the room",
+    "pularConteudo": "Skip to content",
+    "luz": {
+      "apagar": "Turn off the light",
+      "acender": "Turn on the light",
+      "rotuloAcessivel": "Dark theme"
+    },
+    "menu": "Menu",
+    "idioma": {
+      "rotulo": "Idioma / Language",
+      "pt": "Português",
+      "en": "English"
+    }
+  },
+  "status": {
+    "modoAtivado": {
+      "recrutador": "Recruiter mode on",
+      "quarto": "Room mode on"
+    }
+  },
+  "nav": {
+    "vertice": "Vértice",
+    "sobre": "About",
+    "experiencia": "Experience",
+    "projetos": "Projects",
+    "habilidades": "Skills",
+    "formacao": "Education",
+    "alem": "Beyond work",
+    "contato": "Contact"
+  },
+  "selos": {
+    "emDesenvolvimento": "In development",
+    "emAndamento": "In progress",
+    "atual": "Current",
+    "repositorioPrivado": "Private repository",
+    "projetoAcademico": "Academic project · FIAP",
+    "emGrupo": "Team project · MVP",
+    "concluido": "Completed"
+  },
+  "resumo": {
+    "titulo": "Summary",
+    "transicao": "Moving into AI"
+  },
+  "hero": {
+    "nome": "Matheus Maki Nagano",
+    "rotulo": "Data → AI",
+    "frase": "Information Systems and Data Science graduate with experience at Salesforce and KPMG, now building Vértice by orchestrating AI agents with Claude Code.",
+    "dados": [
+      { "id": "local", "rotulo": "Location", "valor": "São Paulo, Brazil" },
+      { "id": "idiomas", "rotulo": "Languages", "valor": "Advanced English" },
+      { "id": "estudando", "rotulo": "Studying", "valor": "Postgraduate program in AI for Developers, FIAP" },
+      { "id": "status", "rotulo": "Status", "valor": "Open to opportunities" }
+    ],
+    "provas": [
+      "Vértice: in development",
+      "Postgraduate in AI (FIAP): in progress",
+      "Advanced English"
+    ],
+    "cta": "Let's talk on LinkedIn",
+    "ctaSecundario": "See Vértice"
+  },
+  "quarto": {
+    "titulo": "Room: pick an object",
+    "ajuda": "8 chapters across 12 objects. Use Tab or the arrow keys to choose, Enter to open and Esc to go back.",
+    "dica": {
+      "ponteiro": "Click the objects. Tip: start with 01.",
+      "toque": "Tap an object. Tip: start with 01."
+    },
+    "legendaTeclas": "Enter opens · ← → switches object",
+    "legendaPonteiro": "Click to zoom in",
+    "estado": {
+      "lido": "read",
+      "proximo": "suggested next"
+    },
+    "objetos": {
+      "monitor": { "tema": "The monitor", "comum": "Vértice project", "legenda": "What I'm building right now." },
+      "porta-retrato": { "tema": "The photo frame", "comum": "About me", "legenda": "Who I am and where I come from." },
+      "mural": { "tema": "The corkboard", "comum": "Experience", "legenda": "Where I've worked: KPMG, Salesforce and Cushman & Wakefield." },
+      "caderno": { "tema": "The notebook", "comum": "Other projects", "legenda": "Academic projects from FIAP." },
+      "caixa": { "tema": "The toolbox", "comum": "Skills", "legenda": "What I use, and how well." },
+      "estante": { "tema": "The bookshelf", "comum": "Education & certifications", "legenda": "What I've studied and what I'm studying now." },
+      "quadros": { "tema": "The frames", "comum": "Certifications", "legenda": "Data, BI and Salesforce certificates." },
+      "lenco": { "tema": "The neckerchief", "comum": "Beyond work", "legenda": "Scouting, volleyball and gaming." },
+      "bola": { "tema": "The ball", "comum": "Volleyball", "legenda": "One of my hobbies." },
+      "headset": { "tema": "The headset", "comum": "Games and how Vértice began", "legenda": "Where the idea for Vértice came from." },
+      "estojos": { "tema": "The game cases", "comum": "Games and how Vértice began", "legenda": "The games I play." },
+      "envelope": { "tema": "The mail", "comum": "Contact", "legenda": "How to reach me." }
+    }
+  },
+  "vista": {
+    "voltar": "Back to the room",
+    "anterior": "Previous chapter",
+    "proximo": "Next chapter",
+    "atalho": {
+      "certificacoes": "Go to Certifications",
+      "volei": "Go to Volleyball",
+      "games": "Go to Games"
+    }
+  },
+  "vertice": {
+    "nome": "Vértice",
+    "resumo": "A web platform for amateur VALORANT tournaments, which I'm building by orchestrating AI agents with Claude Code.",
+    "periodo": "2026 – present",
+    "navegador": {
+      "endereco": "verticetour.com.br",
+      "nota": "Illustrated mock-up. The real site is at verticetour.com.br"
+    },
+    "ctaSiteReal": "See the real site",
+    "siteUrl": "https://verticetour.com.br",
+    "ctaLinkedin": "Let's talk on LinkedIn",
+    "comoFoiConstruidoTitulo": "How it's being built",
+    "comoFoiConstruido": [
+      "I orchestrate role-specific AI agents in Claude Code: backend, frontend, testing, game rules and product.",
+      "The backend is covered by 49 automated test files.",
+      "I use GitHub Actions, deploy on Render and a PostgreSQL database on Neon.",
+      "AI agents monitor for failures; when an issue is flagged, I step in and fix it."
+    ],
+    "oQueFazTitulo": "What it does",
+    "oQueFaz": [
+      "Balances teams by player rank.",
+      "Runs map vetoes for Bo1, Bo3 and Bo5 series.",
+      "Supports single-elimination, round-robin and group-stage formats.",
+      "Generates a public link to follow each tournament.",
+      "Bilingual and LGPD-compliant (Brazil's data protection law)."
+    ],
+    "stackTitulo": "Stack",
+    "stack": ["Node.js", "Express", "React", "Vite", "PostgreSQL (Neon)", "GitHub Actions", "Render", "Claude Code"],
+    "proximoPassoRotulo": "Next step",
+    "proximoPasso": "Integration with the official Riot Games API.",
+    "origemRotulo": "Origin",
+    "origem": "The tournaments I used to organize and play with friends: a real problem I was already solving by hand.",
+    "origemLink": "Games and how Vértice began"
+  },
+  "sobre": {
+    "p1": "I hold a bachelor's degree in Information Systems from Anhembi Morumbi University and an associate degree in Data Science from FIAP. My first hands-on work with real data was at Cushman & Wakefield, maintaining and cleaning databases with SQL for the systems team.",
+    "p2": "At Salesforce, I built prototypes for ~7 sales opportunities, turning business requirements into technical demos. At KPMG, I tested IT controls on systems for 10+ global clients and translated business rules into testable verification criteria.",
+    "p3": "Now my focus is Artificial Intelligence. I'm building Vértice with AI agents and taking FIAP's postgraduate program in AI for Developers. My technical skills are still at a basic level, except for Excel, and I learn by building."
+  },
+  "experiencia": {
+    "rotuloAprendizado": "What I took from it",
+    "itens": [
+      {
+        "id": "exp-kpmg",
+        "empresa": "KPMG",
+        "local": "São Paulo, Brazil",
+        "area": "IT controls audit",
+        "cargos": [
+          { "titulo": "Audit Associate", "inicio": "2024-10", "fim": "2026-06", "periodo": "Oct 2024 – Jun 2026" },
+          { "titulo": "Audit Trainee", "inicio": "2023-10", "fim": "2024-10", "periodo": "Oct 2023 – Oct 2024" }
+        ],
+        "bullets": [
+          "Tested IT general and automated controls (access, change and operations ITGCs) on critical systems for 10+ global clients, working within each client's own tools and ERPs and flagging inconsistencies and operational risks.",
+          "Translated business rules into objective, testable verification criteria alongside cross-functional teams and clients.",
+          "Validated large data populations in Excel (VLOOKUP, SUMIF) to support control testing.",
+          "Standardized how assurance reports were finalized across teams, improving consistency and turnaround."
+        ],
+        "aprendizado": ""
+      },
+      {
+        "id": "exp-salesforce",
+        "empresa": "Salesforce",
+        "local": "São Paulo, Brazil",
+        "area": "Solution Engineering",
+        "cargos": [
+          { "titulo": "Solution Engineer Intern", "inicio": "2021-12", "fim": "2022-12", "periodo": "Dec 2021 – Dec 2022" }
+        ],
+        "bullets": [
+          "Built working prototypes on the Salesforce platform (flows, dashboards and permissions) for ~7 sales opportunities, turning complex business requirements into technical demos.",
+          "Supported technical validation on complex strategic accounts, helping the sales team close deals.",
+          "Trained internal teams across Latin America on in-house tools for creating demo videos."
+        ],
+        "aprendizado": ""
+      },
+      {
+        "id": "exp-cushman",
+        "empresa": "Cushman & Wakefield",
+        "local": "São Paulo, Brazil",
+        "area": "Information Technology",
+        "cargos": [
+          { "titulo": "Information Technology Intern", "inicio": "2020-08", "fim": "2021-12", "periodo": "Aug 2020 – Dec 2021" }
+        ],
+        "bullets": [
+          "Maintained and cleaned databases with SQL for the systems team, keeping information available for Tier 2/3 support.",
+          "Monitored the systems team's ticket queue, covering access requests, integrations and data fixes.",
+          "Created technical documentation and end-user training that reduced response time on technical tickets."
+        ],
+        "aprendizado": ""
+      }
+    ]
+  },
+  "projetos": {
+    "rotuloPapel": "My role",
+    "itens": [
+      {
+        "id": "projeto-stocksage",
+        "nome": "StockSage",
+        "resumo": "Perishable inventory management with machine learning (Random Forest) and a Looker Studio dashboard.",
+        "papel": "Helped build the MVP.",
+        "stack": ["Random Forest", "Looker Studio"]
+      },
+      {
+        "id": "projeto-energigreen",
+        "nome": "EnergíGreen",
+        "resumo": "Renewable energy management platform with a big data pipeline.",
+        "papel": "Helped build the MVP.",
+        "stack": []
+      }
+    ]
+  },
+  "habilidades": {
+    "nota": "No bars or percentages: Excel is advanced; everything else is at a basic level and growing.",
+    "legendaContextoReal": "= used on the job",
+    "rotuloContextoReal": "used on the job:",
+    "grupos": [
+      {
+        "id": "avancado",
+        "nome": "Advanced",
+        "itens": [
+          { "nome": "Excel", "detalhe": "pivot tables on large datasets, VLOOKUP, SUMIF", "contextoReal": "KPMG" }
+        ]
+      },
+      {
+        "id": "ia",
+        "nome": "AI · basic, growing",
+        "itens": [
+          { "nome": "Generative AI", "detalhe": "prompt engineering; ChatGPT, Claude, Gemini", "contextoReal": "" },
+          { "nome": "LangChain", "detalhe": "", "contextoReal": "" },
+          { "nome": "LangGraph · fundamentals", "detalhe": "", "contextoReal": "" }
+        ]
+      },
+      {
+        "id": "dados-bi",
+        "nome": "Data & BI · basic, growing",
+        "itens": [
+          { "nome": "SQL", "detalhe": "queries, joins, CTEs", "contextoReal": "Cushman & Wakefield" },
+          { "nome": "Python · Pandas", "detalhe": "Pandas, NumPy", "contextoReal": "" },
+          { "nome": "Power BI", "detalhe": "dashboards, DAX, Power Query, Power BI Service, data storytelling", "contextoReal": "" },
+          { "nome": "ETL · data quality", "detalhe": "ETL, relational modeling, data quality and integrity", "contextoReal": "" },
+          { "nome": "Azure · Databricks", "detalhe": "", "contextoReal": "" },
+          { "nome": "Hadoop · Spark · fundamentals", "detalhe": "", "contextoReal": "" },
+          { "nome": "Airflow", "detalhe": "", "contextoReal": "" }
+        ]
+      },
+      {
+        "id": "web",
+        "nome": "Web development · basic, growing",
+        "itens": [
+          { "nome": "Node.js · Express", "detalhe": "", "contextoReal": "Vértice" },
+          { "nome": "React · Vite", "detalhe": "", "contextoReal": "Vértice" },
+          { "nome": "PostgreSQL", "detalhe": "", "contextoReal": "Vértice" },
+          { "nome": "GitHub Actions", "detalhe": "", "contextoReal": "Vértice" }
+        ]
+      }
+    ],
+    "comoTrabalho": {
+      "titulo": "How I work",
+      "itens": [
+        { "nome": "Translating between business and tech", "evidencia": "Salesforce" },
+        { "nome": "Data validation and risk identification", "evidencia": "KPMG" },
+        { "nome": "Group leadership", "evidencia": "Scouting" },
+        { "nome": "Comfortable with agile ways of working", "evidencia": "" }
+      ]
+    }
+  },
+  "formacao": {
+    "prateleiras": {
+      "ia": "Artificial Intelligence",
+      "concluida": "Completed degrees",
+      "certificacoes": "The frames · Certifications"
+    },
+    "ia": [
+      { "nome": "Pós-Graduação (Pós Tech) em Inteligência Artificial para Devs", "traducao": "Postgraduate program in Artificial Intelligence for Developers", "emissor": "FIAP", "periodo": "started Oct 2026 · expected Aug 2027", "status": "emAndamento" },
+      { "nome": "Arquiteturas RAG com LLMs: embeddings, busca semântica e criação de agentes com LangChain", "traducao": "RAG architectures with LLMs: embeddings, semantic search and building agents with LangChain", "emissor": "Alura", "periodo": "Oct 2026", "status": "" },
+      { "nome": "LangChain e Python: criando ferramentas com a OpenAI", "traducao": "LangChain and Python: building tools with OpenAI", "emissor": "Alura", "periodo": "Oct 2026", "status": "" },
+      { "nome": "Python: Inteligência Artificial Aplicada", "traducao": "Python: Applied Artificial Intelligence", "emissor": "Alura", "periodo": "Oct 2026", "status": "" },
+      { "nome": "RAG (Retrieval-Augmented Generation) e Fine-Tuning de LLMs com LangChain", "traducao": "RAG and LLM fine-tuning with LangChain", "emissor": "Alura", "periodo": "", "status": "" },
+      { "nome": "n8n (automação de fluxos)", "traducao": "n8n (workflow automation)", "emissor": "Alura", "periodo": "", "status": "" }
+    ],
+    "concluida": [
+      { "nome": "Bacharelado em Sistemas de Informação", "traducao": "Bachelor's degree in Information Systems", "emissor": "Anhembi Morumbi University", "periodo": "2019 – 2025", "status": "concluido" },
+      { "nome": "Tecnólogo em Data Science", "traducao": "Associate degree in Data Science", "emissor": "FIAP", "periodo": "2025", "status": "concluido" }
+    ],
+    "certificacoes": [
+      {
+        "id": "dados-bi",
+        "nome": "Data & BI",
+        "itens": [
+          { "nome": "Modelagem, Programação e Qualidade de Dados (Python, SQL e Engenharia de Dados)", "traducao": "Data modeling, programming and quality (Python, SQL and Data Engineering)", "emissor": "FIAP", "periodo": "", "status": "" },
+          { "nome": "Análise e Visualização de Dados (Storytelling com dados e Power BI)", "traducao": "Data analysis and visualization (data storytelling and Power BI)", "emissor": "FIAP", "periodo": "", "status": "" },
+          { "nome": "Arquitetura de Analytics e Big Data (Hadoop, Spark e ecossistemas de larga escala)", "traducao": "Analytics and Big Data architecture (Hadoop, Spark and large-scale ecosystems)", "emissor": "FIAP", "periodo": "", "status": "" },
+          { "nome": "Power BI Desktop: realizando ETL no Power Query", "traducao": "Power BI Desktop: ETL in Power Query", "emissor": "Alura", "periodo": "Dec 2024", "status": "" },
+          { "nome": "Power BI Desktop: construindo meu primeiro dashboard", "traducao": "Power BI Desktop: building my first dashboard", "emissor": "Alura", "periodo": "Dec 2024", "status": "" },
+          { "nome": "Dashboard com Power BI: visualizando dados", "traducao": "Power BI dashboards: visualizing data", "emissor": "Alura", "periodo": "Dec 2024", "status": "" },
+          { "nome": "Databricks: conhecendo a ferramenta", "traducao": "Getting started with Databricks", "emissor": "Alura", "periodo": "Dec 2024", "status": "" }
+        ]
+      },
+      {
+        "id": "salesforce",
+        "nome": "Salesforce",
+        "itens": [
+          { "nome": "Salesforce Administrator Certification", "traducao": "", "emissor": "Salesforce", "periodo": "", "status": "" },
+          { "nome": "Salesforce Associate", "traducao": "", "emissor": "Salesforce", "periodo": "", "status": "" }
+        ]
+      },
+      {
+        "id": "outros",
+        "nome": "Other",
+        "itens": [
+          { "nome": "PROTECH THE FUTURE", "traducao": "", "emissor": "FIAP", "periodo": "Jul 2025", "status": "" }
+        ]
+      }
+    ],
+    "idiomasTitulo": "Languages",
+    "idiomas": [
+      { "idioma": "English", "nivel": "Advanced" },
+      { "idioma": "Japanese", "nivel": "Basic" },
+      { "idioma": "Spanish", "nivel": "Basic" }
+    ]
+  },
+  "alem": {
+    "escotismo": {
+      "titulo": "Scouting",
+      "cargo": "Beaver Scouts leader (ages 5–6) · Grupo Coopercotia",
+      "periodo": "since Aug 2019",
+      "status": "atual",
+      "texto": "I've volunteered with the Scout movement since 2019, leading educational activities for 5- and 6-year-olds."
+    },
+    "games": {
+      "tema": "The headset and the game cases",
+      "titulo": "Games and how Vértice began",
+      "texto": "I play games across many genres, including:",
+      "lista": ["VALORANT", "Counter-Strike", "Resident Evil 4", "Call of Duty"],
+      "lombadaExtra": "Spider-Man",
+      "filmes": "I'm also a Spider-Man fan, both the movies and the games.",
+      "origemVertice": "I've organized and played in tournaments with friends. That's where Vértice came from: before it was code, it was a problem I was solving by hand.",
+      "linkVertice": "01 · Vértice project"
+    },
+    "volei": {
+      "tema": "The ball",
+      "titulo": "Volleyball",
+      "texto": "Away from screens, volleyball is my favorite way to stay active. I'm not great at it, but I have a lot of fun playing with friends!"
+    }
+  },
+  "contato": {
+    "convite": "Shall we talk?",
+    "texto": "I'm open to opportunities. LinkedIn is the best way to reach me.",
+    "status": "Open to opportunities",
+    "cta": "Let's talk on LinkedIn",
+    "linkedinUrl": "https://www.linkedin.com/in/matheusnagano",
+    "assinatura": "Matheus"
+  },
+  "rodape": {
+    "copyright": "© 2026 Matheus Maki Nagano",
+    "githubLabel": "GitHub",
+    "githubUrl": "https://github.com/mathnags"
+  },
+  "ui": {
+    "setaPara": "to",
+    "linkExterno": "(opens external site)",
+    "selosStatus": "Status",
+    "erro404": {
+      "titulo": "Page not found",
+      "texto": "This corner of the room doesn't exist.",
+      "voltar": "Back to the room"
+    }
+  }
+}
