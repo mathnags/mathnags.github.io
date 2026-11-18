@@ -1,0 +1,200 @@
+{
+  "identidade": {
+    "nome": "Matheus Maki Nagano",
+    "nome_exibicao": "Matheus Maki Nagano (content/fonte/respostas-fase2.md)",
+    "disponibilidade": "aberto a oportunidades (content/fonte/respostas-fase2.md)",
+    "metricas_autorizadas": ["mais de 10 clientes globais (KPMG)", "cerca de 7 oportunidades (Salesforce) — content/fonte/respostas-fase2.md"],
+    "titulo": "Analista de Dados em transição para Business Intelligence e Inteligência Artificial",
+    "cidade": "São Paulo, SP",
+    "resumo_curto": "Analista de Dados em transição para BI e IA. Experiência prática em SQL (Cushman & Wakefield), auditoria de controles de TI na KPMG (mais de 10 clientes globais) e prototipação na plataforma Salesforce. Certificações em Power BI, Python e Engenharia de Dados (FIAP); Pós Tech IA para Devs (FIAP) em andamento. Formado em Sistemas de Informação e Data Science.",
+    "links": {
+      "github": "github.com/mathnags (publicável apenas no rodapé; contato principal só LinkedIn — hobbies.md)",
+      "linkedin": "linkedin.com/in/matheusnagano (publicável, confirmado em respostas-fase1.md item 3)",
+      "email": "NÃO PUBLICAR (respostas-fase1.md item 3)"
+    },
+    "foco_principal": "IA (respostas-fase1.md item 1)",
+    "publico_alvo_principal": "recrutadores e gestores de IA (respostas-fase1.md item 5)",
+    "fonte": "content/fonte/cv.md (cabeçalho e Resumo Profissional); content/fonte/briefing.md (Identidade, Resumo); content/fonte/respostas-fase1.md"
+  },
+  "experiencias": [
+    {
+      "empresa": "KPMG (São Paulo, SP)",
+      "cargo": "Audit Associate",
+      "inicio": "2024-10",
+      "fim": "2026-06",
+      "responsabilidades": [
+        "Testou controles automatizados e gerais de TI (ITGCs de acesso, mudança e operações) em sistemas críticos de mais de 10 clientes globais, operando as ferramentas e ERPs de cada cliente; identificou inconsistências e riscos operacionais.",
+        "Traduziu regras de negócio em critérios objetivos e testáveis de verificação de dados, com equipes multidisciplinares e clientes.",
+        "Validou grandes populações de dados em Excel (PROCV, SOMASE) para suportar testes de controles.",
+        "Padronizou o processo de formalização de relatórios de asseguração entre equipes, aumentando consistência e agilidade na entrega.",
+        "Usou ferramentas de IA Generativa no dia a dia, principalmente para pesquisas pontuais e apoio a tarefas de rotina."
+      ],
+      "ferramentas": ["Excel (PROCV, SOMASE)", "ferramentas e ERPs dos clientes", "IA Generativa (uso pontual)"],
+      "natureza": "Auditoria de controles de TI com ferramentas do cliente. NÃO foi análise de dados nem SQL.",
+      "fonte": "content/fonte/cv.md (Professional Experience > KPMG); briefing.md (Experiências > KPMG, incl. aviso ⚠️)"
+    },
+    {
+      "empresa": "KPMG (São Paulo, SP)",
+      "cargo": "Audit Trainee",
+      "inicio": "2023-10",
+      "fim": "2024-10",
+      "responsabilidades": [],
+      "ferramentas": [],
+      "natureza": "Auditoria de controles de TI. Sem responsabilidades detalhadas nas fontes.",
+      "fonte": "content/fonte/cv.md (KPMG > Audit Trainee, Outubro/2023 – Outubro/2024); briefing.md"
+    },
+    {
+      "empresa": "Salesforce (São Paulo, SP)",
+      "cargo": "Solution Engineer Intern",
+      "inicio": "2021-12",
+      "fim": "2022-12",
+      "responsabilidades": [
+        "Desenvolveu protótipos funcionais na plataforma Salesforce (flows, dashboards e permissões) para aproximadamente 7 oportunidades de venda, traduzindo requisitos de negócio complexos em demonstrações técnicas.",
+        "Os protótipos foram determinantes para a validação técnica em contas estratégicas de alta complexidade, apoiando o time comercial no fechamento de negócios.",
+        "Treinou diversos times internos da América Latina no uso de ferramentas internas de criação de vídeos de demonstração, promovendo maior engajamento e adoção.",
+        "Participou da condução de um workshop hands-on de apresentação de um novo projeto."
+      ],
+      "ferramentas": ["Salesforce (flows, dashboards, permissões)"],
+      "fonte": "content/fonte/cv.md (Professional Experience > Salesforce); briefing.md"
+    },
+    {
+      "empresa": "Cushman & Wakefield (São Paulo, SP)",
+      "cargo": "Information Technology Intern",
+      "inicio": "2020-08",
+      "fim": "2021-12",
+      "responsabilidades": [
+        "Manteve e higienizou bases de dados via SQL, apoiando um time de sistemas responsável por chamados (acessos, integrações, correções de dados) e garantindo informação disponível para suporte N2/N3.",
+        "Acompanhou continuamente a fila de chamados do time de sistemas.",
+        "Reduziu o tempo de resposta de chamados técnicos criando documentação técnica e treinamentos para usuários finais."
+      ],
+      "ferramentas": ["SQL"],
+      "fato_adicional": "Primeiro contato do Matheus com dados reais.",
+      "fonte": "content/fonte/cv.md (Professional Experience > Cushman & Wakefield); briefing.md; content/fonte/respostas-fase6.md"
+    }
+  ],
+  "formacao": [
+    {
+      "instituicao": "FIAP",
+      "curso": "Pós-Graduação (Pós Tech) em Inteligência Artificial para Devs",
+      "conclusao": "previsto 2027-08 (início 2026-10)",
+      "status": "em andamento",
+      "fonte": "content/fonte/cv.md (Formação Acadêmica); briefing.md (Formação)"
+    },
+    {
+      "instituicao": "Universidade Anhembi Morumbi",
+      "curso": "Bacharelado em Sistemas de Informação",
+      "conclusao": "2025-07 (início 2019-01)",
+      "status": "concluído",
+      "fonte": "content/fonte/cv.md (Formação Acadêmica); briefing.md (Formação)"
+    },
+    {
+      "instituicao": "FIAP",
+      "curso": "Tecnólogo em Data Science",
+      "conclusao": "2025",
+      "status": "concluído",
+      "fonte": "content/fonte/cv.md (Formação Acadêmica); briefing.md (Formação)"
+    }
+  ],
+  "certificacoes": [
+    { "nome": "Salesforce Administrator Certification", "emissor": "Salesforce", "ano": "", "fonte": "content/fonte/cv.md (Formação & Certificações); briefing.md" },
+    { "nome": "Salesforce Associate", "emissor": "Salesforce", "ano": "", "fonte": "content/fonte/cv.md; briefing.md" },
+    { "nome": "Arquitetura de Analytics e Big Data (Hadoop, Spark e ecossistemas de larga escala)", "emissor": "FIAP", "ano": "", "fonte": "content/fonte/cv.md; briefing.md" },
+    { "nome": "Análise e Visualização de Dados (Storytelling com dados e Power BI)", "emissor": "FIAP", "ano": "", "fonte": "content/fonte/cv.md; briefing.md" },
+    { "nome": "Modelagem, Programação e Qualidade de Dados (Python, SQL e Engenharia de Dados)", "emissor": "FIAP", "ano": "", "fonte": "content/fonte/cv.md; briefing.md" },
+    { "nome": "PROTECH THE FUTURE", "emissor": "FIAP", "ano": "2025 (jul)", "fonte": "content/fonte/cv.md; briefing.md" },
+    { "nome": "Arquiteturas RAG com LLMs: embeddings, busca semântica e criação de agentes com LangChain", "emissor": "Alura", "ano": "2026 (out)", "fonte": "content/fonte/cv.md; briefing.md" },
+    { "nome": "LangChain e Python: criando ferramentas com a OpenAI", "emissor": "Alura", "ano": "2026 (out)", "fonte": "content/fonte/cv.md; briefing.md" },
+    { "nome": "Python: Inteligência Artificial Aplicada", "emissor": "Alura", "ano": "2026 (out)", "fonte": "content/fonte/cv.md; briefing.md" },
+    { "nome": "RAG (Retrieval-Augmented Generation) e Fine-Tuning de LLMs com LangChain", "emissor": "Alura", "ano": "", "fonte": "content/fonte/cv.md (Cursos livres); briefing.md" },
+    { "nome": "n8n (automação de fluxos)", "emissor": "Alura", "ano": "", "fonte": "content/fonte/cv.md (Curso livre); briefing.md" },
+    { "nome": "Power BI Desktop: realizando ETL no Power Query", "emissor": "Alura", "ano": "2024 (dez)", "fonte": "content/fonte/cv.md; briefing.md" },
+    { "nome": "Power BI Desktop: construindo meu primeiro dashboard", "emissor": "Alura", "ano": "2024 (dez)", "fonte": "content/fonte/cv.md; briefing.md" },
+    { "nome": "Dashboard com Power BI: visualizando dados", "emissor": "Alura", "ano": "2024 (dez)", "fonte": "content/fonte/cv.md; briefing.md" },
+    { "nome": "Databricks: conhecendo a ferramenta", "emissor": "Alura", "ano": "2024 (dez)", "fonte": "content/fonte/cv.md; briefing.md" }
+  ],
+  "habilidades": {
+    "tecnicas": [
+      { "nome": "Power BI (dashboards, DAX, Power Query, Power BI Service, storytelling de dados)", "nivel": "basico", "fonte": "content/fonte/cv.md (Hard Skills > BI); briefing.md" },
+      { "nome": "SQL (consultas, joins, CTEs)", "nivel": "basico", "fonte": "content/fonte/cv.md (Hard Skills); briefing.md" },
+      { "nome": "Python (Pandas, NumPy — automação de análises)", "nivel": "basico", "fonte": "content/fonte/cv.md; briefing.md" },
+      { "nome": "Excel avançado (tabelas dinâmicas com bases grandes, PROCV, SOMASE)", "nivel": "avancado", "fonte": "content/fonte/respostas-fase1.md (item 4); cv.md" },
+      { "nome": "ETL, modelagem relacional, qualidade e integridade de dados", "nivel": "basico", "fonte": "content/fonte/cv.md; briefing.md" },
+      { "nome": "Azure e Databricks (descrito como 'conhecimento')", "nivel": "basico", "fonte": "content/fonte/cv.md (Cloud / Big Data); briefing.md" },
+      { "nome": "Hadoop e Spark (descrito como 'noções')", "nivel": "basico", "fonte": "content/fonte/cv.md; briefing.md" },
+      { "nome": "IA Generativa (automação de scripts e produtividade; ChatGPT, Claude, Gemini; engenharia de prompts)", "nivel": "basico", "fonte": "content/fonte/cv.md (IA); briefing.md" },
+      { "nome": "LangChain", "nivel": "basico", "fonte": "content/fonte/cv.md (IA); briefing.md" },
+      { "nome": "LangGraph (descrito como 'noções')", "nivel": "basico", "fonte": "content/fonte/cv.md; briefing.md" },
+      { "nome": "Node.js/Express, React/Vite, PostgreSQL, GitHub Actions (via Vértice)", "nivel": "basico", "fonte": "briefing.md (Habilidades técnicas > Full-stack); cv.md (Projects)" },
+      { "nome": "Airflow", "nivel": "basico", "fonte": "briefing.md (Básico: Airflow — aprendeu na faculdade, não domina)" }
+    ],
+    "comportamentais": [
+      { "nome": "Interface com negócios: traduzir necessidades de clientes em soluções técnicas (Salesforce)", "fonte": "content/fonte/cv.md (Soft Skills)" },
+      { "nome": "Pensamento analítico e auditoria: validação de dados e identificação de riscos (KPMG)", "fonte": "content/fonte/cv.md (Soft Skills)" },
+      { "nome": "Liderança e colaboração: liderança de grupos (Escotismo)", "fonte": "content/fonte/cv.md (Soft Skills)" },
+      { "nome": "Metodologias ágeis: familiaridade com fluxos de trabalho dinâmicos", "fonte": "content/fonte/cv.md (Soft Skills)" }
+    ],
+    "observacao": "Níveis declarados pelo Matheus em content/fonte/respostas-fase1.md (item 4): todas as habilidades técnicas em básico, exceto Excel (avançado)."
+  },
+  "projetos": [
+    {
+      "nome": "Vértice",
+      "resumo": "Plataforma web para campeonatos amadores de VALORANT, em desenvolvimento (sem métricas de uso; não descrever como 'em produção' nem 'com usuários', conforme respostas-fase2.md).Balanceamento de times por rank, veto de mapas Bo1/Bo3/Bo5, formatos mata-mata/pontos corridos/grupos, link público. Bilíngue e em conformidade com a LGPD. Desenvolvida com Claude Code orquestrando agentes de IA especializados (backend, frontend, testes, regras do jogo e produto). Backend com 49 arquivos de testes automatizados. Monitoramento de falhas em produção feito por agentes de IA; Matheus atua na correção quando um problema é sinalizado. Em andamento: integração com a API oficial da Riot Games.",
+      "stack": ["Node.js", "Express", "React", "Vite", "PostgreSQL (Neon)", "GitHub Actions", "Render", "Claude Code"],
+      "periodo": "2026 – atual (exibição definida em respostas-fase2.md). Histórico: ideia iniciada em junho/2026 (respostas-fase1.md item 2); CV registra novembro/2026",
+      "metricas_uso": "nenhuma disponível",
+      "links": {
+        "site": "verticetour.com.br (domínio final, confirmado)"
+      },
+      "origem": "Antes do Vértice, o Matheus organizava os campeonatos manualmente (\"resolvia na mão\"). Fonte: content/fonte/respostas-fase6.md",
+      "repositorio_publico": false,
+      "status": "em desenvolvimento",
+      "fonte": "content/fonte/cv.md (Projects); briefing.md (Projetos); content/fonte/respostas-fase1.md (item 2); content/fonte/respostas-fase2.md (Vértice)"
+    },
+    {
+      "nome": "Projetos acadêmicos (graduação) — MVPs",
+      "resumo": "Desenvolvimento de MVPs em projetos da faculdade.",
+      "stack": [],
+      "links": {},
+      "fonte": "content/fonte/cv.md (Projects); briefing.md"
+    },
+    {
+      "nome": "StockSage",
+      "resumo": "Gestão de estoque perecível com ML (Random Forest) e dashboard no Looker Studio.",
+      "stack": ["Random Forest", "Looker Studio"],
+      "links": {},
+      "contexto": "Projeto da FIAP, sem links. Papel: ajudou a desenvolver o MVP.",
+      "status": "confirmado",
+      "fonte": "briefing.md (Projetos acadêmicos); content/fonte/respostas-fase1.md; content/fonte/respostas-fase2.md"
+    },
+    {
+      "nome": "EnergíGreen",
+      "resumo": "Plataforma de gestão de energia renovável com pipeline de big data.",
+      "stack": [],
+      "links": {},
+      "contexto": "Projeto da FIAP, sem links. Papel: ajudou a desenvolver o MVP. Stack em aberto.",
+      "status": "confirmado",
+      "fonte": "briefing.md (Projetos acadêmicos); content/fonte/respostas-fase1.md; content/fonte/respostas-fase2.md"
+    }
+  ],
+  "hobbies": [
+    { "nome": "Games de vários gêneros", "detalhe": "Organizou e participou de campeonatos entre amigos (origem do Vértice).", "fonte": "briefing.md (Além do trabalho)" },
+    { "nome": "Vôlei", "detalhe": "Atividade física preferida; joga com amigos, por diversão (não competitivo).", "fonte": "content/fonte/hobbies.md (seção Vôlei)" },
+    { "nome": "Jogos: VALORANT, Counter-Strike, Resident Evil 4, Call of Duty", "detalhe": "Citar apenas em texto; sem logos, personagens, arte ou armas características (regra em hobbies.md).", "fonte": "content/fonte/hobbies.md" },
+    { "nome": "Fã de Homem-Aranha", "detalhe": "Fã dos filmes e dos jogos (não HQs). Citar só em texto; sem teia, traje, máscara ou logo (regra em hobbies.md).", "status": "confirmado", "fonte": "content/fonte/hobbies.md" },
+    { "nome": "Pôquer Texas Hold'em", "detalhe": "", "status": "NÃO PUBLICAR", "fonte": "content/fonte/respostas-fase2.md (Pôquer: não publicar)" }
+  ],
+  "voluntariado": [
+    {
+      "organizacao": "Movimento Escoteiro — Grupo Coopercotia",
+      "papel": "Chefe do ramo Castores/Filhotes (cargo confirmado em respostas-fase2.md)",
+      "detalhe": "Desde 2019-08 (atual). Lidera atividades educacionais para crianças de 5–6 anos. O CV dizia 'Ramo Escoteiro'; o Matheus corrigiu para Castores/Filhotes.",
+      "status": "confirmado",
+      "fonte": "content/fonte/cv.md (Atividades Extracurriculares); content/fonte/respostas-fase1.md (Escotismo)"
+    }
+  ],
+  "idiomas": [
+    { "idioma": "Inglês", "nivel": "Avançado", "fonte": "content/fonte/cv.md (Idiomas)" },
+    { "idioma": "Japonês", "nivel": "Básico", "fonte": "content/fonte/cv.md (Idiomas)" },
+    { "idioma": "Espanhol", "nivel": "Básico", "fonte": "content/fonte/cv.md (Idiomas)" }
+  ]
+}
