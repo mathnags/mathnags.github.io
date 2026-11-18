@@ -11,7 +11,7 @@
     "luz": {
       "apagar": "Apagar a luz",
       "acender": "Acender a luz",
-      "rotuloAcessivel": "Tema escuro"
+      "rotuloAcessivel": "Luz apagada"
     },
     "menu": "Menu",
     "idioma": {
@@ -69,13 +69,13 @@
   },
   "quarto": {
     "titulo": "Quarto: escolha um objeto",
-    "ajuda": "8 capítulos em 12 objetos. Use Tab ou as setas para escolher, Enter para abrir e Esc para voltar.",
+    "imagemAlt": "Ilustração de um quarto de trabalho com mesa, monitor, mural de cortiça, estante e porta, com oito objetos que abrem os capítulos do site.",
+    "explorarAbaixo": "Explorar o quarto",
+    "ajuda": "8 capítulos em 8 objetos. Use Tab ou as setas para escolher, Enter para abrir e Esc para voltar.",
     "dica": {
       "ponteiro": "Clique nos objetos. Sugestão: comece pelo 01.",
       "toque": "Toque num objeto. Sugestão: comece pelo 01."
     },
-    "legendaTeclas": "Enter abre · ← → troca de objeto",
-    "legendaPonteiro": "Clique para aproximar",
     "estado": {
       "lido": "lido",
       "proximo": "próximo sugerido"
@@ -87,11 +87,7 @@
       "caderno": { "tema": "O caderno", "comum": "Outros projetos", "legenda": "Projetos acadêmicos feitos na FIAP." },
       "caixa": { "tema": "A caixa de ferramentas", "comum": "Habilidades", "legenda": "O que eu uso, com o nível de cada coisa." },
       "estante": { "tema": "A estante", "comum": "Formação e certificações", "legenda": "O que estudei e o que estou estudando agora." },
-      "quadros": { "tema": "Os quadros", "comum": "Certificações", "legenda": "Certificados de Dados, BI e Salesforce." },
       "lenco": { "tema": "O lenço", "comum": "Além do trabalho", "legenda": "Escotismo, vôlei e games." },
-      "bola": { "tema": "A bola", "comum": "Vôlei", "legenda": "Um dos meus hobbies." },
-      "headset": { "tema": "O headset", "comum": "Games e a origem do Vértice", "legenda": "De onde veio a ideia do Vértice." },
-      "estojos": { "tema": "Os estojos", "comum": "Games e a origem do Vértice", "legenda": "Os jogos que eu jogo." },
       "envelope": { "tema": "A correspondência", "comum": "Contato", "legenda": "Como falar comigo." }
     }
   },
@@ -363,7 +359,8 @@
     "githubUrl": "https://github.com/mathnags"
   },
   "ficha": {
-    "titulo": "Resumo"
+    "titulo": "Resumo",
+    "tituloNaVista": "Resumo"
   },
   "intro": {
     "linhas": [
@@ -377,19 +374,63 @@
     "pular": "Pular",
     "pularRotulo": "Pular introdução"
   },
-  "menu": {
-    "rotulo": "Capítulos",
-    "itens": {
-      "vertice": "Vértice",
-      "sobre": "Sobre",
-      "experiencia": "Experiência",
-      "projetos": "Projetos",
-      "habilidades": "Habilidades",
-      "formacao": "Formação",
-      "alem": "Além do trabalho",
-      "contato": "Contato"
+  "parede": {
+    "direcao": "Dados → IA"
+  },
+  "postit": {
+    "contato": {
+      "titulo": "Fale comigo!",
+      "cta": "Conversar no LinkedIn"
+    }
+  },
+  "anotacoes": {
+    "comece": "comece aqui",
+    "role": "role para um tour pelos 8 capítulos"
+  },
+  "tour": {
+    "progresso": "{n} de 08",
+    "abrir": "Abrir capítulo",
+    "sair": "Sair do tour",
+    "irMonitor": "Ir para o monitor",
+    "vertice": {
+      "resumo": "Plataforma de campeonatos que estou construindo com agentes de IA. Em desenvolvimento.",
+      "fim": "O tour termina aqui dentro."
     },
-    "todos": "Todos os capítulos"
+    "sobre": {
+      "resumo": "De São Paulo, formado em Sistemas de Informação e Data Science, hoje com foco em IA."
+    },
+    "experiencia": {
+      "resumo": "SQL na Cushman & Wakefield, protótipos na Salesforce e auditoria de controles de TI na KPMG."
+    },
+    "projetos": {
+      "resumo": "Dois MVPs acadêmicos da FIAP, um deles com machine learning e dashboard."
+    },
+    "habilidades": {
+      "resumo": "Excel em nível avançado. SQL, Python, Power BI e IA em nível básico, em evolução."
+    },
+    "formacao": {
+      "resumo": "Pós Tech em IA para Devs na FIAP em andamento, mais cursos de RAG e LangChain."
+    },
+    "alem": {
+      "resumo": "Voluntário no escotismo desde 2019, vôlei com os amigos e os campeonatos que deram origem ao Vértice."
+    },
+    "contato": {
+      "resumo": "Aberto a oportunidades. O contato é pelo LinkedIn."
+    }
+  },
+  "so": {
+    "rotulo": "Área de trabalho do Vértice",
+    "arquivos": {
+      "leiame": "LEIA-ME.txt",
+      "construcao": "como-foi-construido/",
+      "funcionalidades": "funcionalidades.md",
+      "stack": "stack.json",
+      "proximo": "proximo-passo.md",
+      "origem": "origem.md",
+      "site": "verticetour.com.br"
+    },
+    "fechar": "Fechar {arquivo}",
+    "voltarArea": "Área de trabalho"
   },
   "ui": {
     "setaPara": "para",

@@ -11,7 +11,7 @@
     "luz": {
       "apagar": "Turn off the light",
       "acender": "Turn on the light",
-      "rotuloAcessivel": "Dark theme"
+      "rotuloAcessivel": "Light off"
     },
     "menu": "Menu",
     "idioma": {
@@ -69,13 +69,13 @@
   },
   "quarto": {
     "titulo": "Room: pick an object",
-    "ajuda": "8 chapters across 12 objects. Use Tab or the arrow keys to choose, Enter to open and Esc to go back.",
+    "imagemAlt": "Illustration of a workroom with a desk, monitor, corkboard, bookshelf and door, with eight objects that open the site's chapters.",
+    "explorarAbaixo": "Explore the room",
+    "ajuda": "8 chapters across 8 objects. Use Tab or the arrow keys to choose, Enter to open and Esc to go back.",
     "dica": {
       "ponteiro": "Click the objects. Tip: start with 01.",
       "toque": "Tap an object. Tip: start with 01."
     },
-    "legendaTeclas": "Enter opens · ← → switches object",
-    "legendaPonteiro": "Click to zoom in",
     "estado": {
       "lido": "read",
       "proximo": "suggested next"
@@ -87,11 +87,7 @@
       "caderno": { "tema": "The notebook", "comum": "Other projects", "legenda": "Academic projects from FIAP." },
       "caixa": { "tema": "The toolbox", "comum": "Skills", "legenda": "What I use, and how well." },
       "estante": { "tema": "The bookshelf", "comum": "Education & certifications", "legenda": "What I've studied and what I'm studying now." },
-      "quadros": { "tema": "The frames", "comum": "Certifications", "legenda": "Data, BI and Salesforce certificates." },
       "lenco": { "tema": "The neckerchief", "comum": "Beyond work", "legenda": "Scouting, volleyball and gaming." },
-      "bola": { "tema": "The ball", "comum": "Volleyball", "legenda": "One of my hobbies." },
-      "headset": { "tema": "The headset", "comum": "Games and how Vértice began", "legenda": "Where the idea for Vértice came from." },
-      "estojos": { "tema": "The game cases", "comum": "Games and how Vértice began", "legenda": "The games I play." },
       "envelope": { "tema": "The mail", "comum": "Contact", "legenda": "How to reach me." }
     }
   },
@@ -363,7 +359,8 @@
     "githubUrl": "https://github.com/mathnags"
   },
   "ficha": {
-    "titulo": "Summary"
+    "titulo": "Summary",
+    "tituloNaVista": "Summary"
   },
   "intro": {
     "linhas": [
@@ -377,19 +374,63 @@
     "pular": "Skip",
     "pularRotulo": "Skip intro"
   },
-  "menu": {
-    "rotulo": "Chapters",
-    "itens": {
-      "vertice": "Vértice",
-      "sobre": "About",
-      "experiencia": "Experience",
-      "projetos": "Projects",
-      "habilidades": "Skills",
-      "formacao": "Education",
-      "alem": "Beyond work",
-      "contato": "Contact"
+  "parede": {
+    "direcao": "Data → AI"
+  },
+  "postit": {
+    "contato": {
+      "titulo": "Let's talk!",
+      "cta": "Let's talk on LinkedIn"
+    }
+  },
+  "anotacoes": {
+    "comece": "start here",
+    "role": "scroll for a tour of the 8 chapters"
+  },
+  "tour": {
+    "progresso": "{n} of 08",
+    "abrir": "Open chapter",
+    "sair": "Leave the tour",
+    "irMonitor": "Go to the monitor",
+    "vertice": {
+      "resumo": "A tournament platform I'm building with AI agents. In development.",
+      "fim": "The tour ends inside here."
     },
-    "todos": "All chapters"
+    "sobre": {
+      "resumo": "Based in São Paulo, with degrees in Information Systems and Data Science, now focused on AI."
+    },
+    "experiencia": {
+      "resumo": "SQL at Cushman & Wakefield, prototypes at Salesforce and IT controls audit at KPMG."
+    },
+    "projetos": {
+      "resumo": "Two academic MVPs from FIAP, one of them with machine learning and a dashboard."
+    },
+    "habilidades": {
+      "resumo": "Advanced Excel. SQL, Python, Power BI and AI at a basic level, and growing."
+    },
+    "formacao": {
+      "resumo": "FIAP's postgraduate program in AI for Developers in progress, plus RAG and LangChain courses."
+    },
+    "alem": {
+      "resumo": "Scout volunteer since 2019, volleyball with friends and the tournaments that sparked Vértice."
+    },
+    "contato": {
+      "resumo": "Open to opportunities. LinkedIn is the way to reach me."
+    }
+  },
+  "so": {
+    "rotulo": "Vértice desktop",
+    "arquivos": {
+      "leiame": "README.txt",
+      "construcao": "how-it-was-built/",
+      "funcionalidades": "features.md",
+      "stack": "stack.json",
+      "proximo": "next-step.md",
+      "origem": "origin.md",
+      "site": "verticetour.com.br"
+    },
+    "fechar": "Close {arquivo}",
+    "voltarArea": "Desktop"
   },
   "ui": {
     "setaPara": "to",
