@@ -94,6 +94,12 @@
     .vista-alvo { display: inline; }
   }
 
+  .vista-alvo .c { display: none; }
+
+  @media (min-width: 1024px) {
+    .vista-alvo .c { display: inline; }
+  }
+
   .vista-ant[hidden],
   .vista-prox[hidden] { display: none; }
 

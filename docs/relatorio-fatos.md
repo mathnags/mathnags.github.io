@@ -29,3 +29,21 @@ Totais: bloqueia 0, ajustar 2 (ambos baixos, só metadados).
 
 ## Veredito: APROVADO
 Nenhum item "bloqueia". Recomenda-se resolver o item da URL do JSON-LD antes da publicação.
+
+---
+
+# Revisão 5 (textos novos)
+
+Verificados: `ficha.titulo`, `intro.*`, `menu.*` (pt/en) e texto fixo de `Quarto.astro`, `CapitulosLista.astro`, `intro.ts`. Nada de texto fixo com fato novo; tudo vem de `textos.*.json`.
+
+| Arquivo / chave | Trecho | Resultado |
+|---|---|---|
+| `intro.linhas` | `SELECT ano, capitulo FROM trajetoria WHERE cidade = 'São Paulo' AND ano BETWEEN 2019 AND 2026 ORDER BY ano;` | Decorativa, não afirma nível de SQL nem fato. São Paulo e 2019–2026 coincidem com `perfil.json` (formação desde 2019, tudo em São Paulo). pt e en equivalentes. ok |
+| `intro.resultado` | "8 capítulos · 2019 Sistemas de Informação → 2026 Vértice · Dados → IA" | 8 capítulos conferem com `menu.itens`; Sistemas de Informação iniciou em 2019-01; Vértice é 2026 e "Dados → IA" é o título. Não diz que o Vértice está em produção. pt e en equivalentes. ok |
+| `ficha.titulo`, `menu.*` | Resumo, Capítulos, nomes dos capítulos | Rótulos neutros, pt/en equivalentes. ok |
+
+Ressalva (baixo, ajustar): a query retorna uma lista de "ano, capitulo", mas o resultado mostra só um resumo; é efeito de interface, não afirmação factual. Nenhuma ação obrigatória.
+
+Totais da revisão 5: bloqueia 0, ajustar 0 novos. Pendências anteriores (URL do JSON-LD e `sameAs`) continuam abertas.
+
+## Veredito: APROVADO

@@ -3,7 +3,7 @@
  * navegação anterior/próximo e histórico. Posições, destinos e enquadramentos vêm de #quarto-config.
  */
 import * as cam from './camera';
-import { marcarAtivo, paraDialog, paraPagina } from './capitulos';
+import { marcarAtivo, parte, paraDialog, paraPagina } from './capitulos';
 import * as hist from './historico';
 import { marcarLido } from './lidos';
 import { cfg, css, dialog, linkDe, mobile, modoQuarto, palco, porId, principais, reduz, type ObjCfg } from './ctx';
@@ -91,7 +91,6 @@ function colocar(obj: ObjCfg) {
     slotTitulo.append(h2);
     h2.tabIndex = -1;
     dialog.setAttribute('aria-labelledby', h2.id);
-    miolo.setAttribute('aria-labelledby', h2.id);
   }
   miolo.scrollTop = 0;
 }
@@ -104,7 +103,6 @@ function devolver() {
   if (secao && marcaSecao) marcaSecao.replaceWith(secao);
   secao = h2 = marcaSecao = marcaH2 = null;
   dialog.removeAttribute('aria-labelledby');
-  miolo.removeAttribute('aria-labelledby');
 }
 
 function realcar(el: HTMLElement) {
@@ -128,7 +126,7 @@ function atualizarNavegacao(obj: ObjCfg) {
     const alvo = botao.querySelector<HTMLElement>('.vista-alvo');
     if (o && alvo) {
       const l = linkDe(o);
-      alvo.textContent = `${l.dataset.num} ${l.dataset.comum}`;
+      alvo.replaceChildren(l.dataset.num ?? '', parte('c', ` ${l.dataset.comum ?? ''}`));
     }
   };
   rotulo(principais.find((o) => o.capitulo === obj.capitulo - 1), botaoAnt);

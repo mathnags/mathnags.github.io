@@ -19,6 +19,13 @@ function refletirEstados() {
   }
 }
 
+export function parte(classe: string, texto: string) {
+  const el = document.createElement('span');
+  el.className = classe;
+  el.textContent = texto;
+  return el;
+}
+
 /** Capítulo da vista aberta (null = nenhuma). */
 export function marcarAtivo(cap: number | null) {
   for (const a of itens()) {
@@ -27,7 +34,8 @@ export function marcarAtivo(cap: number | null) {
   }
   const atual = cap === null ? null : itens().find((a) => Number(a.dataset.cap) === cap);
   if (rotuloBotao) {
-    rotuloBotao.textContent = atual ? `${atual.querySelector('.num')?.textContent} · ${atual.querySelector('.nome')?.textContent}` : '';
+    rotuloBotao.replaceChildren();
+    if (atual) rotuloBotao.append(atual.querySelector('.num')?.textContent ?? '', parte('c', ` · ${atual.querySelector('.nome')?.textContent ?? ''}`));
   }
 }
 

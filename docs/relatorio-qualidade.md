@@ -117,3 +117,59 @@ Peso do 1º carregamento: 102 KiB mobile e 125 KiB desktop (antes 209 KiB). LCP 
 ## Veredito final: **APROVADO**
 
 Todas as notas Lighthouse são 100, sem problema crítico ou alto, AA sem falhas no axe e orçamento de performance cumprido. Pendências só de severidade baixa (A5, P2, M1, D2).
+
+---
+
+# Reauditoria 2 (revisão 5: marcadores, intro SQL, pílula, nome grande, profundidade)
+
+Build refeito; `astro preview` na porta 4350 (encerrado ao final). Chrome headless, localStorage limpo (intro ativa em 1280x800), Lighthouse, axe e Puppeteer.
+
+| Página | Dispositivo | Desempenho | Acessibilidade | Boas práticas | SEO | LCP | TBT | CLS |
+|---|---|---|---|---|---|---|---|---|
+| `/` | mobile / desktop | 100 / 100 | 100 / 100 | 100 / 100 | 100 / 100 | 1,1 s / 0,3 s | 50 / 0 ms | 0 / 0 |
+| `/en/` | mobile / desktop | 100 / 100 | 100 / 100 | 100 / 100 | 100 / 100 | 1,1 s / 0,3 s | 40 / 0 ms | 0 / 0 |
+
+Peso: 129 KiB. HTML 17,3 KB gz; CSS 10,6 KB gz (2 arquivos); JS 5,0 KB gz. Orçamentos cumpridos.
+
+## Verificações pedidas
+
+| Item | Resultado |
+|---|---|
+| LCP e CLS com a intro ativa (1280x800, storage limpo) | LCP é o `p.frase` do resumo (0,1 a 0,4 s no Chrome local); CLS 0 em pt e en. A intro não vira LCP. Recarregar não repete (chave gravada no início) |
+| Teclado: Pular | Tab durante a intro: Modo recrutador, Pular conteúdo, PT, EN, luz, CTA, **Pular**, pílula. "Pular" tem 71x44 px, anel de foco 3 px, Enter encerra e leva o foco ao 1º objeto |
+| Teclado: Esc / clique | Esc e clique no palco encerram a intro em < 300 ms (overlay `display:none`) |
+| Pílula | 8 itens de 44x44 px, altura 52 px, fica abaixo do palco (não cobre a cena). Com a vista aberta vai para o `<dialog>`; item ativo tem `aria-current` e fundo `--text` |
+| Reduced motion | Sem intro (overlay não exibido, nada gravado no storage), 0 animações em execução, marcadores com `animation: none` (estáticos), objetos visíveis |
+| Contraste | Intro (claro/escuro): texto 17,93/13,63; comentário e "executando" 7,62/6,84; resultado 6,35/7,70; botão Pular 17,93/13,63. Pílula: item ativo 17,93/13,63; número `--text-muted` sobre `--surface` (design 7,62/6,84). Marcadores: anel e preenchimento `--accent` e contorno `--text`, valores conferidos no navegador (anel `#B8400F` / `#FF8A4C`; contorno `#15171C` / `#ECE8DF`), todos >= 3:1 sobre parede conforme 11.1. axe sem violações de contraste em pt/en, claro/escuro, repouso e vista |
+| 360 px | Sem overflow horizontal; sem intro, sem pílula visível (nichos 158x179 px), marcadores 24 px estáticos, h1 de 32,6 px na 1ª tela. **Problema Q2 abaixo** |
+
+## Problemas novos
+
+| Id | Categoria | Onde | Problema | Correção sugerida | Severidade |
+|---|---|---|---|---|---|
+| Q1 | Interação / A11y | `[data-intro-overlay]`, `.intro-cartao`, `.intro-pular` | Quando a intro termina sozinha (2,5 s, sem Pular/Esc/clique), o overlay **não é desativado**: o cartão fica com `opacity:0` mas continua `visibility:visible` e `pointer-events:auto`; `data-intro` permanece no `<html>`. Medido com `elementFromPoint` após 4,5 s: **12 de 12 objetos bloqueados** (monitor, mural, estojos, caixa etc.). O 1º clique do visitante é engolido como "pular" (o objeto não abre), e o botão "Pular" invisível continua na ordem de Tab (foco sobre elemento invisível, WCAG 2.4.7/2.4.11). Só ocorre na 1ª visita em desktop, por isso o Lighthouse não pega | A animação final deve levar o **overlay** (não só o cartão) a `visibility:hidden; pointer-events:none` em 2,5 s (design 11.2 já diz isso), e o JS deve remover `data-intro` no `animationend`. Teste: após 3 s, `elementFromPoint` sobre cada objeto devolve o próprio objeto | **Alta** (1ª impressão; clique perdido) |
+| Q2 | Responsivo | Rodapé fixo da vista em 360 px (`Anterior / 03 · Experiência ▾ / Próximo`) | Os três botões somam mais que 360 px: o "Próximo" fica cortado na borda direita ("04 Ou…") e o botão central quebra em 2 linhas. Piora o item M1 anterior | `flex: 1 1 0; min-width: 0` nos três, rótulos curtos no mobile (só `← 02`, `03 ▾`, `04 →` com texto `sr-only`) | Média-alta |
+| A5 (aberto) | A11y | `.vista-miolo` | `landmark-unique` continua (região com o mesmo nome da `<section>` interna) | Ver reauditoria anterior | Baixa |
+
+Os demais itens abertos (P2, D2) seguem de severidade baixa.
+
+## Veredito: **REPROVADO**
+
+Notas Lighthouse 100 e contraste, teclado e reduced motion conforme o design, mas o Q1 (overlay da intro bloqueia todos os objetos após terminar sozinho) é um defeito de interação na 1ª visita que precisa ser corrigido, junto com o Q2 (botão cortado a 360 px). Após corrigi-los, repetir `elementFromPoint` pós-intro e a captura a 360 px; se passarem, o veredito passa a APROVADO.
+
+---
+
+# Reauditoria 3 (correções de Q1, Q2 e A5)
+
+Build refeito; preview na porta 4360 (encerrado ao final).
+
+| Id | Resultado |
+|---|---|
+| Q1 | Corrigido. Após 4 s sem interação (intro terminada sozinha), `elementFromPoint` nos 12 objetos devolve o próprio objeto em pt e en (0 bloqueados); o overlay fica `display:none`, `data-intro` removido, "Pular" fora da ordem de Tab (sequência: modo, pular conteúdo, PT, EN, luz, CTA, objetos...). O 1º clique abre a vista (mural) |
+| Q2 | Corrigido. Rodapé da vista em 360 e 320 px: 4 botões de 44 px de altura, todos dentro da tela (360: último termina em x=348; 320: em x=308), rótulos curtos (`← 02`, `03 ↓`, `04 →`), sem overflow horizontal |
+| A5 | Corrigido. axe (wcag2a/aa, 2.1, 2.2 AA, best-practice) sem nenhuma violação na vista do mural em pt e en. Observação baixa: o `.vista-miolo` tem `tabindex="0"` sem `role`/nome próprio; o nome vem da `<section aria-labelledby>` interna e o axe aceita, mas um leitor de tela anuncia o foco no contêiner sem rótulo. Opcional: `role="region"` + `aria-label` no contêiner e remover o nome da seção interna |
+| Lighthouse | 100/100/100/100 em `/` e `/en/`, mobile e desktop. LCP 1,1 s mobile e 0,3 s desktop, TBT <= 40 ms, CLS 0. Sem regressão |
+
+## Veredito final: **APROVADO**
+
+Sem problema crítico ou alto; Lighthouse 100 nas 4 categorias, AA sem falhas no axe, orçamento cumprido. Pendências baixas: P2 (CSS bloqueante, já sem alerta no Lighthouse), D2 (etiqueta truncada) e a observação do `.vista-miolo` acima.

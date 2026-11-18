@@ -543,7 +543,7 @@
     box-shadow: var(--shadow-2);
     color: var(--text);
     font: 500 15px/1.55 var(--ff-mono);
-    animation: intro-sai 400ms var(--ease-std) 2100ms forwards;
+    animation: intro-sai 400ms var(--ease-std) 2100ms forwards, intro-fim 1ms linear 2500ms forwards;
   }
 
   .intro-linha {
@@ -602,12 +602,16 @@
     cursor: pointer;
   }
 
+  .intro-pular { animation: intro-fim 1ms linear 2500ms forwards; }
   .intro-pular:hover { background: var(--surface-2); }
 
   /* Os marcadores entram no fim da intro (os objetos ficam ocultos até lá) */
   html[data-intro] .palco[data-estado='repouso'] .objeto:not([data-lido]) .marcador { animation-delay: 2500ms; }
 
-  @keyframes intro-fim { to { visibility: hidden; } }
+  @keyframes intro-fim {
+    from { visibility: visible; pointer-events: auto; }
+    to { visibility: hidden; pointer-events: none; }
+  }
   @keyframes intro-revela { to { visibility: visible; } }
   @keyframes intro-cena { 0%, 84% { opacity: 0.3; } 100% { opacity: 1; } }
   @keyframes intro-sai { to { opacity: 0; } }
@@ -755,6 +759,11 @@
   }
 
   .seta-baixo { transform: rotate(90deg); }
+
+  .vista-nav > * { min-width: 0; white-space: nowrap; }
+  .vista-ant, .vista-prox { flex: 0 1 auto; }
+  .vista-cap { flex: 0 1 auto; padding: 0 var(--space-2); }
+  .vista-alvo .c, .vista-cap-rotulo .c { display: none; }
 
   .cap-popover:popover-open {
     position: fixed;
