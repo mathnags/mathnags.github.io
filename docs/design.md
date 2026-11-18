@@ -19,6 +19,7 @@ Esta versão **substitui** o "caderno de campo" e a "Trilha do Vértice". Os tex
 | Cada objeto é um componente; posição, destino e vista ficam num único arquivo de configuração | 9.2 |
 | Hobbies como "acenos de fã" | 4.2a, 9.1 |
 | **Referência externa** (`docs/referencias/raomuhammadhamza.md`), usada como inspiração e não como cópia: marcadores flutuantes, intro temática, menu numerado em pílula com o nome grande sobre a cena, e 2D com profundidade | **11** (revisão 5) e ajustes em 4.1, 4.2, 5.3 e 9 |
+| **Revisão 6:** quarto em tela cheia com HUD translúcido; arte em **imagem raster** com áreas clicáveis em HTML; **só 8 objetos clicáveis**; o resumo passa para o porta-retrato | **12**, que **prevalece** sobre as seções 4.1–4.3, 6, 9.1 (desenho SVG), 9.2 (unidades), 9.4, 11.1, 11.3, 11.4 e 11.5 onde houver conflito. Prompt da imagem em `docs/prompt-imagem-quarto.md` |
 
 A metáfora é a **embalagem**, não o conteúdo. Se um objeto exigir um fato que não está em `perfil.json`, o objeto sai. O Vértice nunca aparece como "concluído", "em produção", "no ar" ou "com usuários".
 
@@ -1191,3 +1192,230 @@ Fonte: `docs/referencias/raomuhammadhamza.md`. **Regra: inspirar-se, não copiar
    - Os marcadores param em ≤ 5 s e não cobrem arte nem etiquetas em 768, 1024, 1280 e 1440 px.
    - A pílula não cobre o palco.
    - Tudo funciona em `forced-colors`.
+
+---
+
+## 12. Revisão 6: quarto em tela cheia, arte raster e 8 objetos
+
+Fonte: `content/fonte/decisao-gamificacao.md`, seção "Revisão 6". O Matheus achou o quarto pequeno, o SVG simplificado e com espaço vazio, e não gostou dos cliques repetidos levando ao mesmo lugar. **Esta seção prevalece** sobre as anteriores onde houver conflito.
+
+### 12.0 O que muda e o que continua
+
+| Sai | Entra |
+|---|---|
+| Card lateral (resumo) ao lado do palco | Quarto em **100dvh** com HUD translúcido; o resumo vai para o **porta-retrato** (12.7) |
+| Cena desenhada em SVG (componentes de objeto, 11.5) | **Uma imagem raster** (dia + noite) com camada de `<a>` posicionados em % (12.2) |
+| 12 objetos clicáveis (com secundários) | **8 objetos**, 1 por capítulo, sem destinos repetidos (12.6) |
+| Etiquetas separadas e varal com lâmpadas por capítulo | **Pino numerado** (marcador + número) e pílula 01…08 (12.8) |
+| Nome grande sobre a faixa da parede (11.3) | Nome no HUD (12.1) |
+| Câmera por `viewBox` | Câmera por `transform` na caixa da imagem (12.5) |
+| "Zero imagens raster" (9.4) | Orçamento de imagem com LCP ≤ 2,5 s no mobile (12.9) |
+
+**Continua valendo:** modo recrutador (1º focável, fallback sem JS e SEO, `?modo=recrutador`, script no `<head>` sem CLS); vistas "dentro" (monitor, mural, estante) e painéis estilizados; `<dialog>` com `#id`, Esc e voltar do navegador (5.6); teclado (7.1); reduced motion (8); intro (11.2, com o ajuste de 12.8); tokens e contraste das vistas (3); `id`s estáveis; PT|EN; acenos de fã e proibições (9.1); arquivo de configuração único (9.2, com as unidades de 12.6).
+
+### 12.1 Tela cheia e HUD
+
+```
+DESKTOP / TABLET DEITADO (largura ≥ 768 e proporção ≥ 1.3) — 100dvh, sem rolagem
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│┌ HUD esquerdo ──────────────────────────────────────────┐  ┌ HUD direito ──────┐│ ← 16px das bordas
+││[≡ Modo recrutador] │ Matheus Maki Nagano · Dados → IA │ [Conversar no LinkedIn ↗]││  [PT|EN] [◑]       ││
+│└────────────────────────────────────────────────────────┘  └───────────────────┘│
+│                                                                                  │
+│        ②₀₁                   ⓪₃                       ⓪₆                ⓪₇        │ ← pinos numerados
+│   (imagem do quarto em cover, 16:9, objetos dentro da área segura)               │
+│              ⓪₂          ⓪₄        ⓪₅                              ⓪₈             │
+│                                                                                  │
+│                    ┌ pílula: 01 02 03 04 05 06 07 08 ┐                           │ ← 16px da base
+└──────────────────────────────────────────────────────────────────────────────────┘
+```
+
+- **Dois HUDs flutuantes** (pílulas), não uma barra inteira, para deixar o centro do topo livre para a arte.
+  - **Esquerdo, na ordem do DOM:** botão "Modo recrutador" (**1º focável**), `h1` com o nome (Bricolage 700, `clamp(1.25rem, 1rem + .8vw, 1.75rem)`), "Dados → IA" (Atkinson 500 15, seta em SVG) e o CTA "Conversar no LinkedIn".
+  - **Direito:** PT|EN e o interruptor de tema.
+  - Abaixo de 1280 px, o HUD esquerdo quebra em 2 linhas: botão + nome na 1ª, "Dados → IA" + LinkedIn na 2ª.
+- **Fundo translúcido com contraste garantido sobre qualquer imagem:**
+
+| Tema | Fundo do HUD | Pior caso por trás | Fundo efetivo | `--text` | `--text-muted` |
+|---|---|---|---|---|---|
+| Claro | `rgba(255,255,255,.82)` + `backdrop-filter: blur(10px) saturate(1.2)` | preto | ≈ `#D1D1D1` | **11.74:1** | **4.99:1** |
+| Claro | idem | branco | `#FFFFFF` | 17.93:1 | 7.62:1 |
+| Escuro | `rgba(18,20,26,.88)` + mesmo blur | branco | ≈ `#2E3036` | **10.79:1** | **5.42:1** |
+| Escuro | idem | preto | ≈ `#101217` | ≥ 15:1 | ≥ 7:1 |
+
+  O contraste vale com ou sem `backdrop-filter`, porque a conta usa só a opacidade. O blur apenas acalma a textura.
+  - **Proibido no HUD:** texto em `--accent` (no pior caso claro daria 3.64:1). A seta de "Dados → IA" em `--accent` é um elemento gráfico (≥ 3:1).
+  - O CTA do LinkedIn tem fundo sólido `--accent` com texto `--on-accent` (5.56 / 7.88). A borda dele contra o fundo efetivo dá ≥ 3.64:1.
+  - Borda do HUD: 1 px `rgba(21,23,28,.12)` no claro e `rgba(236,232,223,.14)` no escuro. Raio `--radius-full`, sombra `--shadow-2`.
+  - Em `forced-colors`, o fundo vira `Canvas` sólido com borda `CanvasText`.
+- **Pílula 01…08** (11.4), com o mesmo fundo translúcido do HUD, centralizada a 16 px da base. Mostra os nomes a partir de 1280 px e só os números abaixo disso; o nome do item em hover ou foco aparece num balão acima da pílula.
+- **Rodapé:** não aparece no modo quarto (não há rolagem). O link "GitHub" fica na vista de Contato. No modo recrutador, o rodapé continua igual.
+- **Faixas reservadas na imagem:** topo (y 0–13%) para os HUDs e base (y 88–100%) para a pílula. Nenhum objeto clicável nem pino fica nelas (o validador confere).
+
+### 12.2 Arte raster: imagem, caixa e área segura
+
+- **Proporção mestre: 16:9**, exportada em **3840×2160** (mínimo aceito: 2560×1440), PNG sRGB. Ver `docs/prompt-imagem-quarto.md`.
+- **Caixa da cena:** um contêiner 16:9 que **cobre** a tela: `width: max(100vw, 177.78dvh)`, `height: max(56.25vw, 100dvh)`, centralizado, com `overflow: hidden` no pai. A `<img>` e a camada de `<a>` ficam **dentro da mesma caixa**, então as posições em % continuam alinhadas em qualquer proporção.
+- **Área segura:** em 16:10 (1280×800, 1440×900) cortam-se cerca de 5% de cada lado; em 21:9, cerca de 12% em cima e embaixo. Por isso, **todos os objetos clicáveis ficam em x 6–94% e y 15–86%**.
+- **Fora do quarto em tela cheia:** retrato e telas estreitas (largura < 768 **ou** proporção < 1.3, como tablet em pé) usam a estratégia mobile (12.3).
+- **Formatos e `srcset`** (gerados por script a partir da mestre; ver 12.11):
+
+```html
+<picture>
+  <source type="image/avif" media="(prefers-color-scheme: dark)" srcset="/img/quarto/noite-1280.avif 1280w, …-1920.avif 1920w, …-2560.avif 2560w, …-3840.avif 3840w" sizes="(min-aspect-ratio: 16/9) 100vw, 178vh">
+  <source type="image/webp" media="(prefers-color-scheme: dark)" srcset="/img/quarto/noite-….webp …" sizes="…">
+  <source type="image/avif" srcset="/img/quarto/dia-1280.avif 1280w, … 3840w" sizes="(min-aspect-ratio: 16/9) 100vw, 178vh">
+  <source type="image/webp" srcset="/img/quarto/dia-….webp …" sizes="…">
+  <img src="/img/quarto/dia-1920.webp" width="3840" height="2160" alt="{quarto.imagemAlt}"
+       fetchpriority="high" decoding="async">
+</picture>
+```
+
+| Largura | AVIF (máx.) | WebP (máx.) |
+|---|---|---|
+| 1280w | 90 KB | 130 KB |
+| 1920w | 160 KB | 230 KB |
+| 2560w | 260 KB | 380 KB |
+| 3840w | 450 KB | 650 KB |
+
+- **Preload** no `<head>`: `<link rel="preload" as="image" imagesrcset="…avif…" imagesizes="…" type="image/avif" media="(min-width: 768px) and (min-aspect-ratio: 13/10)">`. O script de tema troca o preload para "noite" quando a escolha manual for escuro.
+- **LQIP:** uma versão de 32×18 px em WebP (≤ 600 bytes) entra em linha como `background-image` da caixa, para a tela nunca ficar vazia. Ela não conta como LCP.
+- **`alt`:** uma frase curta (`{quarto.imagemAlt}`). Os objetos são anunciados pelos links.
+- **Assinatura (6):** a imagem pede **tela do monitor lisa e iluminada**. Por cima dela entra um **SVG de sobreposição** (≤ 1 KB, `aria-hidden`), posicionado em % sobre a tela, com a linha da carreira que dobra em 2026, em cores de tema. Ela continua nítida e se desenha no 1º hover ou foco.
+
+### 12.3 Mobile e telas em retrato: recorte + nichos com recortes
+
+Decisão: **não** pedir uma imagem vertical à parte (duplicaria o trabalho do Matheus e quebraria a correspondência entre as versões) e **não** usar panorama com rolagem lateral (pesado para o LCP). Tudo sai da mesma imagem mestre, com recortes feitos no build:
+
+1. **Herói recortado (100svh):** recorte vertical 9:16 da imagem mestre, centrado na mesa, no monitor e no porta-retrato (`recorteMobile` na config; padrão x 10–42%). Por cima:
+   - no topo, o HUD em uma linha: [≡ Modo recrutador] … [PT|EN] [◑];
+   - na base, um cartão translúcido com o nome (Bricolage 700, 32 px), "Dados → IA", [Conversar no LinkedIn ↗] e o link "Explorar o quarto ↓" (âncora para os nichos).
+   - O herói não tem áreas clicáveis (evita links duplicados com os nichos).
+   - Arquivos: `heroi-{dia|noite}-{480,720,1080}.avif/webp` (9:16), com máximo de 45 / 80 / 140 KB em AVIF e `fetchpriority="high"`. Esse é o **LCP mobile**.
+2. **Nichos (4.3):** os 8 ladrilhos mostram um **recorte quadrado de cada objeto**, gerado a partir do retângulo `clique` com 15% de margem: `obj-<id>-{dia|noite}-{240,480}.avif/webp`, ≤ 12 KB cada, `loading="lazy"`, `alt=""` (o texto do ladrilho nomeia o objeto). O número do capítulo fica num pino no canto do ladrilho.
+3. **Vistas:** em tela cheia, como em 4.4 (sem câmera).
+
+Primeiro frame em 360×640: o HUD com "Modo recrutador" e o cartão com nome, Dados → IA e LinkedIn ficam visíveis sobre o recorte, e os nichos começam logo abaixo da dobra.
+
+### 12.4 Modo noite: segunda imagem com a mesma composição
+
+- **Preferido:** `quarto-noite.png`, com **a mesma câmera e a mesma composição** (objetos a ±0,5% da versão de dia). Luz de teto apagada, varal de luzinhas aceso, LED sob a mesa, tela do monitor iluminada e lua na janela (ver o prompt).
+- **Seleção sem JS:** `<source media="(prefers-color-scheme: dark)">` cobre o caso comum. **Escolha manual diferente do sistema:** o script do `<head>` grava `data-theme` e troca o preload, e o módulo troca o `srcset` da `<picture>`. Na troca pelo interruptor, a nova imagem carrega e entra com opacidade em 320 ms (instantâneo em reduced motion); até lá, a imagem atual continua na tela.
+- **Só a imagem do tema ativo é baixada.** A outra é pré-carregada quando o ponteiro passa pelo interruptor (`fetchpriority="low"`).
+- **Fallback, se a imagem noturna não existir ou não estiver alinhada:** `filter: brightness(.5) saturate(.75)` na `<img>` mais uma camada `rgba(11,20,48,.35)` e um brilho do monitor em CSS (`radial-gradient` sobre a área da tela). É aceitável, mas fica abaixo da segunda imagem.
+
+### 12.5 Zoom por `transform`
+
+- A **câmera** de cada objeto passa a ser `{ cx, cy, escala }` em % da imagem (12.6). O zoom aplica `transform: translate(…) scale(escala)` na **caixa da cena** (imagem + camada de links + pinos), com `transform-origin: 0 0`. A translação é calculada para centralizar `(cx, cy)` e **limitada para não mostrar fora da imagem**.
+- **400 ms `--ease-out` na ida e 320 ms na volta; corte direto em reduced motion.** Só `transform`, composto na GPU, com `will-change: transform` apenas durante a animação.
+- **Escala máxima de 2×.** Acima disso, a imagem de 1920w perde nitidez. Em telas ≥ 1440 px, o `srcset` já escolhe 2560w ou 3840w. Atrás da vista, aplica-se uma película `rgba(18,20,26,.25)`.
+- Pinos, HUD e pílula somem (opacidade em 120 ms) durante o zoom. A pílula reaparece **dentro do `<dialog>`** (11.4).
+- **Vistas "dentro" (monitor, mural, estante):** a moldura HTML é posicionada sobre a `janela` do objeto convertida para px depois do zoom, com o mínimo de 560×360 px (4.4). A borda temática (bisel, cortiça, madeira) é **desenhada em CSS**, então não depende da precisão da imagem. Painéis estilizados ficam no lado `lado` da config.
+- Histórico, foco, Esc e voltar do navegador: **sem mudança** (5.6).
+
+### 12.6 Só 8 objetos clicáveis (composição em % da imagem)
+
+| Cap. | Objeto | Destino | Vista | `clique` (x, y, l, a em %) | Pino (x, y em %) | Câmera (cx, cy, escala) | `janela` (%) |
+|---|---|---|---|---|---|---|---|
+| 01 | Monitor (na mesa) | `vertice` | dentro · `tela` | 18, 34, 14, 18 | 25, 30 | 25, 45, 2 | tela: 19.5, 35.5, 11, 11.5 |
+| 02 | Porta-retrato (na mesa) | `sobre` (com `ficha`, 12.7) | painel · `porta-retrato` | 33, 47, 5, 11 | 35.5, 43 | 42, 50, 2 | — |
+| 03 | Mural de cortiça | `experiencia` | dentro · `cortica` | 40, 18, 14, 20 | 47, 16 | 47, 30, 1.8 | cortiça: 41, 19.5, 12, 17 |
+| 04 | Caderno (na mesinha) | `projetos` | painel · `caderno` | 43, 58, 8, 6 | 47, 54 | 50, 60, 2 | — |
+| 05 | Caixa de ferramentas (no chão) | `habilidades` | painel · `caixa` | 52, 70, 8, 10 | 56, 66 | 60, 70, 2 | — |
+| 06 | Estante | `formacao` | dentro · `estante` | 62, 26, 14, 48 | 69, 22 | 69, 50, 1.6 | prateleiras: 63, 28, 12, 44 |
+| 07 | Lenço escoteiro (gancho da porta) | `alem` | painel · `tecido`, à esquerda | 79, 34, 4, 10 | 81, 30 | 70, 42, 2 | — |
+| 08 | Envelope / caixa de correio (porta) | `contato` | painel · `carta`, à esquerda | 84, 46, 6, 8 | 87, 42 | 75, 52, 2 | — |
+
+- **Os valores são a composição-alvo** pedida no prompt. Quando a imagem chegar, o `dev-frontend` **calibra** `clique`, pino, câmera e `janela` sobre ela (uma página interna `/dev/quarto` com sobreposição dos retângulos ajuda) e grava os valores em `src/config/quarto.ts`.
+- **Viram decoração (não clicáveis):** quadros/diplomas, headset, estojos de jogos, bola de vôlei, mousepad coral, pôster vermelho e azul, vaso com ervas, janela, porta, cadeira, tapete, luminária, varal de luzinhas e LED. Os blocos `#certificacoes`, `#alem-games` e `#alem-volei` **continuam existindo** dentro das vistas da estante e do lenço, com os atalhos no topo ("Ir para Certificações", "Ir para Games", "Ir para Vôlei").
+- **Mudanças no formato da config (9.2):** `Rect` passa a ser em **% da imagem** (0–100); `caixa` e `etiqueta` saem (o pino é a etiqueta); `camera` vira `{ cx, cy, escala }`; entram `pino: { x, y }` e `recorteNicho?: Rect`; `papel` e `ordem` saem (8 objetos, ordem = capítulo); `secoes: string[]` substitui `secao` (o porta-retrato abre `['ficha', 'sobre']`). No nível do quarto, entram `imagem: { l: 3840, a: 2160 }`, `areaSegura` e `recorteMobile`.
+- **Validador:**
+  - 8 objetos com capítulos 1–8 únicos e destinos únicos;
+  - `clique` e pino dentro da área segura e fora das faixas do HUD e da pílula;
+  - nenhum `clique` sobreposto;
+  - cada `clique` mede ≥ 3.3% × 5.8% da imagem, o que dá ≥ 44 px na menor tela em tela cheia (1024×768, caixa de 1365×768);
+  - pinos (28 px + 4 px de flutuação) não cobrem outro `clique`.
+
+### 12.7 Porta-retrato com o resumo (02 · Sobre)
+
+- A vista do porta-retrato mostra, nesta ordem: **o resumo** (`#ficha`: `{hero.frase}`, `<dl>` com local, idiomas, estudando e status, as 3 provas e o CTA do LinkedIn) e **Sobre mim** (`#sobre`, 3 parágrafos). A moldura `porta-retrato` (4.4) fica com a faixa superior de madeira **sem silhueta**, porque a imagem raster já mostra o objeto.
+- O `h2` da vista continua "O porta-retrato · Sobre mim". `#ficha` ganha um `h3` "Resumo" dentro da vista (no modo recrutador, ele é o herói, como antes).
+- **Link direto:** `/#ficha` e `/#sobre` abrem a vista 02.
+- **Modo recrutador: sem mudança.** O resumo continua sendo o primeiro bloco.
+
+### 12.8 Pinos, ordem e intro (ajustes da 11.x)
+
+- **Pino numerado** = marcador (11.1) + etiqueta. É a lâmpada-pino de 28 px com o **número do capítulo** dentro (mono 500 12 px):
+  - não lido: fundo `--surface`, número `--text` (17.93 / 13.63), anel `--accent`;
+  - próximo sugerido: fundo `--accent`, número `--on-accent` (5.56 / 7.88);
+  - lido: fundo `--pine-tint`, ✓ `--pine` + número.
+  - Contorno de 1.5 px `--text`. O contraste contra qualquer pixel da imagem é garantido pela lógica do foco duplo (3.3): preenchimento claro + contorno escuro no claro, e o inverso no escuro.
+  - No hover ou foco, aparece ao lado do pino um balão translúcido (fundo do HUD) com "01 · O monitor · Projeto Vértice". Ele fica oculto em repouso, para não poluir a arte; os nomes estão sempre visíveis na pílula (≥ 1280) e nos nomes acessíveis.
+  - A flutuação continua: 3 ciclos e para; estático em reduced motion.
+- **Dica de ordem:** pinos numerados + pílula + o pino "próximo sugerido". O varal de luzinhas vira **só decoração** na imagem; as lâmpadas não acendem mais por capítulo.
+- **Intro (11.2):** continua só com tela ≥ 768 e proporção ≥ 1.3, na 1ª visita. A cena fica escurecida por uma **película** sobre a imagem (`rgba(246,244,238,.7)` no claro, `rgba(18,20,26,.7)` no escuro) (não altere a opacidade da `<img>`, que é o candidato a LCP). O cartão SQL fica centralizado, e o HUD continua visível e usável por cima da película.
+- **Ordem de `Tab`:** Modo recrutador → LinkedIn → PT|EN → tema → (Pular, se houver intro) → objetos 01…08 → pílula 01…08.
+
+### 12.9 Orçamento de performance (substitui 9.4)
+
+| Recurso | Orçamento |
+|---|---|
+| HTML por idioma (conteúdo + config + intro + pílula; **sem** o SVG da cena) | ≤ 45 KB gzip |
+| SVG de sobreposição do monitor | ≤ 1 KB |
+| CSS total | ≤ 22 KB gzip |
+| JS (`<head>` + módulo) | ≤ 1,2 KB + ≤ 11 KB gzip |
+| Fontes | ≤ 110 KB; **1 preload** (Atkinson 400), Bricolage com `swap` |
+| Imagem da cena (desktop) | tabela de 12.2; a variante escolhida normalmente fica entre 160 e 260 KB em AVIF |
+| Herói mobile | ≤ 80 KB AVIF (720w) |
+| Nichos | 8 × ≤ 12 KB, lazy |
+| **Metas** | **LCP ≤ 2,5 s no mobile** (Lighthouse, 4G simulado; o LCP é o herói recortado) e ≤ 2,0 s no desktop · TBT ≤ 100 ms · CLS ≤ 0,02 (caixa com `aspect-ratio` e `width`/`height` declarados) · INP ≤ 200 ms · zoom ≤ 16 ms por quadro no desktop |
+
+### 12.10 Chaves de texto
+
+**Novas:**
+
+| Chave | pt (ilustrativo) | en (ilustrativo) |
+|---|---|---|
+| `quarto.imagemAlt` | "Ilustração do quarto de trabalho do Matheus, com oito objetos que abrem capítulos." | "Illustration of Matheus's workroom, with eight objects that open chapters." |
+| `quarto.explorarAbaixo` (mobile) | "Explorar o quarto" | "Explore the room" |
+| `quarto.pino.balao` (formato) | "{num} · {tema} · {comum}" | idem |
+| `ficha.tituloNaVista` | "Resumo" | "Summary" |
+
+**Saem:** `quarto.objetos.{quadros,headset,estojos,bola}.*` e as chaves da janela, se ainda existirem.
+
+**Mudam:** `quarto.ajuda` passa a dizer "8 objetos" ("8 capítulos em 8 objetos. Use Tab ou as setas para escolher, Enter para abrir e Esc para voltar."). `quarto.legenda*` sai (o balão do pino a substitui).
+
+**Mantidas:** `vista.atalho.certificacoes/.volei/.games`, `intro.*`, `menu.*`, `topo.*`.
+
+### 12.11 Tarefas para o `dev-frontend`
+
+1. **Pipeline de imagens:** criar `scripts/gerar-imagens.mjs` (sharp, devDependency gratuita), rodado localmente com `npm.cmd run imagens`.
+   - Lê `content/fonte/arte/quarto-dia.png` e `quarto-noite.png` (**privados**, no `.gitignore`) e os recortes da config.
+   - Gera em `public/img/quarto/`: cena AVIF/WebP em 1280–3840w; herói 9:16 em 480/720/1080; nichos quadrados em 240/480; LQIP de 32×18.
+   - Falha se algum arquivo passar do orçamento.
+   - **Só os derivados entram no Git.**
+2. **Remover a cena SVG:** remover os componentes de objeto e decoração e os tokens `--room-*`, `--fan-*` e de luz (exceto onde as vistas usam). Manter o **SVG de sobreposição** do monitor.
+3. **Layout em tela cheia:** caixa 16:9 em cover, HUDs translúcidos (12.1) com os valores de `rgba` exatos, pílula translúcida, sem aside e sem rodapé no modo quarto. A detecção de "tela cheia" é largura ≥ 768 e proporção ≥ 1.3.
+4. **Config e validador:** migrar para % (12.6); 8 objetos; `secoes: ['ficha','sobre']` no porta-retrato; validador novo.
+5. **Pinos numerados e balão** (12.8); remover etiquetas e o estado do varal.
+6. **Zoom por `transform`** com limite de borda, escala ≤ 2 e película atrás da vista; vistas "dentro" com moldura em CSS.
+7. **Tema:** `<picture>` com `media` para dia e noite + troca manual + preload certo + fallback por filtro.
+8. **Mobile:** herói recortado com cartão translúcido + nichos com recortes + vistas em tela cheia.
+9. **Intro:** película em vez de opacidade da imagem; condições de 12.8.
+10. **Porta-retrato:** mover `#ficha` para a vista 02, com `h3` "Resumo"; `/#ficha` abre a vista 02.
+11. **Calibração:** página `/dev/quarto` (excluída do build de produção) que desenha os `clique`, pinos, câmeras e `janela`s sobre a imagem, para ajustar os valores depois que a arte chegar.
+12. **Textos:** chaves de 12.10 em pt e en.
+13. **Verificação:**
+    - Lighthouse ≥ 90 nas 4 categorias em mobile e desktop, com LCP mobile ≤ 2,5 s e CLS ≤ 0,02.
+    - Contraste do HUD medido sobre a área mais clara e a mais escura da imagem, nos dois temas.
+    - 1ª tela em 1280×800, 1440×900, 1920×1080 e 2560×1080 (21:9) com os 8 objetos visíveis.
+    - 360×640 e tablet em pé usando a estratégia mobile.
+    - `/#ficha`, `/#exp-kpmg` e `?modo=recrutador`; teclado, reduced motion e `forced-colors`.
+    - Troca de tema com imagem noturna e com o fallback por filtro.
+
+### 12.12 Riscos
+
+- **Teste dos 30 segundos:** sobre a cena, ficam só o nome, "Dados → IA" e o LinkedIn. Status, Vértice e Pós Tech exigem um clique no porta-retrato ou no monitor, ou o modo recrutador. Mitigação: o botão "Modo recrutador" é o 1º elemento e o mais visível do HUD. Se o Matheus aceitar, recomendo acrescentar "· aberto a oportunidades" à linha "Dados → IA".
+- **Qualidade e alinhamento da arte gerada por IA:** a posição dos objetos pode variar, e a versão noturna pode não coincidir. Mitigações: calibração (tarefa 11), checklist do prompt e fallback por filtro.
+- **Direitos:** os termos de uso da ferramenta de imagem precisam permitir o uso no portfólio (aviso no prompt).
+- **Peso:** a imagem passa a ser o LCP. O orçamento de 12.2 e 12.9 é obrigatório no CI.
