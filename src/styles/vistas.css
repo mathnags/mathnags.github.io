@@ -221,7 +221,7 @@
 
   #vista[data-vista='estante'] .idiomas {
     padding: var(--space-3) var(--space-4);
-    background: var(--surface);
+    background: var(--paper-bg);
     --text: #15171c;
     border-radius: var(--radius-xs);
   }
