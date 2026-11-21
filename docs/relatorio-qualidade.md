@@ -173,3 +173,86 @@ Build refeito; preview na porta 4360 (encerrado ao final).
 ## Veredito final: **APROVADO**
 
 Sem problema crítico ou alto; Lighthouse 100 nas 4 categorias, AA sem falhas no axe, orçamento cumprido. Pendências baixas: P2 (CSS bloqueante, já sem alerta no Lighthouse), D2 (etiqueta truncada) e a observação do `.vista-miolo` acima.
+
+
+---
+
+# Reauditoria 4 (revisão 6: quarto em tela cheia com imagem raster, tour pela rolagem, SO no monitor, post-its e anotações)
+
+Build refeito; `astro preview` na porta 4370 (encerrado ao final). Chrome headless, Lighthouse, axe-core e Puppeteer. Para o LCP com a imagem, medi também com `localStorage` limpo (intro ativa), 4G simulado e CPU 4x.
+
+## Notas Lighthouse
+
+| Página | Dispositivo | Desempenho | Acessibilidade | Boas práticas | SEO | LCP | TBT | CLS | Peso |
+|---|---|---|---|---|---|---|---|---|---|
+| `/` | mobile | 100 | 100 | 100 | 100 | 1,1 s | 10 ms | 0 | 260 KiB |
+| `/` | desktop | 100 | 100 | 100 | 100 | 0,3 s | 0 | 0 | 225 KiB |
+| `/en/` | mobile | 100 | 100 | 100 | 100 | 1,1 s | 0 | 0 | 260 KiB |
+| `/en/` | desktop | 100 | 100 | 100 | 100 | 0,3 s | 0 | 0 | 226 KiB |
+
+Auditoria reprovada que não pontua (regressão, ver R6-1): `label-content-name-mismatch` no desktop (interruptor).
+
+## LCP, CLS e orçamento de imagens
+
+| Cenário (intro ativa, storage limpo, 4G + CPU 4x) | LCP | CLS |
+|---|---|---|
+| 1280x800 dia | texto da parede 1,04 s; imagem `dia-1920.avif` 1,6 s | 0,0001 |
+| 1280x800 noite | 0,9 s; imagem 1,2 s | 0,0001 |
+| 1920x1080 `/en/` | 0,9 s; imagem 1,6 s | 0,0001 |
+| 360x740 dia / noite | 0,84 s; herói `heroi-*-480.avif` 0,88 s | 0 |
+
+Dentro de LCP <= 2,0 s no desktop e <= 2,5 s no mobile, CLS <= 0,02. A imagem tem `fetchpriority="high"`, preload por tema e proporção, e LQIP inline.
+
+| Recurso | Orçamento (12.2, 12.9, 12.13.8) | Medido | Resultado |
+|---|---|---|---|
+| AVIF dia 1280 / 1920 / 2560 | <= 100 / 180 / 290 KB | 58 / 109 / 195 KB | ok |
+| AVIF noite 1280 / 1920 / 2560 | idem | 45 / 75 / 109 KB | ok |
+| WebP dia 1920 / 2560 | ~ +45% | 119 / 186 KB | ok |
+| Herói mobile AVIF 720w (dia / noite) | <= 85 KB | 49 / 34 KB (1080w: 85 / 54 KB) | ok |
+| Nichos 480w AVIF | <= 12 KB (design 12.3) | 5 a 15 KB (caderno, caixa, estante, monitor e porta-retrato no dia passam de 12 KB) | acima do alvo, sem efeito prático (lazy) |
+| 3840w | previsto em 12.2 | não gerado (máximo 2560w) | aceitável |
+| HTML gz | <= 45 KB | 15,6 / 15,9 KB | ok |
+| CSS gz (2 arquivos) | <= 24 KB | 11,1 KB | ok |
+| JS do módulo gz | <= 13 KB | 6,1 KB | ok |
+| Script inline do `<head>` | <= 1,2 KB | 1,15 KB | ok, no limite |
+| Fontes (1º carregamento, latin) | <= 130 KB | cerca de 98 KB; 2 preloads (o design pede 1) | ok |
+
+## Verificações pedidas
+
+| Item | Resultado |
+|---|---|
+| Tab | Ordem: Modo recrutador, Pular, PT, EN, interruptor, post-it "Fale comigo", objetos 01..08 (um `<a>` por objeto, nome acessível "01 · O monitor, Projeto Vértice"), depois os 8 "Abrir capítulo" dos cartões. Foco visível em todos (anel de 3 px; duplo na arte). Sem erros no console |
+| Setas | Direita/esquerda/baixo/cima movem entre objetos; Home/End vão ao 01/08 |
+| Enter, Esc (nível 1) | Enter abre a vista com o foco no `h2`; Esc fecha, devolve o foco ao objeto e limpa o hash |
+| Esc em dois níveis | No SO do monitor: abrir um arquivo, Esc 1 fecha a janela e devolve o foco ao ícone, Esc 2 sai do monitor. Funciona. No tour, sem vista aberta, Esc volta ao passo 0. **Falha pontual: R6-2** |
+| Tour sem prender a rolagem | Rolagem nativa por roda (9 passos, câmera muda por passo: 1,5x a 1,8x e 3x no fim), Home, End e PageDown funcionam; nenhum `preventDefault` em wheel/touchmove/keydown; "Sair do tour" e "Ir para o monitor" funcionam; objetos continuam clicáveis durante o tour e o "Abrir capítulo" abre a vista sem perder a posição (y=2400) |
+| Reduced motion | Intro não aparece nem grava storage; 0 animações em execução; câmera do tour e do zoom corta direto (transição de 1e-5 s); anotações visíveis e estáticas. Sem reduced motion, nenhum laço infinito rodando após 6 s |
+| Contraste (axe, 48 estados: pt/en x dia/noite x repouso, tour passo 3, fim do tour/SO, 8 vistas) | **0 violações**, incluindo `color-contrast` |
+| Nome na parede e anotações | `-webkit-text-stroke` de 6 px com `paint-order: stroke` e halo `#FFFFFF` (dia) / `#12141A` (noite) ao redor do texto `#15171C` / `#ECE8DF`: 17,93 / 15,06:1 contra o halo. Sem o halo, o texto sobre a imagem daria 12,1:1 (dia) e 4,9:1 (noite) no nome, e abaixo de 3:1 em partes das anotações: o halo é necessário e está presente |
+| Post-its | Fundo `#FFF1B8` / `#E8D98F`; texto `#15171C` 15,82 / 12,60:1; número `#4F545C` 6,72 / 5,35:1 |
+| HUD | Fundo `rgba(255,255,255,.82)` / `rgba(18,20,26,.88)` com blur, como o design (pior caso 11,7 / 10,8:1). Botão de modo e PT/EN ativo em fundo sólido: 17,9 / 13,6:1 |
+| 360 px | Sem overflow. Herói recortado com cartão translúcido (nome 32 px, Dados → IA, post-it "Fale comigo!", "Explorar o quarto"). 8 nichos em 1 coluna (313 px de largura, imagem lazy com `alt=""`, resumo, ação). Vista em tela cheia e SO em grade de 2 colunas com alvos >= 96 px; botões da barra com 44 px. axe ok no herói, nos nichos e no SO |
+| Modo recrutador (`?modo=recrutador`) | pt e en, 1280 e 360: 9 seções visíveis, sem quarto nem tour, "Explorar o quarto" é o 1º focável, menu e LinkedIn visíveis, sem overflow, axe sem violações |
+| Sem JS | 9 seções visíveis e legíveis em 1280 e 360, botões `so-js` ocultos, menu e rodapé visíveis, sem overflow |
+| Outros tamanhos | 768x1024 (retrato), 360 e 320: estratégia mobile. 1024x768, 1280x800, 1440x900 e 1920x1080: 8 objetos visíveis, todos >= 44 px, nenhum fora da tela. 2560x1080: ver R6-3 |
+
+## Problemas
+
+Formato: id | categoria | onde | problema | correção sugerida | severidade.
+
+| Id | Categoria | Onde | Problema | Correção sugerida | Severidade |
+|---|---|---|---|---|---|
+| R6-1 | A11y (WCAG 2.5.3, Nível A), regressão | `button.interruptor` (HUD direito) | `aria-label="Luz apagada"` não contém o texto visível "Apagar a luz" / "Acender a luz". Lighthouse `label-content-name-mismatch` no desktop. O texto visível muda com o estado e o `aria-label` não acompanha | Remover o `aria-label` fixo e usar o texto visível como nome (sem `aria-pressed`), ou manter `aria-pressed` com um nome estável contido no texto visível | Média |
+| R6-2 | Teclado | Tour e vistas, depois de passar pelo fim do tour | Depois de chegar ao passo 9 (SO embutido) e usar "Sair do tour", a próxima vista aberta precisa de **2 Esc** para fechar (o 1º é consumido como "fechar janela do SO"). Um Esc solto no tour também falhou uma vez em sair do tour. Reprodução: rolar até o fim, Sair do tour, rolar até o passo 3, Abrir capítulo, Esc (nada), Esc (fecha) | Zerar o estado "janela do SO aberta" ao sair do tour e ao fechar a vista; só interceptar o `cancel` do `<dialog>` se houver janela do SO realmente visível | Média |
+| R6-3 | Responsivo | 2560x1080 (21:9) | Com a imagem em cover, a parede do nome e o post-it "Fale comigo!" são cortados em cima (nome em y = -122 px): em tela ultralarga, o nome e o LinkedIn somem da 1ª tela | Ancorar o bloco do nome ao viewport quando a proporção passa de cerca de 2:1, ou limitar o cover a 2:1 com faixas laterais | Média |
+| R6-4 | Legibilidade | Post-its no desktop (1280) | O nome do post-it fica com cerca de 12 px (no mobile está maior). O design pedia a fonte manuscrita a 22 px; com `font-display: optional` e sem preload, a Patrick Hand tende a não aparecer na 1ª visita e o texto cai para a fonte do sistema | Tamanho mínimo >= 14 px no desktop e preload da fonte manuscrita (ou `swap`) | Baixa-média |
+| R6-5 | Performance | Modo recrutador e sem JS | A imagem da cena (74 KB AVIF no desktop, 21 KB o herói no mobile) é baixada mesmo oculta. Sem JS no desktop: 9 imagens (cena + 8 nichos), cerca de 160 KB desperdiçados | Nichos lazy também sem JS, não aplicar o preload da imagem no modo recrutador, ocultar a `<picture>` do palco quando o quarto não é exibido | Baixa |
+| R6-6 | Tour (UX) | Passo 9 | O quadro do SO cobre parte de "Ir para o monitor" e "Sair do tour" (texto cortado à esquerda) | `z-index` maior nos botões ou margem para o trilho e os botões | Baixa |
+| R6-7 | Tour (UX) | Passo 0 | `.trilho` e `.tour-acoes` ficam visíveis (opacity 1) já no passo 0, e o design pede só nos passos 1 a 9 | Ocultá-los até o passo 1 | Baixa |
+| R6-8 | Fontes | `<head>` | 2 `preload` de fonte (o design 12.9 pede 1: Atkinson 400) | Remover o preload do Bricolage | Baixa |
+
+Itens anteriores (A5, `.vista-miolo`, P2, D2) não reapareceram: axe sem violações em todas as vistas.
+
+## Veredito: **APROVADO COM RESSALVAS**
+
+Lighthouse 100 nas 4 categorias em `/` e `/en/`, mobile e desktop; LCP, CLS e orçamento de imagens dentro do design; axe sem violações em 48 estados; teclado, reduced motion, 360 px, modo recrutador e sem JS corretos. Sem problema crítico. Corrigir antes da publicação final: R6-1 (regressão de WCAG 2.5.3, Nível A), R6-2 (Esc engolido) e R6-3 (nome cortado em tela 21:9). Os demais são de severidade baixa.

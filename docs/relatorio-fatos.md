@@ -70,3 +70,13 @@ Totais da revisão 6: bloqueia 1, ajustar 0 novos.
 
 ## Veredito: REPROVADO
 Corrigir o link do GitHub em Contato e reverificar.
+
+---
+
+# Reverificação final
+
+Build refeito (`npm.cmd run build`, 3 páginas). `Contato.astro` sem GitHub. Em `dist/index.html` e `dist/en/index.html` o GitHub aparece só no rodapé (o outro hit é o `sameAs` do JSON-LD, metadado invisível). Nenhum arquivo de `content/` mudou desde a revisão 6; os arquivos alterados em `src/` são de código e estilo, sem texto factual novo. Sem pôquer, e-mail, CONFIRMAR, "em produção" ou "no ar". URL do JSON-LD (`mathnags.github.io`) confirmada pelo orquestrador: pendência encerrada.
+
+Totais: bloqueia 0, ajustar 0 (resta só a nota baixa do `sameAs`, aceita).
+
+## Veredito: APROVADO

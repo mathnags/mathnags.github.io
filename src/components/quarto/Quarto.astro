@@ -95,8 +95,8 @@ const pn = quarto.paredeNome;
 <nav id="quarto" aria-label={t.quarto.titulo} data-passo="0">
   <p class="sr-only">{t.quarto.ajuda}</p>
 
-  <div class="palco" data-estado="repouso" data-passo="0">
-    <div class="caixa" style={`--lqip-dia:url(${lqip.dia});--lqip-noite:url(${lqip.noite});--lqip-heroi-dia:url(${lqip['heroi-dia']});--lqip-heroi-noite:url(${lqip['heroi-noite']})`}>
+  <div class="palco" data-estado="repouso" data-passo="0" style={`--lqip-dia:url(${lqip.dia});--lqip-noite:url(${lqip.noite});--lqip-heroi-dia:url(${lqip['heroi-dia']});--lqip-heroi-noite:url(${lqip['heroi-noite']})`}>
+    <div class="caixa">
       <picture>
         {
           fontesOrdenadas.map((f) => (

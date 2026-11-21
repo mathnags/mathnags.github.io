@@ -14,7 +14,8 @@ let escEm = 0;
 
 /** true se o Esc acabou de ser tratado por uma janela do SO (o <dialog> não deve fechar). */
 export const escRecente = () => performance.now() - escEm < 80;
-export const janelaAberta = () => modoQuarto() && aberto() !== null;
+/** Só conta se o SO está visível (depois de "Sair do tour" ele volta para a página, oculto). */
+export const janelaAberta = () => modoQuarto() && aberto() !== null && (so()?.getClientRects().length ?? 0) > 0;
 
 function marcar(id: string | null) {
   const raiz = so();

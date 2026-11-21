@@ -13,7 +13,7 @@ export const AREA_SEGURA: Rect = { x: 6, y: 15, l: 88, a: 71 };
 /** Mínimo do clique: ≥ 44 px na menor tela em tela cheia (12.6). */
 const CLIQUE_MIN = { l: 3.3, a: 5.8 };
 /** Post-it nominal em % da imagem (7vw = 89,6 px em 1280×720, o caso mais apertado com a imagem inteira). */
-export const POSTIT = { l: 6, a: 8 };
+export const POSTIT = { l: 6.6, a: 8 };
 /** Área máxima de cada post-it (% × %) e distância máxima até a borda do próprio objeto (%). */
 const POSTIT_AREA_MAX = 60;
 const POSTIT_DISTANCIA_MAX = 2;

@@ -33,7 +33,7 @@ export const quarto: ConfigQuarto = validarQuarto({
     {
       id: 'porta-retrato', capitulo: 2, destino: 'sobre', secoes: ['ficha', 'sobre'],
       clique: { x: 74, y: 60, l: 4.5, a: 10 },
-      postit: { x: 81.5, y: 66.5, rot: -3 },
+      postit: { x: 81.4, y: 66.5, rot: -3 },
       vista: { tipo: 'porta-retrato', camera: { cx: 60.7, cy: 62, escala: 2 }, lado: 'esquerda' },
       tour: { camera: { cx: 72, cy: 62, escala: 1.8 }, lado: 'esquerda' },
     },
@@ -68,7 +68,7 @@ export const quarto: ConfigQuarto = validarQuarto({
     {
       id: 'lenco', capitulo: 7, destino: 'alem', secoes: ['alem'],
       clique: { x: 84, y: 32, l: 5, a: 30 },
-      postit: { x: 88, y: 66.3, rot: -4 },
+      postit: { x: 88.8, y: 66.3, rot: -4 },
       vista: { tipo: 'tecido', camera: { cx: 72, cy: 47, escala: 2 }, lado: 'esquerda' },
       tour: { camera: { cx: 72, cy: 47, escala: 1.8 }, lado: 'esquerda' },
     },

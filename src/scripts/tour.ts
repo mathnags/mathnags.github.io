@@ -32,7 +32,7 @@ export function cameraDoPasso(n: number): Camera {
 export const cameraDeRepouso = () => cameraDoPasso(passo);
 
 /** Retângulo (px, na tela) da janela do SO centrada na tela do monitor, limitado à tela. topo = faixa livre de HUD. */
-export function retanguloTela(topo: number): Rect {
+export function retanguloTela(topo: number, reservaDireita = 0): Rect {
   const j = monitor().vista.janela!;
   const r = cam.retanguloFinal(cam.cameraAtual());
   const cx = r.left + ((j.x + j.l / 2) / 100) * r.width;
@@ -40,13 +40,13 @@ export function retanguloTela(topo: number): Rect {
   const vw = html.clientWidth;
   const vh = html.clientHeight;
   const folga = 16;
-  const l = Math.min(vw * 0.92, 1100);
+  const l = Math.min(vw * 0.92, 1100, vw - 2 * folga - reservaDireita);
   const a = Math.min(vh * 0.86, 700, vh - topo - folga);
-  return { x: clamp(cx - l / 2, folga, vw - l - folga), y: clamp(cy - a / 2, topo + folga, vh - a - folga), l, a };
+  return { x: clamp(cx - l / 2, folga, vw - l - folga - reservaDireita), y: clamp(cy - a / 2, topo + folga, vh - a - folga), l, a };
 }
 
 function posicionarEmbutido() {
-  const g = retanguloTela(72);
+  const g = retanguloTela(72, 200);
   embutido.style.cssText = `left:${Math.round(g.x)}px;top:${Math.round(g.y)}px;width:${Math.round(g.l)}px;height:${Math.round(g.a)}px`;
 }
 

@@ -290,13 +290,22 @@
 }
 
 .luz-txt {
-  display: none;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 /* No modo recrutador o texto só cabe na barra a partir de 1440 px; no HUD do quarto, a partir de lg (1024 px). */
 @media (min-width: 1440px) {
   .luz-txt {
-    display: inline;
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
   }
 }
 
