@@ -93,7 +93,13 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
   let sombra = !leve;
 
   /* ---------- Renderizadores ---------- */
-  const renderer = new WebGLRenderer({ canvas, antialias: !leve, alpha: true, powerPreference: leve ? 'low-power' : 'high-performance' });
+  // Sem GPU de verdade (renderizador por software), o contexto é recusado: iniciar() lança Error('sem-webgl') e carga.ts cai no modo recrutador.
+  let renderer: WebGLRenderer;
+  try {
+    renderer = new WebGLRenderer({ canvas, antialias: !leve, alpha: true, powerPreference: leve ? 'low-power' : 'high-performance', failIfMajorPerformanceCaveat: true });
+  } catch {
+    throw new Error('sem-webgl');
+  }
   renderer.setClearColor(0x000000, 0);
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.toneMapping = NeutralToneMapping;
@@ -110,12 +116,20 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
 
   /* ---------- Texturas e montagem fatiada: casca → móveis → clicáveis → texturas (nenhuma tarefa > 50 ms) ---------- */
   await carregarFontes();
-  const texCeuDia = texturaCeu(false);
-  const texCeuNoite = texturaCeu(true);
-  const tela = criarTelaMonitor(leve);
-  const texturas = [texCeuDia, texCeuNoite, texturaPoster(), texturaLombadas(), texturaSombraContato(), texturaCaderno(), tela.textura];
-  const [, , poster, lombadas, sombraContato, paginas] = texturas;
-  await ceder();
+  // Uma textura por tarefa: cada desenho em canvas 2D fica bem abaixo de 50 ms.
+  const fatiar = async <T>(f: () => T): Promise<T> => {
+    const r = f();
+    await ceder();
+    return r;
+  };
+  const texCeuDia = await fatiar(() => texturaCeu(false));
+  const texCeuNoite = await fatiar(() => texturaCeu(true));
+  const tela = await fatiar(() => criarTelaMonitor(leve));
+  const poster = await fatiar(texturaPoster);
+  const lombadas = await fatiar(texturaLombadas);
+  const sombraContato = await fatiar(texturaSombraContato);
+  const paginas = await fatiar(texturaCaderno);
+  const texturas = [texCeuDia, texCeuNoite, poster, lombadas, sombraContato, paginas, tela.textura];
 
   const cena = new Scene();
   cena.add(criarCasca(sombra));
@@ -587,9 +601,16 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
   /* ---------- Primeira montagem ---------- */
   aplicarTema(tAtual);
   projecao.medir();
+  await ceder();
   blocoEm3d(!compacto(L, A));
   piloto.cortar(poseChegada());
+  await ceder();
   await renderer.compileAsync(cena, camera);
+  // Envia cada textura à GPU numa tarefa própria: o 1º renderizar() não paga todos os uploads de uma vez.
+  for (const t of texturas) {
+    renderer.initTexture(t);
+    await ceder();
+  }
   if (sombra) renderer.shadowMap.needsUpdate = true;
   pronto = true;
   refazerBase();

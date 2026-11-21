@@ -997,6 +997,16 @@ main:focus {
       min-height: 96px;
     }
 
+    /* A curva decorativa ficaria presa ao canto da área rolável e cruzaria os ícones: só existe na tela cheia. */
+    html[data-modo='quarto'] .so-papel {
+      display: none;
+    }
+
+    /* A área rola: o esmaecido na base mostra que há mais ícones, em vez de parecer um corte (o padding de 24 px o compensa no fim). */
+    html[data-modo='quarto'] .so-area {
+      mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent);
+    }
+
     /* Em 360 px os nomes de arquivo não cabem em 3 colunas sem quebrar no meio: ficam em 2 */
     @media (max-width: 420px) {
       html[data-modo='quarto'] .so-icones {

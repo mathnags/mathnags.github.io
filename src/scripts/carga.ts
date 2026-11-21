@@ -127,8 +127,9 @@ export async function carregarCena(): Promise<void> {
     // Chegada só na visão geral, sem vista aberta nem passo do tour; senão, a câmera já cortou para o foco certo.
     // Se a intro ainda está na tela, a chegada espera o fim dela: o visitante vê o voo, não um quarto já parado atrás da intro.
     aposIntro(() => cena.mostrar(passoAtual() === 0 && !objAbertoAgora()));
-  } catch {
-    falhar();
+  } catch (e) {
+    if (e instanceof Error && e.message === 'sem-webgl') cairNoRecrutador(document.getElementById('status-modo')?.dataset.semWebgl ?? '');
+    else falhar();
   }
 }
 

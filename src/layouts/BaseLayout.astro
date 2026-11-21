@@ -40,8 +40,8 @@ const pessoa = {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!--
       Script de início (design 1.4, 13.10), antes de qualquer CSS ou pintura, ≤ 1,5 KB: tema salvo, classe "js", modo e teste de
-      WebGL2. Chaves: "tema" (light|dark) e "modo" (quarto|recrutador). Sem WebGL2 (ou com aceleração desligada), o modo
-      recrutador entra ANTES da 1ª pintura, sem salto de layout, e sessionStorage.semWebgl avisa o módulo principal.
+      WebGL2. Chaves: "tema" (light|dark) e "modo" (quarto|recrutador). Sem a API WebGL2, o modo recrutador entra ANTES
+      da 1ª pintura; sem GPU (contexto recusado), a cena cai no recrutador depois do load (carga.ts).
     -->
     <script is:inline>
       (function () {
@@ -58,15 +58,8 @@ const pessoa = {
         const q = new URLSearchParams(location.search).get('modo');
         if (q === 'recrutador' || q === 'quarto') modo = q;
         if (modo !== 'recrutador') {
-          let ok = 0;
-          try {
-            const g = document.createElement('canvas').getContext('webgl2', { failIfMajorPerformanceCaveat: true });
-            if (g) {
-              ok = 1;
-              const x = g.getExtension('WEBGL_lose_context');
-              if (x) x.loseContext();
-            }
-          } catch {}
+          // Checagem barata (sem criar contexto GL antes da 1ª pintura): a falha real (sem GPU) cai na cena, que volta ao recrutador.
+          const ok = !!w.WebGL2RenderingContext;
           if (ok) d.dataset.modo = 'quarto';
           else {
             d.dataset.semWebgl = '';
@@ -108,9 +101,9 @@ const pessoa = {
     <meta name="twitter:card" content="summary_large_image" />
     <script type="application/ld+json" set:html={JSON.stringify(pessoa)} />
 
-    <!-- Dois preloads (design 2.2): texto e títulos. -->
+    <!-- Preloads (design 2.2): texto e títulos. -->
     <Font cssVariable="--font-text" preload={[{ subset: "latin" }]} />
-    <Font cssVariable="--font-display" />
+    <Font cssVariable="--font-display" preload={[{ subset: "latin" }]} />
     <Font cssVariable="--font-mono" />
     <Font cssVariable="--font-hand" />
     <slot name="head" />

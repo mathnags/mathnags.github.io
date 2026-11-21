@@ -209,8 +209,12 @@
     opacity: 0.85;
   }
 
-  html[data-cena='pronta'] .heroi-linha,
-  html[data-cena='pronta'] .explorar {
+  html[data-cena='pronta'] .heroi-linha {
+    display: none;
+  }
+
+  /* Escondido já antes da cena (e não só quando ela fica pronta): sumir depois encolheria o bloco do nome e deslocaria o layout (CLS). */
+  html[data-modo='quarto']:not([data-cena='erro']) .explorar {
     display: none;
   }
 
@@ -1307,4 +1311,17 @@ html[data-calibrar='1'] .objeto {
   .postit,
   .postit-contato,
   .nicho { border: 2px solid CanvasText; }
+}
+
+/* Texto sobre a cena em cores forçadas: sem contorno nem sombra (ficariam borrados), em CanvasText sobre Canvas. */
+@media (forced-colors: active) {
+  .parede-nome,
+  .parede-dir,
+  .anot {
+    background: Canvas;
+    color: CanvasText;
+    -webkit-text-stroke: 0;
+    paint-order: normal;
+    text-shadow: none;
+  }
 }
