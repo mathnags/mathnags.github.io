@@ -147,34 +147,36 @@ describe('content/textos.<lang>.json', () => {
 });
 
 describe('src/config/quarto.ts', () => {
-  it('passa em todas as regras do design 9.2', () => {
+  it('passa em todas as regras do design 13.12', () => {
     expect(errosDoQuarto(quarto)).toEqual([]);
   });
 
-  it('a validação pega sobreposição de cliques, escala excessiva, clique fora da área segura e alvo pequeno', () => {
+  it('a validação pega caixas que se cruzam, foco fora da caixa e ângulos fora da faixa', () => {
     const copia = structuredClone(quarto);
     const [primeiro, segundo] = copia.objetos;
-    segundo.clique = { ...primeiro.clique };
-    primeiro.vista.camera = { ...primeiro.vista.camera, escala: 5 };
-    copia.objetos[2].clique = { x: 2, y: 20, l: 2, a: 2 };
+    segundo.caixa = structuredClone(primeiro.caixa);
+    primeiro.foco = { ...primeiro.foco, alvo: [9, 9, 9] };
+    copia.objetos[2].foco = { ...copia.objetos[2].foco, az: 80 };
     const erros = errosDoQuarto(copia).join(String.fromCharCode(10));
-    expect(erros).toMatch(/se sobrepõem/);
-    expect(erros).toMatch(/escala da câmera/);
-    expect(erros).toMatch(/fora da área segura/);
-    expect(erros).toMatch(/menor que/);
+    expect(erros).toMatch(/se cruzam/);
+    expect(erros).toMatch(/foco.alvo fora da própria caixa/);
+    expect(erros).toMatch(/az 80/);
   });
 
-  it('a validação pega post-it sobre o nome e sobre o clique de outro objeto', () => {
+  it('a validação pega janela fora das vistas dentro, vista dentro inclinada e âncora longe', () => {
     const copia = structuredClone(quarto);
-    copia.objetos[0].postit = { x: 40, y: 9, rot: 0 };
-    copia.objetos[1].postit = { x: copia.objetos[2].clique.x + 2, y: copia.objetos[2].clique.y + 4, rot: 0 };
+    copia.objetos[1].janela = structuredClone(copia.objetos[0].janela);
+    copia.objetos[0].foco = { ...copia.objetos[0].foco, az: 10 };
+    copia.objetos[3].postit = { ...copia.objetos[3].postit, ancora: [0, 2.5, 3], rot: 9 };
     const erros = errosDoQuarto(copia).join(String.fromCharCode(10));
-    expect(erros).toMatch(/post-it cobre "nome na parede"/);
-    expect(erros).toMatch(/post-it cobre a área de clique/);
+    expect(erros).toMatch(/não usa janela/);
+    expect(erros).toMatch(/az = el = 0/);
+    expect(erros).toMatch(/mais de 0,4 m/);
+    expect(erros).toMatch(/rot do post-it/);
   });
 
-  it('a config serializada para o cliente cabe em 3 KB', () => {
-    expect(JSON.stringify(configCliente()).length).toBeLessThanOrEqual(3 * 1024);
+  it('a config serializada para o cliente cabe em 6 KB', () => {
+    expect(JSON.stringify(configCliente()).length).toBeLessThanOrEqual(6 * 1024);
   });
 });
 

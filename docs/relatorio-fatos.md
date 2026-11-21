@@ -1,82 +1,23 @@
-# Relatório de fatos (fase 6a, segunda verificação)
+# Relatório de fatos (fase 6a, revisão 7: quarto 3D)
 
-Referência: `content/perfil.json` (inclui agora `content/fonte/respostas-fase6.md`). Verificados: textos pt/en, `content/projetos/*.md`, `src/`, `dist/`, JSON-LD Person e `scripts/gerar-og.mjs` (og.png).
+Referência: `content/perfil.json` e `content/fonte/`. Verificados: `content/textos.pt.json`, `content/textos.en.json`, `src/` (busca por e-mail, telefone, GitHub, marcadores pendentes) e `dist/`.
 
-## Itens da rodada anterior
-| # | Item | Situação |
-|---|---|---|
-| 1 | GitHub na seção Contato | Corrigido: `Contato.astro` sem GitHub; `dist` tem GitHub só no rodapé (pt e en) |
-| 2, 3 | "resolvia na mão" | Agora com lastro em `perfil.json` (respostas-fase6) |
-| 4 | "fluxo de integração" | Corrigido ("Uso GitHub Actions, deploy no Render e banco PostgreSQL no Neon") |
-| 5 | "primeiro contato com dados reais" | Agora com lastro em `perfil.json` |
-| 6 | `sobre.p2` | Reescrito só com fatos (7 oportunidades, 10+ clientes) |
-| 7 | `aprendizado` | Esvaziado (`""`) |
-| 8 | Escotismo | Verificado, sem inferências |
-| 9 | Prateleira "IA, em andamento" | Renomeada para "Inteligência Artificial" |
-| 10 | `meta.description` | Agora diz "em nível básico" |
-| 11, 12 | Marcadores em `.md` | Sem `CONFIRMAR` em `content/projetos` nem em textos |
-
-## Conteúdo novo
-| Arquivo | Trecho | Problema | Correção | Severidade |
+| arquivo/página | trecho | problema | fonte esperada | severidade |
 |---|---|---|---|---|
-| JSON-LD (`BaseLayout.astro` linha 81) | `"url":"https://mathnags.github.io/"` | URL de deploy não consta em `perfil.json` (não há URL pública confirmada) | Confirmar o domínio final de publicação, ou usar o `site` do Astro | ajustar |
-| JSON-LD | `sameAs` inclui o GitHub | É metadado invisível, não link na página. Regra "GitHub só no rodapé" não é violada, mas vale o Matheus saber | Nenhuma, ou remover o GitHub do `sameAs` | ajustar (baixo) |
-| `scripts/gerar-og.mjs` | "Matheus Maki Nagano", "Dados → IA" | Conforme `perfil.json`. Sem telefone, e-mail, métricas ou "em produção" | Nenhuma | ok |
+| textos pt/en, `alem.volei.texto` | "Apesar de não ser bom, me divirto..." / "I'm not great at it" | Autodepreciação, mas é citação literal do Matheus em `fonte/hobbies.md` (linha 24). Falta apenas constar em `perfil.json` (ali só "não competitivo") | `hobbies.md` | ajustar (baixo) |
+| textos pt/en, `intro.linhas` e `resultado` | "SELECT ... FROM trajetoria", "8 capítulos · 2019 ... → 2026 Vértice" | Elemento decorativo; datas 2019 (início da graduação) e 2026 conferem com `perfil.json`. Não afirma uso de SQL pelo Matheus além do que a fonte diz | `perfil.json` formação/projetos | ok |
+| `quarto.*`, `tour.*`, `so.*`, `postit.*`, `anotacoes.*`, `vista.*` | textos novos da revisão 7 | Todos são rótulos de interface ou resumos que repetem fatos já verificados (SQL na Cushman, protótipos Salesforce, auditoria de controles de TI na KPMG, Pós Tech em andamento, escotismo desde 2019). Nada novo sem lastro | `perfil.json` | ok |
+| `contato`, `hero.cta`, `postit.contato` | só LinkedIn (`linkedin.com/in/matheusnagano`) | Conforme. Sem e-mail, telefone ou `mailto:`/`tel:` em `src/`, textos e `dist/` | `perfil.json` identidade.links | ok |
+| `rodape.githubUrl` | GitHub `github.com/mathnags` | Só em `Rodape.astro` (e `sameAs` do JSON-LD, invisível). Aparece em `dist/index.html`, `dist/en/index.html` e `404.html` (rodapé) | `perfil.json` (publicável só no rodapé) | ok |
+| KPMG (`experiencia`, `sobre.p2`, tour) | ITGCs, 10+ clientes, Excel PROCV/SOMASE | Descrito como auditoria de controles de TI com ferramentas/ERPs do cliente; sem SQL nem análise de dados | `perfil.json` experiências[0] | ok |
+| Habilidades | Excel avançado; demais básico; noções para LangGraph/Hadoop/Spark | Níveis iguais aos declarados | `perfil.json` habilidades | ok |
+| Vértice | "49 arquivos de testes", Render/Neon/GitHub Actions, Riot API como próximo passo, "em desenvolvimento" | Conforme; sem "em produção" nem métricas de uso | `perfil.json` projetos[0] | ok |
+| pt x en | todas as seções | Mesmas chaves e mesmo conteúdo; "Tecnólogo" = "Associate degree" e "Castores/Filhotes" = "Beaver Scouts" são equivalências aceitáveis | - | ok |
+| `src/`, textos, `dist/` | `CONFIRMAR`, `TODO`, `lorem` | Nenhum marcador pendente (a regex em `schemas/conteudo.ts` é só validação) | - | ok |
+| `BaseLayout.astro` JSON-LD | `url` de deploy | Pendência herdada: URL pública não consta em `perfil.json` (não reverificada nesta rodada) | `perfil.json` / `site` do Astro | ajustar (baixo) |
 
-Nota (sem ação): "Tecnólogo em Data Science" vira "Associate degree" no inglês, uma equivalência aceitável. pt/en estão alinhados nos trechos conferidos.
+Não verificado: textos embutidos no código de `src/cena/` (3D) e imagens raster, onde pode haver texto desenhado. Uma busca em `src/` por e-mail, telefone e marcadores não achou nada.
 
-Totais: bloqueia 0, ajustar 2 (ambos baixos, só metadados).
-
-## Veredito: APROVADO
-Nenhum item "bloqueia". Recomenda-se resolver o item da URL do JSON-LD antes da publicação.
-
----
-
-# Revisão 5 (textos novos)
-
-Verificados: `ficha.titulo`, `intro.*`, `menu.*` (pt/en) e texto fixo de `Quarto.astro`, `CapitulosLista.astro`, `intro.ts`. Nada de texto fixo com fato novo; tudo vem de `textos.*.json`.
-
-| Arquivo / chave | Trecho | Resultado |
-|---|---|---|
-| `intro.linhas` | `SELECT ano, capitulo FROM trajetoria WHERE cidade = 'São Paulo' AND ano BETWEEN 2019 AND 2026 ORDER BY ano;` | Decorativa, não afirma nível de SQL nem fato. São Paulo e 2019–2026 coincidem com `perfil.json` (formação desde 2019, tudo em São Paulo). pt e en equivalentes. ok |
-| `intro.resultado` | "8 capítulos · 2019 Sistemas de Informação → 2026 Vértice · Dados → IA" | 8 capítulos conferem com `menu.itens`; Sistemas de Informação iniciou em 2019-01; Vértice é 2026 e "Dados → IA" é o título. Não diz que o Vértice está em produção. pt e en equivalentes. ok |
-| `ficha.titulo`, `menu.*` | Resumo, Capítulos, nomes dos capítulos | Rótulos neutros, pt/en equivalentes. ok |
-
-Ressalva (baixo, ajustar): a query retorna uma lista de "ano, capitulo", mas o resultado mostra só um resumo; é efeito de interface, não afirmação factual. Nenhuma ação obrigatória.
-
-Totais da revisão 5: bloqueia 0, ajustar 0 novos. Pendências anteriores (URL do JSON-LD e `sameAs`) continuam abertas.
-
-## Veredito: APROVADO
-
----
-
-# Revisão 6 (tour, SO do monitor, post-its, anotações)
-
-Verificados: `tour.*`, `so.*`, `anotacoes.*`, `postit.*`, `parede.*`, `quarto.imagemAlt` e `quarto.ajuda` (pt/en), `Vertice.astro` (arquivos do SO), `Quarto.astro` e `dist/`.
-
-| Arquivo | Chave / linha | Afirmação | Problema | Correção | Severidade |
-|---|---|---|---|---|---|
-| `src/components/secoes/Contato.astro` | linhas 34-36 (`<p class="so-na-vista carta-github">`) | Link do GitHub dentro da seção Contato (dist: 3 ocorrências de github.com/mathnags por página: JSON-LD, Contato, rodapé) | Regressão do item 1 da primeira rodada. Regra: GitHub só no rodapé; contato só pelo LinkedIn | Remover esse `<p>` e manter só o link do `Rodape.astro` | bloqueia |
-
-Conferido sem problemas:
-- `tour.*` pt/en: todos os resumos têm lastro (SQL na Cushman, protótipos na Salesforce, auditoria de controles de TI na KPMG, 2 MVPs FIAP, Excel avançado e demais básico, Pós Tech em andamento, escotismo desde 2019, contato pelo LinkedIn). Vértice marcado "Em desenvolvimento".
-- `so.*`: nomes de arquivos (LEIA-ME, funcionalidades.md, stack.json, proximo-passo.md, origem.md) apenas rotulam conteúdo já verificado de `vertice.*` (funcionalidades, stack, próximo passo, origem, como foi construído). Não há texto factual novo no componente. Selo "Repositório privado" e "Em desenvolvimento" conferem com `perfil.json`. A lombada/monograma "MMN" vem das iniciais do nome.
-- `anotacoes`, `postit` (LinkedIn), `parede.direcao` ("Dados → IA"): ok. `imagemAlt` e `quarto.ajuda` ("8 capítulos em 8 objetos"): coerentes entre si.
-- `dist/`: sem pôquer, e-mail, telefone, CONFIRMAR, "em produção" ou "no ar"; sem métricas novas. pt e en equivalentes.
-
-Pendências antigas: URL do JSON-LD (`mathnags.github.io`) a confirmar; `sameAs` com GitHub (baixo).
-
-Totais da revisão 6: bloqueia 1, ajustar 0 novos.
-
-## Veredito: REPROVADO
-Corrigir o link do GitHub em Contato e reverificar.
-
----
-
-# Reverificação final
-
-Build refeito (`npm.cmd run build`, 3 páginas). `Contato.astro` sem GitHub. Em `dist/index.html` e `dist/en/index.html` o GitHub aparece só no rodapé (o outro hit é o `sameAs` do JSON-LD, metadado invisível). Nenhum arquivo de `content/` mudou desde a revisão 6; os arquivos alterados em `src/` são de código e estilo, sem texto factual novo. Sem pôquer, e-mail, CONFIRMAR, "em produção" ou "no ar". URL do JSON-LD (`mathnags.github.io`) confirmada pelo orquestrador: pendência encerrada.
-
-Totais: bloqueia 0, ajustar 0 (resta só a nota baixa do `sameAs`, aceita).
+Totais: bloqueia 0, ajustar 2 (baixos).
 
 ## Veredito: APROVADO

@@ -82,3 +82,19 @@ Leia antes: `docs/arquitetura.md` (contrato, seção 5 sobre o quarto), `docs/de
 - [x] **R10. Porta-retrato com o resumo.** **R11. Calibração** com `?calibrar=1` em desenvolvimento (em vez de página `/dev/quarto`).
 - [x] **R12, R23. Textos e schema.** **R16. Nome na parede + "Fale comigo!".** **R17. Post-its.** **R18. Anotações.** **R19. Tour.** **R20. SO no monitor.**
 - [x] **R13, R24. Verificação** por capturas no Chrome headless (1280×800, 1920×1080, 360×740; dia e noite) e `npm run verify`. Pendente para o `revisor-qualidade`: Lighthouse e leitor de tela.
+
+## Bloco 6: revisão 7, quarto 3D em Three.js (design 13 e 13.14; tarefas 25 a 37)
+
+- [x] **25. Pipeline raster removida:** `scripts/gerar-imagens.mjs`, `scripts/medir-imagens.mjs`, `npm run imagens`, `public/img/quarto/**`, `src/config/recortes.json`, `src/assets/lqip.json`, `<picture>`, *preload* da imagem, LQIP, película das vistas e `src/scripts/camera.ts`. Nota de obsoleto em `docs/prompt-imagem-quarto.md`. O `og.png` e `scripts/gerar-og.mjs` (sharp) ficam.
+- [x] **26. Dependências e `src/cena/`:** `three` e `@types/three` (dev). `index.ts` (`iniciar`, `irPara`, `voltar`, `destacar`, `retanguloJanela`, `mostrar`, `pausar`, `retomar`, `destruir`), `paleta.ts`, `casca.ts`, `decoracao.ts`, `objetos/*.ts` (um por clicável), `luzes.ts`, `texturas.ts`, `camera.ts`, `projecao.ts`, `escolha.ts`, `nivel.ts`; mais `areas.ts` e `poses.ts` (puros, testáveis), `geo.ts`, `lote.ts` e `calibrar.ts` (só no dev).
+- [x] **27. Casca, decoração e clicáveis** como em 13.2–13.4, com fusão por material, livros e lâmpadas em `InstancedMesh` e materiais próprios por clicável.
+- [x] **28. Luz** (13.7): luzes fixas, interpolação no tema (320 ms), sombra estática, `toneMapped: false` nos emissivos; decalque e sombras de contato no nível leve. Calibração conferida com conta-gotas (ver relatório do dev-frontend).
+- [x] **29. Câmera** (13.5): `enquadrar()` com `setViewOffset`, áreas livres, voo em arco (900/700 ms), abertura aos 75%, volta, interrupção, chegada (1200 ms), paralaxe e cortes com movimento reduzido. Tokens novos em `tokens.css`.
+- [x] **30. Hover, foco e clique** (13.6) sincronizados com os `<a class="objeto">`; linha temática no post-it.
+- [x] **31. Texto na cena** (13.8): nome via `CSS3DRenderer` no mesmo lugar do DOM, post-its projetados com pivô, anotações relativas, `retanguloJanela` alimentando `vista.ts` (`molduras.ts`), objetos 3D ocultos nas vistas dentro, texturas de canvas.
+- [x] **32. Tour** (12.13.2) com `cena.irPara(passo)` e as áreas livres de 13.5.2; o passo 9 é a pose do 01.
+- [x] **33. Mobile** (13.9 + decisão do Matheus): herói em HTML leve na 1ª pintura, **o 3D carrega sozinho no nível leve** (sem botão "Entrar no quarto em 3D"), palco sticky, cartões do tour na base, folha inferior de 70svh e nichos de texto como reserva se o 3D não subir.
+- [x] **34. Carregamento e fallback** (13.10): teste de WebGL2 no `<head>`, `import()` no *idle*, montagem fatiada + `compileAsync`, intro como carregamento, pílula de status, cartão de erro, renderização sob demanda e queda automática (a cena lenta demais cai no modo recrutador).
+- [x] **35. Config e validador** (13.12) com os valores de 13.4 e 13.8.2; `?calibrar=1` e `?calibrar=og` (só em desenvolvimento).
+- [x] **36. Textos** (13.13) em pt e en (`quarto.cenaDescricao`, `carregando`, `entrar3d`, `semWebgl`, `erroCena`, `tentarDeNovo`; sai `imagemAlt`).
+- [x] **37. Testes e verificação:** Vitest (`tests/camera.test.ts`: `enquadrar()` em 5 resoluções, vistas e tour, mobile; validador) e `scripts/medir-cena.mjs` no `verify`. Verificação no Chrome com GPU real feita (ver relatório). Pendente para o `revisor-qualidade`: Lighthouse (mobile emulado e desktop com GPU real), leitor de tela, `forced-colors`. Pendente depois da aprovação do Matheus: novo `og.png` com `?calibrar=og`.

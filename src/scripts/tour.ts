@@ -1,13 +1,15 @@
 /**
- * Tour guiado pela rolagem (design 12.13.2). O palco fica sticky; os cartões HTML rolam no fluxo normal, um por passo, e um
- * IntersectionObserver (sem listener de scroll) leva a câmera ao objeto do passo no centro da tela. Nunca prende a rolagem:
- * nenhum preventDefault em wheel/touch/teclas. Passo 0 = quarto inteiro; 1 a 8 = capítulos; 9 = o SO embutido na tela do
- * monitor, sem <dialog>. "Sair do tour" e "Ir para o monitor" ficam sempre visíveis; Esc = sair.
- * Sem tour no modo recrutador e na estratégia mobile (os nichos fazem esse papel).
+ * Tour guiado pela rolagem (design 12.13.2, 13.5.2). O palco fica sticky; os cartões HTML rolam no fluxo normal da página, um
+ * por passo, e um IntersectionObserver (sem listener de scroll) leva a câmera 3D ao objeto do passo no centro da tela
+ * (cena.irPara(passo), com as áreas livres de 13.5.2). Nunca prende a rolagem: nenhum preventDefault em wheel/touch/teclas.
+ * Passo 0 = quarto inteiro; 1 a 8 = capítulos; 9 = o SO embutido na tela do monitor, sem <dialog> (só em tela cheia).
+ * "Sair do tour" e "Ir para o monitor" ficam sempre visíveis; Esc = sair. No mobile (13.9) o tour é a lista de cartões
+ * da base (45%) com a câmera nos 55% de cima; sem a cena, os cartões nem aparecem (os nichos de texto fazem o papel).
  */
-import * as cam from './camera';
-import { clamp, html, mobile, modoQuarto, palco, principais, type Camera, type Rect } from './ctx';
 import { interagiu } from './anotacoes';
+import { cenaAtual, aoMudarCena } from './ponte';
+import { moldura } from './molduras';
+import { html, mobile, modoQuarto, palco, principais } from './ctx';
 import * as so from './so';
 
 const raiz = document.getElementById('quarto')!;
@@ -19,39 +21,18 @@ let passo = 0;
 let marca: Comment | null = null;
 let rodada = 0;
 
-const monitor = () => principais[0];
+export const passoAtual = () => passo;
 
-/** Câmera do passo: 0 = visão geral, 1 a 8 = tour.camera do capítulo, 9 = o monitor em 3×. */
-export function cameraDoPasso(n: number): Camera {
-  if (n <= 0) return cam.GERAL;
-  if (n >= ULTIMO) return monitor().vista.camera;
-  return principais[n - 1].tour.camera;
-}
-
-/** Câmera que vale em repouso (a do passo atual). */
-export const cameraDeRepouso = () => cameraDoPasso(passo);
-
-/** Retângulo (px, na tela) da janela do SO centrada na tela do monitor, limitado à tela. topo = faixa livre de HUD. */
-export function retanguloTela(topo: number, reservaDireita = 0): Rect {
-  const j = monitor().vista.janela!;
-  const r = cam.retanguloFinal(cam.cameraAtual());
-  const cx = r.left + ((j.x + j.l / 2) / 100) * r.width;
-  const cy = r.top + ((j.y + j.a / 2) / 100) * r.height;
-  const vw = html.clientWidth;
-  const vh = html.clientHeight;
-  const folga = 16;
-  const l = Math.min(vw * 0.92, 1100, vw - 2 * folga - reservaDireita);
-  const a = Math.min(vh * 0.86, 700, vh - topo - folga);
-  return { x: clamp(cx - l / 2, folga, vw - l - folga - reservaDireita), y: clamp(cy - a / 2, topo + folga, vh - a - folga), l, a };
-}
-
+/** Posiciona o SO sobre a tela 3D do monitor (a mesma geometria da vista do 01). */
 function posicionarEmbutido() {
-  const g = retanguloTela(72, 200);
+  const m = principais[0];
+  const g = moldura(m, html.clientWidth, html.clientHeight);
   embutido.style.cssText = `left:${Math.round(g.x)}px;top:${Math.round(g.y)}px;width:${Math.round(g.l)}px;height:${Math.round(g.a)}px`;
 }
 
 /** Passo 9: a seção do Vértice vai para dentro da tela do monitor (conteúdo normal, alcançável por Tab). */
 function montarSO() {
+  if (mobile.matches) return;
   const sec = document.getElementById('vertice');
   if (!sec || embutido.contains(sec) || sec.closest('#vista')) return;
   marca = document.createComment('vertice');
@@ -87,9 +68,10 @@ async function definirPasso(n: number, animar = true) {
   tracoAtivo();
   if (n > 0) interagiu();
   if (saiuDoNove) desmontarSO();
-  if (palco.dataset.estado !== 'repouso') return;
-  const chegou = await cam.ir(cameraDoPasso(n), 500, '--ease-out', animar);
-  if (chegou && minha === rodada && n === ULTIMO) montarSO();
+  // Com uma vista aberta a cena não voa: só atualiza a pose de volta (o passo em que o visitante vai estar ao fechar).
+  const cena = cenaAtual();
+  const chegou = cena ? await cena.irPara(n, { animar }) : true;
+  if (chegou && minha === rodada && n === ULTIMO && palco.dataset.estado === 'repouso') montarSO();
 }
 
 /** Volta ao topo e ao passo 0, na hora. */
@@ -103,9 +85,10 @@ function irMonitor() {
   void definirPasso(ULTIMO, true);
 }
 
-/** A vista fechou: a câmera volta ao passo em que o visitante estava. */
+/** A vista fechou: a câmera volta ao passo em que o visitante estava (700 ms). */
 export async function retomar(animar: boolean) {
-  const ok = await cam.ir(cameraDeRepouso(), 320, '--ease-std', animar);
+  const cena = cenaAtual();
+  const ok = cena ? await cena.voltar({ animar }) : true;
   if (ok && passo === ULTIMO) montarSO();
   return ok;
 }
@@ -114,7 +97,7 @@ export function iniciarTour() {
   if (!passos.length) return;
   const io = new IntersectionObserver(
     (entradas) => {
-      if (mobile.matches || !modoQuarto()) return;
+      if (!modoQuarto()) return;
       for (const e of entradas) if (e.isIntersecting) void definirPasso(Number((e.target as HTMLElement).dataset.passo));
     },
     { rootMargin: '-45% 0px -45% 0px' },
@@ -131,12 +114,14 @@ export function iniciarTour() {
     sair();
   });
 
-  addEventListener('resize', () => {
-    requestAnimationFrame(() => {
-      if (palco.dataset.estado === 'repouso') {
-        cam.reaplicar();
-        if (!embutido.hidden) posicionarEmbutido();
-      }
+  // A cena ficou pronta (ou mudou o tamanho): a câmera corta para o passo atual e o SO acompanha a tela do monitor.
+  aoMudarCena(() => {
+    const cena = cenaAtual();
+    if (!cena) return;
+    void cena.irPara(passo, { animar: false });
+    cena.aoRedimensionar(() => {
+      if (!embutido.hidden) posicionarEmbutido();
     });
+    if (passo === ULTIMO && palco.dataset.estado === 'repouso') montarSO();
   });
 }

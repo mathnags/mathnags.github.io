@@ -256,3 +256,64 @@ Itens anteriores (A5, `.vista-miolo`, P2, D2) não reapareceram: axe sem violaç
 ## Veredito: **APROVADO COM RESSALVAS**
 
 Lighthouse 100 nas 4 categorias em `/` e `/en/`, mobile e desktop; LCP, CLS e orçamento de imagens dentro do design; axe sem violações em 48 estados; teclado, reduced motion, 360 px, modo recrutador e sem JS corretos. Sem problema crítico. Corrigir antes da publicação final: R6-1 (regressão de WCAG 2.5.3, Nível A), R6-2 (Esc engolido) e R6-3 (nome cortado em tela 21:9). Os demais são de severidade baixa.
+
+
+
+---
+
+# Reauditoria 5 (revisão 7: quarto 3D em Three.js)
+
+Build refeito (`npm run build`, 3 páginas, 8 objetos verificados por idioma); `astro preview` na porta 4380 (encerrado ao final). Chrome 157 `--headless=new` com **GPU real** (ANGLE D3D11, RTX 4060; confirmado por `UNMASKED_RENDERER`), Lighthouse 13 (Node API), axe-core e Puppeteer. `npm test` (29 ok), `npm run lint` (0 erros) e `scripts/medir-cena.mjs` (todos "ok") passam. Nenhum código do projeto foi alterado.
+
+## 1. Notas Lighthouse
+
+Mobile emulado (4x CPU, 4G simulado) e desktop. Cada combinação com GPU foi rodada duas vezes (a nota varia entre execuções): valores "execução 1 / execução 2".
+
+| Página | Dispositivo | GPU | Desempenho | A11y | Boas práticas | SEO | LCP | TBT | CLS | Peso |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `/` | mobile | sim | **91 / 91** | 100 | 100 | 100 | 1,0 s | 380 / 380 ms | 0,032 | 309 KiB |
+| `/en/` | mobile | sim | 94 / 96 | 100 | 100 | 100 | 1,0 s | 280 / 240 ms | 0,012 / 0,032 | 309 KiB |
+| `/` | desktop | sim | 93 / 96 | 100 | 100 | 100 | 0,9 s | 150 / 90 ms | 0 | 309 KiB |
+| `/en/` | desktop | sim | 93 / 96 | 100 | 100 | 100 | 0,9 s | 170 / 100 ms | 0 | 309 KiB |
+| `/` | mobile | não (fallback) | 100 | 100 | 100 | 100 | 0,9 s | 70 ms | 0 | 129 KiB |
+| `/en/` | mobile | não (fallback) | 100 | 100 | 100 | 100 | 0,9 s | 70 ms | 0 | 129 KiB |
+| `/` | desktop | não (fallback) | 96 | 100 | 100 | 100 | 1,0 s | 90 ms | 0 | 129 KiB |
+| `/en/` | desktop | não (fallback) | 95 | 100 | 100 | 100 | 1,1 s | 100 ms | 0 | 129 KiB |
+
+Sem erros ou avisos no console, nem exceções, em desktop e 360 px, claro e escuro, pt e en. Todas as notas >= 90, **mas a margem do desempenho mobile com 3D é de 1 ponto** (91), por causa do TBT.
+
+## 2. Desempenho e TBT
+
+- **Tarefas longas (mobile, 4x CPU, com 3D):** `cena.*.js` com 254 ms (avaliação do módulo, ~2,7 s), 195 ms (montagem) e 58 ms; script da página 69 a 78 ms; tarefas sem atribuição de 65 a 66 ms. Sem GPU (fallback) o TBT cai para 70 ms.
+- **Teste de WebGL2 no `<head>` (~190 ms):** isolado e a quente custa ~9 ms; os ~180 ms (183 ms em t=35 ms com 4x CPU) são o **1º contexto GL da página**, que sobe o processo de GPU, bloqueando antes da 1ª pintura. O contexto de teste é descartado (`loseContext`) e a cena cria outro, então a inicialização é paga duas vezes.
+- **Chunk (~126 ms de parse):** `cena.*.js` tem 619 KB bruto / 159 KB gzip; o Lighthouse aponta 59 KB (37%) de JS não usado. Carrega no idle, mas cai dentro da janela do TBT (até ~3 s).
+- **CLS (mobile):** 0,012 a 0,032, causado por `div.parede-bloco` (nome na parede) deslocando duas vezes quando a cena fica pronta. Abaixo de 0,1, mas é o único CLS não nulo.
+- **Orçamento (`medir-cena.mjs`):** HTML 14,0 KB gz (<= 45), script do head 0,69 KB gz (<= 1,5), módulo principal 7,1 KB gz (<= 14), CSS 11,4 KB gz (<= 24), `og.png` ok. Fontes: 176 KB somando todos os subsets (o script só informa; o carregado na 1ª visita não foi remedido). O chunk da cena (159 KB gz) fica fora do caminho crítico, mas pesa no total (309 KiB).
+
+## 3. Acessibilidade, teclado e responsivo
+
+- **axe (wcag2a/aa, 2.1, 2.2 AA, best-practice):** zero violações em 1280x800 e 360x740, pt e en, claro e escuro (repouso); nas 8 vistas (desktop, escuro; Vértice também no claro); no tour a 360 px; na vista a 360 px; e no fallback sem GPU a 360 px.
+- **Teclado:** Tab: Modo recrutador, Pular, PT, EN, interruptor (`aria-pressed`), CTA LinkedIn, os 8 objetos (01 a 08) e **depois mais 8 links repetidos** (post-its, mesmos destinos). Anel de foco de 3 px em todos. Clique/Enter abre a vista com foco no título (`h2`); Esc devolve o foco ao objeto de origem (no monitor, o 1º Esc sai do SO e o 2º volta ao quarto, conforme 12.13.1). Com movimento reduzido a vista abre sem espera.
+- **360 px:** `scrollWidth == clientWidth` (360) em repouso, após rolar o tour e com a vista aberta; também no fallback sem 3D. Em 1280 o `scrollWidth` é 1265 (barra de rolagem), sem overflow.
+- **Sem GPU:** `sessionStorage.semWebgl=1`, modo recrutador entra antes da pintura, sem erros.
+- **forced-colors:** botões, vistas e controles legíveis; a camada de texto sobre a cena não (F1).
+
+## 4. Problemas (categoria | onde | problema | correção sugerida | severidade)
+
+Críticos: nenhum.
+
+| Id | Categoria | Onde | Problema | Correção sugerida | Severidade |
+|---|---|---|---|---|---|
+| T1 | Desempenho (TBT) | `cena.*.js`, teste WebGL2 em `BaseLayout.astro` | TBT 240 a 380 ms no mobile emulado com GPU; `/` fica em 91 (margem de 1 ponto, oscila de 91 a 96). Causas: avaliação e montagem do chunk (254 + 195 ms) e 1º contexto GL no head (~180 ms) | Fatiar a avaliação (`scheduler.yield`/`setTimeout` entre grupos de objetos e texturas; `compileAsync` depois da 1ª pintura); reduzir o chunk (imports mínimos de `three`, `unused-javascript` 59 KB); no head, trocar o teste por heurística barata ou adiar o teste real para o módulo da cena, mantendo o fallback pós-pintura | **Alta** (risco de cair abaixo de 90 em hardware mais lento) |
+| T2 | Desempenho (CLS) | `.parede-bloco` (nome na parede), mobile | CLS 0,012 a 0,032: o bloco desloca quando a cena fica pronta (`data-cena="pronta"`) | Reservar altura e posição no estado pré-cena, ou aplicar a mudança com `transform` | Média |
+| F1 | A11y (forced-colors, WCAG 1.4.3) | `.parede-nome`, anotações "comece aqui" e "role para um tour", post-its | Em `forced-colors: active` o texto com contorno/sombra grossa fica **ilegível** (letras borradas e sobrepostas, fundo `Canvas`) | Em `@media (forced-colors: active)`: `text-shadow: none; -webkit-text-stroke: 0; paint-order: normal` e texto em `CanvasText` sobre `Canvas` | Média |
+| A6 | A11y / teclado | Ordem de Tab | 16 paradas para 8 destinos (objetos e post-its duplicados): dobra o custo para teclado e leitor de tela | Tirar o conjunto duplicado da ordem (`tabindex="-1"` e fora da árvore de acessibilidade) ou fundi-lo com `a.objeto` | Média |
+| V1 | Visual / mobile | Vista do monitor (SO) a 360 px | Linha laranja (curva "Dados para IA") atravessa os ícones `origem.md` e `proximo-passo.md`; o ícone do site fica cortado pelo rodapé do SO (rolável). Não é o `.heroi-linha` (oculto com cena pronta); elemento não identificado | Isolar o desenho do fundo do SO (z-index/opacidade) e confirmar a origem | Baixa-média |
+| A7 | A11y | Controles no mobile | 2 links de 40x44 px (abaixo de 44 px de largura; passa WCAG 2.5.8 AA, só foge da meta do design) | `min-width: 44px` | Baixa |
+| P3 | Desempenho | `cena.*.js` | 619 KB bruto, 59 KB não usados | Ver T1 | Baixa |
+
+Não verificado: leitor de tela (NVDA/VoiceOver), links externos (inalterados desde a reauditoria 1), troca de idioma com vista aberta, e o novo `og.png` (pendente de aprovação do Matheus).
+
+## Veredito: **APROVADO (com ressalvas)**
+
+Todas as 4 categorias ficam >= 90 em todas as rodadas (mobile emulado e desktop, com e sem GPU), axe sem violações em repouso, nas vistas e em 360 px, sem overflow horizontal e sem problema crítico. A aprovação é apertada: o desempenho mobile com 3D oscila entre 91 e 96 por causa do TBT (T1). Recomendo corrigir T1 antes de acrescentar mais à cena; T2, F1 e A6 entram no próximo ciclo; V1 precisa de confirmação visual.

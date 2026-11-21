@@ -1,14 +1,16 @@
 /**
- * Vista (design 4.4, 5.6, 12.5): zoom da câmera por transform, <dialog id="vista">, seção(ões) movida(s) para dentro e
- * devolvida(s), navegação anterior/próximo e histórico. Posições, destinos e enquadramentos vêm de #quarto-config.
+ * Vista (design 4.4, 5.6, 13.5.3, 13.8.4): voo da câmera 3D até o objeto, <dialog id="vista"> aberto aos 75% do voo,
+ * seção(ões) movida(s) para dentro e devolvida(s), navegação anterior/próximo e histórico. Destinos e focos vêm de #quarto-config;
+ * a geometria da moldura vem de molduras.ts (projeção da `janela` pela cena, ou o painel padrão sem ela).
  */
-import * as cam from './camera';
 import * as hist from './historico';
 import { interagiu } from './anotacoes';
 import { marcarLido } from './lidos';
+import { moldura as molduraDe } from './molduras';
+import { aoMudarCena, cenaAtual } from './ponte';
 import * as so from './so';
 import * as tour from './tour';
-import { cfg, clamp, css, dialog, html, linkDe, mobile, modoQuarto, objetoDe, palco, principais, reduz, type ObjCfg } from './ctx';
+import { cfg, css, dialog, html, linkDe, mobile, modoQuarto, objetoDe, palco, principais, reduz, type ObjCfg } from './ctx';
 
 type Estado = 'repouso' | 'aproximando' | 'aberto' | 'afastando';
 
@@ -29,46 +31,19 @@ let h2: HTMLElement | null = null;
 let marcaH2: Comment | null = null;
 let rodada = 0;
 
-const BARRA_PX = 56;
-const FOLGA_PX = 8;
-
 function definirEstado(e: Estado) {
   estado = e;
   palco.dataset.estado = e;
 }
 
-/** Posição da moldura (px, na tela), a partir da config. No mobile, o CSS cobre a tela. */
+/** Posição da moldura (px, na tela). No mobile, o CSS a ancora na base como folha inferior de 70svh. */
 function geometria(obj: ObjCfg) {
   dialog.dataset.vista = obj.vista.tipo;
+  // Mobile: folha inferior de 70svh com a cena no topo; sem a cena, a vista cobre a tela (como os nichos de texto).
+  dialog.dataset.folha = cenaAtual() ? 'baixo' : 'cheia';
   if (mobile.matches) return;
-  const vw = html.clientWidth;
-  const vh = html.clientHeight;
+  const { x, y, l, a } = molduraDe(obj, html.clientWidth, html.clientHeight);
   const def = (nome: string, v: number) => quadro.style.setProperty(nome, `${Math.round(v)}px`);
-  let x: number;
-  let y: number;
-  let l: number;
-  let a: number;
-  if (obj.vista.tipo === 'tela') {
-    ({ x, y, l, a } = tour.retanguloTela(BARRA_PX));
-  } else if (obj.vista.janela) {
-    // Vista "dentro": a moldura cobre a janela do objeto (depois do zoom), com mínimo de legibilidade.
-    const j = obj.vista.janela;
-    const r = cam.retanguloFinal(cam.cameraAtual());
-    const jx = r.left + (j.x / 100) * r.width;
-    const jy = r.top + (j.y / 100) * r.height;
-    const jl = (j.l / 100) * r.width;
-    const ja = (j.a / 100) * r.height;
-    l = Math.min(vw - 2 * FOLGA_PX, Math.max(jl, Math.min(560, vw * 0.92)));
-    a = Math.min(vh - BARRA_PX - 2 * FOLGA_PX, Math.max(ja, Math.min(360, vh * 0.8)));
-    x = clamp(jx - (l - jl) / 2, FOLGA_PX, vw - l - FOLGA_PX);
-    y = clamp(jy - (a - ja) / 2, BARRA_PX + FOLGA_PX, vh - a - FOLGA_PX);
-  } else {
-    // Painel estilizado: cerca de 60% da tela, do lado definido na config (o objeto fica no lado oposto).
-    l = vw * 0.6;
-    a = vh - BARRA_PX - 2 * FOLGA_PX;
-    x = obj.vista.lado === 'esquerda' ? vw * 0.02 : vw * 0.38;
-    y = BARRA_PX + FOLGA_PX;
-  }
   def('--mx', x);
   def('--my', y);
   def('--mw', l);
@@ -142,29 +117,14 @@ function atualizarNavegacao(obj: ObjCfg) {
 const fade = (el: Element, de: number, para: number, ms: number) =>
   el.animate([{ opacity: de }, { opacity: para }], { duration: ms, easing: 'linear', fill: 'none' }).finished;
 
-/** FLIP do mobile: o quadro cresce do nicho até a tela cheia (e volta). */
-function flip(ida: boolean) {
-  const r = origem?.getBoundingClientRect();
-  if (!r) return Promise.resolve();
-  const q = `translate(${r.left}px, ${r.top}px) scale(${r.width / innerWidth}, ${r.height / innerHeight})`;
-  const quadros = ida ? [{ transform: q, opacity: 0.4 }, { transform: 'none', opacity: 1 }] : [{ transform: 'none', opacity: 1 }, { transform: q, opacity: 0 }];
-  return quadro.animate(quadros, { duration: 300, easing: css('--ease-out'), transformOrigin: '0 0' } as KeyframeAnimationOptions).finished;
+/** Folha inferior do mobile: entra subindo da base (e sai descendo). */
+function folha(ida: boolean) {
+  const quadros = ida ? [{ transform: 'translateY(100%)' }, { transform: 'none' }] : [{ transform: 'none' }, { transform: 'translateY(100%)' }];
+  return quadro.animate(quadros, { duration: 220, easing: css('--ease-out') }).finished;
 }
 
-async function mostrar(obj: ObjCfg, alvoId: string, animar: boolean, viajando = false) {
-  const minha = ++rodada;
-  const comAnimacao = animar && !reduz.matches;
-  if (movidas.length) devolver();
-  objAtual = obj;
-  definirEstado('aproximando');
-  interagiu();
-  if (viajando) dialog.dataset.fase = 'trocando';
-  // O painel não espera o zoom: aparece junto com ele (fade de 200 ms), já na posição final.
-  const zoom = mobile.matches ? Promise.resolve(true) : cam.ir(obj.vista.camera, 400, '--ease-out', comAnimacao);
-  if (viajando && !mobile.matches) {
-    const chegou = await zoom;
-    if (!chegou || minha !== rodada) return;
-  }
+/** Abre a vista na hora: seção movida para o dialog, moldura na geometria certa, foco no título. */
+function abrirVista(obj: ObjCfg, alvoId: string, comAnimacao: boolean) {
   colocar(obj);
   geometria(obj);
   atualizarNavegacao(obj);
@@ -176,31 +136,51 @@ async function mostrar(obj: ObjCfg, alvoId: string, animar: boolean, viajando = 
   rolarPara(alvoId, obj);
   if (obj.vista.tipo !== 'tela' || mobile.matches) h2?.focus({ preventScroll: true });
   else document.getElementById('vertice-leiame-titulo')?.focus({ preventScroll: true });
-  if (comAnimacao && !jaAberto) {
-    if (mobile.matches) await flip(true);
+  if (comAnimacao) {
+    // O painel entra com opacidade 0 → 1 e deslocamento de 16 px em --dur-reveal (160 ms).
+    if (mobile.matches && !jaAberto) void folha(true);
     else {
-      void fade(moldura, 0, 1, 200);
-      void fade(barra, 0, 1, 200);
+      const ms = 160;
+      void moldura.animate([{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { duration: ms, easing: css('--ease-out') }).finished;
+      void fade(barra, 0, 1, ms);
     }
   }
+}
+
+async function mostrar(obj: ObjCfg, alvoId: string, animar: boolean, viajando = false) {
+  const minha = ++rodada;
+  const comAnimacao = animar && !reduz.matches;
+  const cena = modoQuarto() ? cenaAtual() : null;
+  if (viajando && comAnimacao) await fade(moldura, 1, 0, 120);
+  if (minha !== rodada) return;
+  if (movidas.length) devolver();
+  objAtual = obj;
+  definirEstado('aproximando');
+  interagiu();
+  if (viajando) dialog.dataset.fase = 'trocando';
+  const abrir = () => {
+    if (minha === rodada) abrirVista(obj, alvoId, comAnimacao);
+  };
+  // Com a cena: a câmera voa até o objeto e a vista abre aos 75% do voo. Sem ela (carregando, falha), abre na hora.
+  if (cena) await cena.irPara(obj.id as never, { animar: comAnimacao, em75: abrir });
+  else abrir();
 }
 
 async function fechar(animar: boolean) {
   if (estado === 'repouso') return;
   const minha = ++rodada;
   const comAnimacao = animar && !reduz.matches;
-  cam.parar();
   definirEstado('afastando');
   if (dialog.open) {
     if (comAnimacao) {
-      if (mobile.matches) await flip(false);
+      if (mobile.matches) await folha(false);
       else await fade(moldura, 1, 0, 120);
     }
     dialog.close();
   }
   devolver();
   dialog.removeAttribute('data-fase');
-  if (!mobile.matches) await tour.retomar(comAnimacao);
+  await tour.retomar(comAnimacao);
   if (minha !== rodada) return;
   objAtual = null;
   definirEstado('repouso');
@@ -210,7 +190,6 @@ async function fechar(animar: boolean) {
 /** Fecha na hora, sem animação nem mudança de histórico (troca de modo). */
 export function fecharSemAnimar() {
   rodada++;
-  cam.parar();
   if (dialog.open) dialog.close();
   devolver();
   dialog.removeAttribute('data-fase');
@@ -238,7 +217,6 @@ export function sincronizar(animarFechamento = true) {
 
 function pedirFechar() {
   if (estado === 'repouso') return;
-  cam.parar();
   if (!hist.pedirVoltar()) void fechar(true);
 }
 
@@ -309,16 +287,22 @@ export function iniciarVista() {
   }
 
   addEventListener('popstate', () => sincronizar(true));
-  let pendente = false;
-  addEventListener('resize', () => {
-    if (pendente || !objAtual || estado !== 'aberto') return;
-    pendente = true;
-    requestAnimationFrame(() => {
-      pendente = false;
-      if (objAtual) {
-        cam.reaplicar();
-        geometria(objAtual);
-      }
-    });
+  // A cena recalcula a câmera no próprio resize e avisa: a moldura acompanha a janela projetada.
+  const reposicionar = () => {
+    if (objAtual && estado === 'aberto') geometria(objAtual);
+  };
+  addEventListener('resize', () => requestAnimationFrame(reposicionar));
+  // Link direto (/#exp-kpmg): a vista já abriu sem esperar o 3D; quando a cena fica pronta, a câmera corta para o foco.
+  aoMudarCena(() => {
+    const cena = cenaAtual();
+    if (!cena) return;
+    cena.aoRedimensionar(reposicionar);
+    if (objAtual && estado !== 'repouso') {
+      void cena.irPara(objAtual.id as never, { animar: false });
+      reposicionar();
+    }
   });
 }
+
+/** A vista está aberta (ou abrindo) agora? Usado pela carga da cena para decidir entre chegada e corte. */
+export const objAbertoAgora = () => objAtual !== null;

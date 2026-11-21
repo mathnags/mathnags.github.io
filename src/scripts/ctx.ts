@@ -2,39 +2,20 @@
  * Referências e tipos compartilhados do script do quarto. Nenhuma coordenada ou texto fixo aqui:
  * tudo vem de #quarto-config (serializado pela config) e dos atributos que o HTML já traz.
  */
-export interface Rect {
-  x: number;
-  y: number;
-  l: number;
-  a: number;
-}
+import type { CfgCliente } from '../cena/index';
 
-export interface Camera {
-  cx: number;
-  cy: number;
-  escala: number;
-}
-
-export interface ObjCfg {
-  id: string;
-  capitulo: number;
-  destino: string;
-  secoes: string[];
-  vista: { tipo: string; camera: Camera; janela?: Rect; lado?: 'esquerda' | 'direita' };
-  tour: { camera: Camera; lado: 'esquerda' | 'direita' };
-}
+export type { Rect } from '../cena/areas';
+export type ObjCfg = CfgCliente['objetos'][number];
 
 export const html = document.documentElement;
-export const cfg: { imagem: { l: number; a: number }; objetos: ObjCfg[] } = JSON.parse(
-  document.getElementById('quarto-config')?.textContent ?? '{"imagem":{"l":16,"a":9},"objetos":[]}',
-);
+export const cfg: CfgCliente = JSON.parse(document.getElementById('quarto-config')?.textContent ?? '{"objetos":[],"anotacoes":[]}');
 export const reduz = matchMedia('(prefers-reduced-motion: reduce)');
-/** Estratégia mobile (design 12.3): largura < 768 ou proporção < 1.3. Complemento exato de "tela cheia". */
+/** Estratégia mobile (design 13.9): largura < 768 ou proporção < 1.3. Complemento exato de "tela cheia". */
 export const mobile = matchMedia('not all and (min-width: 768px) and (min-aspect-ratio: 13/10)');
 export const palco = document.querySelector<HTMLElement>('.palco')!;
-export const caixa = palco.querySelector<HTMLElement>('.caixa')!;
+export const canvas = palco.querySelector<HTMLCanvasElement>('canvas.cena')!;
 export const dialog = document.getElementById('vista') as HTMLDialogElement;
-/** Links dos objetos: os do palco (desktop) e os nichos (mobile). Só um dos dois grupos aparece por vez. */
+/** Links dos objetos: os post-its do palco e os nichos de texto (mobile sem 3D). Só um dos dois grupos aparece por vez. */
 export const links = [...document.querySelectorAll<HTMLAnchorElement>('#quarto a.objeto, #quarto a.nicho')];
 export const porId = new Map(cfg.objetos.map((o) => [o.id, o]));
 export const modoQuarto = () => html.dataset.modo === 'quarto';

@@ -1,33 +1,18 @@
 /**
- * Validação da config do quarto (docs/design.md 12.6, 12.13.4 e 12.13.7). Roda ao importar src/config/quarto.ts,
+ * Validação da config do quarto 3D (docs/design.md 13.12). Roda ao importar src/config/quarto.ts,
  * ou seja, em toda build, e também nos testes. Um erro aqui derruba a build.
  *
  * O que depende do HTML gerado (se "destino" e "secoes" existem como id nas páginas pt e en,
  * e se há ids duplicados) é verificado depois da build por integrations/verificar-ancoras.mjs.
  */
 import { SECOES } from '../i18n/secoes';
-import { IDS_OBJETOS, TIPOS_VISTA_DENTRO, type ConfigQuarto, type Rect } from './tipos';
+import { IDS_OBJETOS, TIPOS_VISTA_DENTRO, type Caixa, type ConfigQuarto, type V3 } from './tipos';
 
-/** Área segura em 16:10 (12.2): cortam-se cerca de 5% de cada lado. */
-export const AREA_SEGURA: Rect = { x: 6, y: 15, l: 88, a: 71 };
-/** Mínimo do clique: ≥ 44 px na menor tela em tela cheia (12.6). */
-const CLIQUE_MIN = { l: 3.3, a: 5.8 };
-/** Post-it nominal em % da imagem (7vw = 89,6 px em 1280×720, o caso mais apertado com a imagem inteira). */
-export const POSTIT = { l: 6.6, a: 8 };
-/** Área máxima de cada post-it (% × %) e distância máxima até a borda do próprio objeto (%). */
-const POSTIT_AREA_MAX = 60;
-const POSTIT_DISTANCIA_MAX = 2;
-/** Post-it "Fale comigo!" (âncora = canto superior esquerdo). */
-export const POSTIT_CONTATO = { l: 8.5, a: 15 };
-const ESCALA_MAX = 2;
-const ESCALA_MAX_MONITOR = 3;
-
-const dentroDe = (r: Rect, c: Rect) => r.x >= c.x && r.y >= c.y && r.x + r.l <= c.x + c.l && r.y + r.a <= c.y + c.a;
-const sobrepoe = (a: Rect, b: Rect) => a.x < b.x + b.l && b.x < a.x + a.l && a.y < b.y + b.a && b.y < a.y + a.a;
-const fmt = (r: Rect) => `{x:${r.x}, y:${r.y}, l:${r.l}, a:${r.a}}`;
-const TELA: Rect = { x: 0, y: 0, l: 100, a: 100 };
-
-export const caixaDoPostit = (p: { x: number; y: number }): Rect => ({ x: p.x - POSTIT.l / 2, y: p.y - POSTIT.a / 2, l: POSTIT.l, a: POSTIT.a });
+const dentroDe = (c: Caixa, l: Caixa) => c.min.every((v, i) => v >= l.min[i] - 1e-9) && c.max.every((v, i) => v <= l.max[i] + 1e-9);
+const pontoEm = (p: V3, c: Caixa) => p.every((v, i) => v >= c.min[i] - 1e-9 && v <= c.max[i] + 1e-9);
+const cruza = (a: Caixa, b: Caixa) => [0, 1, 2].every((i) => a.min[i] < b.max[i] && b.min[i] < a.max[i]);
+const distancia = (p: V3, c: Caixa) => Math.hypot(...p.map((v, i) => Math.max(0, c.min[i] - v, v - c.max[i])));
+const caixaOk = (c: Caixa) => c.min.every((v, i) => v <= c.max[i]);
 
 export function errosDoQuarto(q: ConfigQuarto): string[] {
   const erros: string[] = [];
@@ -42,12 +27,8 @@ export function errosDoQuarto(q: ConfigQuarto): string[] {
   const destinos = q.objetos.map((o) => o.destino);
   if (new Set(destinos).size !== destinos.length) erros.push('há destinos repetidos');
 
-  const reservadas = [...q.areasReservadas, { nome: 'nome na parede', area: q.paredeNome }];
-  const contato = { x: q.postitContato.x, y: q.postitContato.y, ...POSTIT_CONTATO };
-
   for (const o of q.objetos) {
     const nome = `"${o.id}"`;
-    const { clique } = o;
 
     // Seções e destino
     for (const s of o.secoes) if (!capituloDaSecao.has(s)) erros.push(`${nome}: seção "${s}" não existe em SECOES`);
@@ -55,53 +36,40 @@ export function errosDoQuarto(q: ConfigQuarto): string[] {
     if (principal !== o.destino) erros.push(`${nome}: o destino "${o.destino}" deve ser a última seção (${principal})`);
     if (capituloDaSecao.get(o.destino) !== o.capitulo) erros.push(`${nome}: capítulo ${o.capitulo} não é o da seção "${o.destino}"`);
 
-    // Clique: área segura, fora das faixas reservadas, tamanho mínimo
-    if (!dentroDe(clique, AREA_SEGURA)) erros.push(`${nome}: clique ${fmt(clique)} fora da área segura ${fmt(AREA_SEGURA)}`);
-    for (const r of reservadas) if (sobrepoe(clique, r.area)) erros.push(`${nome}: clique invade "${r.nome}"`);
-    if (clique.l < CLIQUE_MIN.l || clique.a < CLIQUE_MIN.a) erros.push(`${nome}: clique ${clique.l}×${clique.a} menor que ${CLIQUE_MIN.l}×${CLIQUE_MIN.a}`);
+    // Caixa e foco
+    if (!caixaOk(o.caixa)) erros.push(`${nome}: caixa com min maior que max`);
+    if (!dentroDe(o.caixa, q.limites)) erros.push(`${nome}: caixa fora dos limites do quarto`);
+    if (!pontoEm(o.foco.alvo, o.caixa)) erros.push(`${nome}: foco.alvo fora da própria caixa`);
+    const { az, el, margem = 0.35 } = o.foco;
+    if (az < -60 || az > 60) erros.push(`${nome}: az ${az} fora de -60 a 60`);
+    if (el < -10 || el > 70) erros.push(`${nome}: el ${el} fora de -10 a 70`);
+    if (margem < 0.05 || margem > 0.5) erros.push(`${nome}: margem ${margem} fora de 0,05 a 0,5`);
 
-    // Post-it: dentro da imagem, fora do nome, dos HUDs, do post-it de contato e de outros objetos
-    const p = caixaDoPostit(o.postit);
-    if (!dentroDe(p, TELA)) erros.push(`${nome}: post-it fora da imagem`);
-    if (!dentroDe(p, { ...AREA_SEGURA, y: 12, a: 74 })) erros.push(`${nome}: post-it fora da área segura`);
-    if (p.l * p.a > POSTIT_AREA_MAX) erros.push(`${nome}: post-it com área ${p.l * p.a} (máximo ${POSTIT_AREA_MAX})`);
-    const dx = Math.max(0, clique.x - (p.x + p.l), p.x - (clique.x + clique.l));
-    const dy = Math.max(0, clique.y - (p.y + p.a), p.y - (clique.y + clique.a));
-    if (Math.hypot(dx, dy) > POSTIT_DISTANCIA_MAX) erros.push(`${nome}: post-it longe da borda do objeto (${Math.hypot(dx, dy).toFixed(1)}%, máximo ${POSTIT_DISTANCIA_MAX})`);
-    for (const r of reservadas) if (sobrepoe(p, r.area)) erros.push(`${nome}: post-it cobre "${r.nome}"`);
-    if (sobrepoe(p, contato)) erros.push(`${nome}: post-it cobre o "Fale comigo!"`);
-    for (const b of q.objetos) if (b.id !== o.id && sobrepoe(p, b.clique)) erros.push(`${nome}: post-it cobre a área de clique de "${b.id}"`);
-
-    // Câmeras
-    const limite = o.vista.tipo === 'tela' ? ESCALA_MAX_MONITOR : ESCALA_MAX;
-    for (const [rotulo, c, lim] of [['vista', o.vista.camera, limite], ['tour', o.tour.camera, limite]] as const) {
-      if (c.escala < 1 || c.escala > lim) erros.push(`${nome}: escala da câmera de ${rotulo} (${c.escala}) fora de 1 a ${lim}`);
-      if (c.cx < 0 || c.cx > 100 || c.cy < 0 || c.cy > 100) erros.push(`${nome}: câmera de ${rotulo} fora da imagem`);
+    // Vistas "dentro": janela e preencher só e sempre nelas, de frente
+    const dentro = (TIPOS_VISTA_DENTRO as readonly string[]).includes(o.vista.tipo);
+    if (dentro && !o.janela) erros.push(`${nome}: vista "${o.vista.tipo}" exige janela`);
+    if (dentro && !o.preencher) erros.push(`${nome}: vista "${o.vista.tipo}" exige preencher`);
+    if (!dentro && (o.janela || o.preencher)) erros.push(`${nome}: painel "${o.vista.tipo}" não usa janela nem preencher`);
+    if (dentro && (az !== 0 || el !== 0)) erros.push(`${nome}: vistas dentro precisam de az = el = 0`);
+    if (o.janela) {
+      if (!caixaOk(o.janela)) erros.push(`${nome}: janela com min maior que max`);
+      if (o.janela.min[2] !== o.janela.max[2]) erros.push(`${nome}: janela precisa ser plana em z`);
+      if (!dentroDe(o.janela, q.limites)) erros.push(`${nome}: janela fora dos limites do quarto`);
     }
-    const ehDentro = (TIPOS_VISTA_DENTRO as readonly string[]).includes(o.vista.tipo);
-    if (ehDentro && !o.vista.janela) erros.push(`${nome}: vista "${o.vista.tipo}" exige janela`);
-    if (!ehDentro && o.vista.janela) erros.push(`${nome}: painel "${o.vista.tipo}" não usa janela`);
-    if (o.vista.janela && !dentroDe(o.vista.janela, TELA)) erros.push(`${nome}: janela fora da imagem`);
+
+    // Post-it
+    if (distancia(o.postit.ancora, o.caixa) > 0.4) erros.push(`${nome}: âncora do post-it a mais de 0,4 m da caixa`);
+    if (o.postit.rot < -6 || o.postit.rot > 6) erros.push(`${nome}: rot do post-it fora de -6 a 6`);
   }
 
   q.objetos.forEach((a, i) => {
-    for (const b of q.objetos.slice(i + 1)) {
-      if (sobrepoe(a.clique, b.clique)) erros.push(`cliques de "${a.id}" e "${b.id}" se sobrepõem`);
-      if (sobrepoe(caixaDoPostit(a.postit), caixaDoPostit(b.postit))) erros.push(`post-its de "${a.id}" e "${b.id}" se sobrepõem`);
-    }
+    for (const b of q.objetos.slice(i + 1)) if (cruza(a.caixa, b.caixa)) erros.push(`caixas de "${a.id}" e "${b.id}" se cruzam`);
   });
 
-  // Nome, post-it de contato e HUDs
-  if (!dentroDe(q.paredeNome, TELA)) erros.push('parede do nome fora da imagem');
-  if (!dentroDe(contato, TELA)) erros.push('post-it "Fale comigo!" fora da imagem');
-  for (const r of q.areasReservadas) if (sobrepoe(contato, r.area)) erros.push(`post-it "Fale comigo!" cobre "${r.nome}"`);
-
+  if (q.geral.fov <= 0 || q.geral.fov >= 90) erros.push('fov da visão geral inválido');
+  if (!caixaOk(q.limites)) erros.push('limites do quarto inválidos');
   for (const an of q.anotacoes) {
-    if (an.x < 0 || an.x + an.larguraMax > 100 || an.y < 0 || an.y > 100) erros.push(`anotação "${an.id}" fora da imagem`);
-    for (const o of q.objetos) {
-      const r: Rect = { x: an.x, y: an.y - 4, l: an.larguraMax, a: 6 };
-      if (sobrepoe(r, o.clique) && an.id === 'role') erros.push(`anotação "${an.id}" cobre o clique de "${o.id}"`);
-    }
+    if (an.id === 'comece' && !ids.includes(an.relativoA)) erros.push(`anotação "comece" aponta para objeto inexistente "${an.relativoA}"`);
   }
   return erros;
 }

@@ -1,26 +1,21 @@
 /*
- * O quarto (design 12.1 a 12.4, 12.13). Tudo em @media screen e visível só com data-modo='quarto'
- * (global.css esconde #quarto por padrão). Nenhuma coordenada aqui: as posições chegam por custom properties
- * (--x, --y, --w, --h, --px, --py, --rot, --nx…) escritas pelo Quarto.astro a partir da config, em % da imagem.
- * Base = estratégia mobile (herói recortado + nichos); "tela cheia" (largura ≥ 768 e proporção ≥ 1.3) sobrescreve.
+ * O quarto 3D (design 13). Tudo em @media screen e visível só com data-modo='quarto' (global.css esconde #quarto por padrão).
+ * Nenhuma coordenada aqui: a cena é WebGL (src/cena), os post-its são projetados pelo JS em --tx/--ty/--rot e o bloco do
+ * nome é um CSS3DObject (px de parede: 200 px = 1 m). Base = estratégia mobile/retrato (herói em HTML leve + nichos de
+ * texto; com o 3D pronto, palco sticky + tour de cartões na base); "tela cheia" (largura ≥ 768 e proporção ≥ 1.3) sobrescreve.
  */
 
-/* ---------- Cores de tema ---------- */
-.palco {
-  --lqip: var(--lqip-dia);
-  --lqip-heroi: var(--lqip-heroi-dia);
+@property --rot {
+  syntax: '<angle>';
+  inherits: true;
+  initial-value: 0deg;
 }
 
-:root[data-theme='dark'] .palco {
-  --lqip: var(--lqip-noite);
-  --lqip-heroi: var(--lqip-heroi-noite);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .palco {
-    --lqip: var(--lqip-noite);
-    --lqip-heroi: var(--lqip-heroi-noite);
-  }
+/* Balanço do 'próximo sugerido': animado numa variável, nunca na propriedade rotate (ela giraria em torno da origem do palco). */
+@property --balanco {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
 }
 
 @media screen {
@@ -34,7 +29,7 @@
     padding: 0;
   }
 
-  /* O h1 continua no DOM (leitores de tela); o nome visível é o pintado na parede. */
+  /* O h1 continua no DOM (leitores de tela); o nome visível é o do bloco na parede. */
   html[data-modo='quarto'] .nome-bloco {
     position: absolute;
     width: 1px;
@@ -174,29 +169,49 @@
     }
   }
 
-  /* ---------- Palco (mobile: herói recortado em 100svh) ---------- */
+  /* ---------- Palco ---------- */
+  /* Fundo da maquete (13.2): fora do WebGL, muda com o tema pelos tokens de interface. */
   .palco {
     position: relative;
     height: 100svh;
     min-height: 520px;
     overflow: hidden;
-    background: var(--bg);
+    background: radial-gradient(ellipse 70% 55% at 50% 62%, var(--surface-2), var(--bg));
   }
 
-  .caixa {
-    position: absolute;
-    inset: 0;
-    background: var(--lqip-heroi) center / cover no-repeat;
-  }
-
-  .caixa picture,
-  .caixa img {
+  /* Canvas decorativo: transparente, nasce com opacidade 0 e aparece (400 ms) quando a cena fica pronta. */
+  .cena {
     position: absolute;
     inset: 0;
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    opacity: 0;
+    transition: opacity 400ms var(--ease-std);
+  }
+
+  .cena[data-visivel] {
+    opacity: 1;
+  }
+
+  .cena-css3d {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  /* Mobile sem 3D: a assinatura (carreira que dobra em 2026) em grande atrás do nome */
+  .heroi-linha {
+    position: absolute;
+    inset: 12svh 0 auto;
+    width: 100%;
+    height: 38svh;
+    opacity: 0.85;
+  }
+
+  html[data-cena='pronta'] .heroi-linha,
+  html[data-cena='pronta'] .explorar {
+    display: none;
   }
 
   .objetos,
@@ -209,41 +224,34 @@
     display: none;
   }
 
-  .pelicula {
+  /* ---------- Post-it (13.8.2): o <a class="objeto"> é o post-it, projetado de frente para a tela ---------- */
+  .objeto {
     position: absolute;
-    inset: 0;
-    background: var(--pelicula-vista);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 200ms var(--ease-std);
-  }
-
-  .palco:not([data-estado='repouso']) .pelicula {
-    opacity: 1;
-  }
-
-  /* ---------- Post-it (12.13.4): rótulo e link de cada objeto ---------- */
-  .postit {
-    position: absolute;
+    left: 0;
+    top: 0;
     z-index: 2;
-    display: flex;
+    display: none;
     flex-direction: column;
     gap: 1px;
-    width: var(--pw, clamp(84px, 6.6vw, 104px));
-    padding: 4px 6px 5px;
+    inline-size: max-content;
+    max-inline-size: 9.5rem;
+    padding: 8px 10px;
     background: var(--postit);
     box-shadow: var(--shadow-1);
     color: #15171c;
-    rotate: var(--rot, -3deg);
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    visibility: hidden;
+    transform: translate3d(var(--tx, 0px), var(--ty, 0px), 0) rotate(calc(var(--rot, 0deg) + var(--balanco, 0deg)));
     transition:
+      --rot var(--dur-2) var(--ease-out),
       translate var(--dur-2) var(--ease-out),
-      rotate var(--dur-2) var(--ease-out),
       opacity var(--dur-1) var(--ease-std);
   }
 
   .p-num {
     color: #4f545c;
-    font: 500 11px/1 var(--ff-mono);
+    font: 500 12px/1 var(--ff-mono);
   }
 
   /* Em repouso, até 2 linhas; o nome inteiro aparece no hover e no foco */
@@ -253,18 +261,15 @@
     -webkit-line-clamp: 2;
     line-clamp: 2;
     overflow: hidden;
-    font: 400 clamp(13px, 1vw, 16px) / 1.05 var(--font-hand);
+    font: 400 17px/1.05 var(--font-hand);
     overflow-wrap: anywhere;
   }
 
-  .objeto:is(:hover, :focus-visible) .p-nome {
-    -webkit-line-clamp: unset;
-    line-clamp: unset;
-    overflow: visible;
-  }
-
-  .objeto:is(:hover, :focus-visible) .postit {
-    z-index: 5;
+  /* Linha temática (13.6): só no hover/foco, mono 12 px em --text-muted sobre --postit (6,72 / 5,35:1) */
+  .p-tema {
+    display: none;
+    color: #4f545c;
+    font: 500 12px/1.2 var(--ff-mono);
   }
 
   .p-check {
@@ -275,11 +280,13 @@
     color: #1e6b5a;
   }
 
+  [data-lido] > .p-check,
   [data-lido] > .postit .p-check {
     display: block;
   }
 
   /* Próximo sugerido: fita adesiva e balanço (3 ciclos, ≤ 5 s) */
+  [data-proximo]::before,
   [data-proximo] > .postit::before {
     content: '';
     position: absolute;
@@ -292,19 +299,51 @@
     opacity: 0.92;
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    .palco[data-estado='repouso'] [data-proximo] > .postit {
-      animation: balanca 1.6s ease-in-out 3;
-    }
+  /* Visitante vê o post-it só com a cena pronta e a intro encerrada (sem links invisíveis no Tab) */
+  html[data-cena='pronta']:not([data-intro]) .objeto {
+    visibility: visible;
   }
 
-  @keyframes balanca {
-    0%, 100% { rotate: var(--rot, -3deg); }
-    25% { rotate: calc(var(--rot, -3deg) - 1.5deg); }
-    75% { rotate: calc(var(--rot, -3deg) + 1.5deg); }
+  .objeto:is(:hover, :focus-visible, [data-hover]) {
+    z-index: 5;
+    translate: 0 -3px;
+    --rot: 0deg;
   }
 
-  /* ---------- Nome na parede e post-it "Fale comigo!" (12.13.3) ---------- */
+  .objeto:is(:hover, :focus-visible, [data-hover]) .p-nome {
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    overflow: visible;
+  }
+
+  .objeto:is(:hover, :focus-visible, [data-hover]) .p-tema {
+    display: block;
+  }
+
+  .objeto:focus-visible {
+    outline: 3px solid var(--ring-out);
+    outline-offset: 0;
+    box-shadow: 0 0 0 5px var(--ring-in);
+  }
+
+  .objeto:active {
+    translate: 0 -1px;
+  }
+
+  /* Na visão geral, nas vistas e no tour (passo ≥ 1) o cartão ou a vista nomeia o objeto: os post-its somem (voltam no foco por teclado) */
+  .palco:not([data-passo='0']) .objeto,
+  .palco:not([data-estado='repouso']) .objeto {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .palco:not([data-passo='0']) .objeto:focus-visible,
+  .palco:not([data-estado='repouso']) .objeto:focus-visible {
+    opacity: 1;
+  }
+
+  /* ---------- Nome na parede e post-it "Fale comigo!" (13.8.1) ---------- */
+  /* Antes da cena (e no mobile): bloco plano em CSS normal. */
   .parede-bloco {
     position: absolute;
     inset: auto 16px 16px;
@@ -318,6 +357,7 @@
     box-shadow: var(--shadow-2);
     -webkit-backdrop-filter: blur(10px) saturate(1.2);
     backdrop-filter: blur(10px) saturate(1.2);
+    transition: opacity var(--dur-1) var(--ease-std);
   }
 
   .parede {
@@ -383,22 +423,130 @@
     transform: rotate(90deg);
   }
 
-  /* ---------- Nichos (12.3, 12.13.2): o tour vira uma lista vertical de recortes ---------- */
+  /* O bloco some em voos, vistas e passos do tour ≥ 1 (volta no foco por teclado) */
+  .palco:not([data-passo='0']) .parede-bloco,
+  .palco:not([data-estado='repouso']) .parede-bloco {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .palco:not([data-passo='0']) .parede-bloco:focus-within,
+  .palco:not([data-estado='repouso']) .parede-bloco:focus-within {
+    opacity: 1;
+  }
+
+  /* ---------- Pílula de carregamento (13.10) e cartão de erro ---------- */
+  .carregando {
+    position: absolute;
+    left: 50%;
+    bottom: 96px;
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 220px;
+    padding: var(--space-3) var(--space-5);
+    background: var(--hud-bg);
+    border: 1px solid var(--hud-borda);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-2);
+    -webkit-backdrop-filter: blur(10px) saturate(1.2);
+    backdrop-filter: blur(10px) saturate(1.2);
+    color: var(--text);
+    font: 500 0.875rem/1.3 var(--ff-text);
+    translate: -50% 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-1) var(--ease-std);
+  }
+
+  html[data-cena='carregando']:not([data-intro]) .carregando {
+    opacity: 1;
+  }
+
+  .carregando-barra {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 4px;
+    overflow: hidden;
+    background: var(--surface-2);
+    border-radius: var(--radius-full);
+  }
+
+  .carregando-barra::after {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 40%;
+    background: var(--accent);
+    border-radius: inherit;
+    animation: carregando-barra 1.1s var(--ease-std) infinite;
+  }
+
+  @keyframes carregando-barra {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(260%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .carregando-barra::after {
+      animation: none;
+      width: 100%;
+    }
+  }
+
+  .erro-cena {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 7;
+    display: grid;
+    gap: var(--space-4);
+    width: min(92%, 420px);
+    padding: var(--space-5);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-panel);
+    translate: -50% -50%;
+  }
+
+  .erro-cena[hidden] {
+    display: none;
+  }
+
+  .erro-cena p {
+    margin: 0;
+    font-size: var(--fs-lead);
+  }
+
+  .erro-cena-acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  /* ---------- Nichos de texto (13.9): mobile sem 3D. Uma coluna, só texto. ---------- */
   .nichos {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-5);
+    gap: var(--space-4);
     margin: 0;
     padding: var(--space-5) var(--margem) var(--space-7);
     list-style: none;
     background: var(--bg);
   }
 
+  html[data-cena='pronta'] .nichos {
+    display: none;
+  }
+
   .nicho {
     position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    overflow: hidden;
+    gap: var(--space-3);
+    padding: var(--space-4);
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
@@ -412,34 +560,38 @@
     text-decoration: none;
   }
 
-  .nicho picture,
-  .nicho img {
-    display: block;
-    width: 100%;
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
+  .nicho .postit {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    justify-self: start;
+    min-width: 104px;
+    padding: 6px 10px 8px;
+    background: var(--postit);
+    box-shadow: var(--shadow-1);
+    color: #15171c;
+    rotate: -2deg;
   }
 
-  .nicho .postit {
-    --pw: 104px;
-    top: 12px;
-    left: 12px;
+  .nichos li:nth-child(even) .nicho .postit {
+    rotate: 2deg;
   }
 
   .nicho .p-nome {
     -webkit-line-clamp: unset;
     line-clamp: unset;
-    font-size: 1.125rem;
+    font-size: 1.25rem;
   }
 
-  .nichos li:nth-child(even) .nicho .postit {
-    --rot: 3deg;
+  .nicho .p-check {
+    top: 4px;
+    right: 4px;
   }
 
   .nicho-texto {
     display: grid;
     gap: var(--space-2);
-    padding: var(--space-4);
   }
 
   .nicho-tema {
@@ -464,9 +616,88 @@
     outline: 3px solid var(--focus);
     outline-offset: 3px;
   }
+
 }
 
-/* ---------- Tela cheia (largura ≥ 768 e proporção ≥ 1.3): quarto em 100dvh, com câmera e tour ---------- */
+@media screen and (max-width: 767px), screen and (max-aspect-ratio: 1299/1000) {
+  /* ---------- Mobile com a cena pronta (13.9): palco sticky de 100svh; a câmera enquadra os 55% de cima e os cartões do tour ocupam a base ---------- */
+  html[data-cena='pronta'] #quarto {
+    position: relative;
+  }
+
+  html[data-cena='pronta'] .palco {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    height: 100svh;
+    min-height: 0;
+    margin-bottom: -100svh;
+  }
+
+  html[data-cena='pronta'] .tour {
+    position: relative;
+    z-index: 2;
+    display: block;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    pointer-events: none;
+  }
+
+  html[data-cena='pronta'] .passo {
+    display: flex;
+    align-items: flex-end;
+    height: 100svh;
+    padding: 0 var(--space-4) var(--space-4);
+  }
+
+  html[data-cena='pronta'] .passo-vazio[data-passo='9'] {
+    display: none;
+  }
+
+  html[data-cena='pronta'] .cartao {
+    display: grid;
+    gap: var(--space-2);
+    width: 100%;
+    max-height: calc(45svh - var(--space-4));
+    overflow: auto;
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-panel);
+    pointer-events: auto;
+  }
+
+  html[data-cena='pronta'] .cartao p {
+    margin: 0;
+  }
+
+  html[data-cena='pronta'] .cartao-titulo {
+    display: grid;
+    gap: 2px;
+  }
+
+  html[data-cena='pronta'] .cartao-prog,
+  html[data-cena='pronta'] .cartao-fim {
+    color: var(--text-muted);
+    font: 500 var(--fs-label)/var(--lh-label) var(--ff-mono);
+    letter-spacing: var(--ls-label);
+  }
+
+  html[data-cena='pronta'] .cartao-nome {
+    font: 700 var(--fs-h3)/var(--lh-h3) var(--ff-display);
+  }
+
+  html[data-cena='pronta'] .tour-abrir {
+    justify-self: start;
+  }
+
+  /* O bloco do nome fica plano, em cartão na base, só no passo 0 */
+  html[data-cena='pronta'] .parede-bloco {
+    inset: auto 16px 16px;
+  }
+}
+
+/* ---------- Tela cheia (largura ≥ 768 e proporção ≥ 1.3): maquete 3D em 100dvh com voo de câmera e tour ---------- */
 @media screen and (min-width: 768px) and (min-aspect-ratio: 13/10) {
   html[data-modo='quarto'] {
     scroll-snap-type: y proximity;
@@ -480,27 +711,15 @@
     position: sticky;
     top: 0;
     z-index: 1;
-    display: grid;
-    grid-template: 100% / 100%;
-    place-items: center;
     height: 100dvh;
     min-height: 0;
     margin-bottom: -100dvh;
   }
 
-  /* Caixa 16:9 que cobre a tela: imagem e camada de links dentro da mesma caixa, então os % ficam alinhados. */
-  .caixa {
-    position: relative;
-    inset: auto;
-    /* Cover limitado a ~1.88:1 (6% de corte vertical no máximo): em 21:9 o nome fica visível e sobram faixas laterais com o LQIP */
-    width: min(max(100vw, 177.78dvh), 188dvh);
-    height: calc(min(max(100vw, 177.78dvh), 188dvh) * 0.5625);
-    container-type: size;
-    background: var(--lqip) center / cover no-repeat;
-  }
-
-  .palco {
-    background: var(--lqip) center / cover no-repeat;
+  .heroi-linha,
+  .nichos,
+  .explorar {
+    display: none;
   }
 
   .objetos,
@@ -511,87 +730,26 @@
     margin: 0;
     padding: 0;
     list-style: none;
-    transition: opacity var(--dur-1) var(--ease-std);
-  }
-
-  .anotacoes {
     pointer-events: none;
   }
 
-  .nichos,
-  .explorar {
-    display: none;
-  }
-
-  .palco:not([data-estado='repouso']) .objetos {
-    opacity: 0;
-    pointer-events: none;
+  .objetos li {
+    display: contents;
   }
 
   .objeto {
-    position: absolute;
-    left: calc(var(--x) * 1%);
-    top: calc(var(--y) * 1%);
-    display: block;
-    width: calc(var(--w) * 1%);
-    height: calc(var(--h) * 1%);
-    border-radius: var(--radius-sm);
-    color: var(--text);
-    text-decoration: none;
-    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    pointer-events: auto;
   }
 
-  .objeto:hover {
-    text-decoration: none;
-  }
-
-  .objeto .postit {
-    left: calc(var(--px) * 1cqw);
-    top: calc(var(--py) * 1cqh);
-    transform: translate(-50%, -50%);
-  }
-
-  /* Hover: contorno de destaque no objeto e o post-it sobe 3 px e endireita */
-  .objeto:hover {
-    outline: 2px solid #ffffff;
-    box-shadow: 0 0 0 4px rgb(21 23 28 / 0.6);
-  }
-
-  .objeto:is(:hover, :focus-visible) .postit {
-    translate: 0 -3px;
-    rotate: 0deg;
-  }
-
-  .objeto:focus-visible {
-    outline: 3px solid var(--ring-out);
-    outline-offset: 2px;
-    box-shadow: 0 0 0 2px var(--ring-in);
-  }
-
-  .objeto:focus-visible .postit {
-    outline: 3px solid var(--ring-out);
-    box-shadow: 0 0 0 5px var(--ring-in);
-  }
-
-  .objeto:active {
-    transform: scale(0.99);
-  }
-
-  /* Durante o tour (passo ≥ 1) o cartão nomeia o objeto: os post-its ficam ocultos (voltam no foco por teclado) */
-  .palco:not([data-passo='0']) .objeto .postit {
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .palco:not([data-passo='0']) .objeto:focus-visible .postit {
-    opacity: 1;
-  }
-
-  /* Nome pintado na parede: HTML posicionado em % sobre a parede lisa reservada */
+  /* Nome: bloco plano, no canto superior esquerdo do palco, até a cena ficar pronta */
   .parede-bloco {
-    inset: 0;
-    z-index: 3;
-    display: block;
+    inset: auto;
+    left: 6vw;
+    top: 14vh;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-5);
     padding: 0;
     background: none;
     border: 0;
@@ -600,14 +758,6 @@
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     pointer-events: none;
-  }
-
-  .parede {
-    position: absolute;
-    left: calc(var(--nx) * 1%);
-    top: calc(var(--ny) * 1%);
-    width: calc(var(--nl) * 1%);
-    gap: 0.1em;
   }
 
   .parede-nome {
@@ -633,16 +783,16 @@
     }
   }
 
+  .parede,
   .postit-contato {
-    position: absolute;
-    left: calc(var(--cx) * 1%);
-    top: calc(var(--cy) * 1%);
-    width: clamp(104px, 8vw, 140px);
+    pointer-events: auto;
+  }
+
+  .postit-contato {
+    width: clamp(104px, 8vw, 128px);
     aspect-ratio: 1;
     align-content: center;
     gap: 6px;
-    rotate: var(--crot);
-    pointer-events: auto;
     transition: translate var(--dur-2) var(--ease-out), rotate var(--dur-2) var(--ease-out);
   }
 
@@ -657,7 +807,58 @@
     box-shadow: 0 0 0 6px var(--ring-in);
   }
 
-  /* ---------- Anotações à mão (12.13.5): só ≥ 1024 px, no passo 0, e somem após a 1ª interação ---------- */
+  /* Com a cena pronta: o bloco vira um CSS3DObject colado na parede (px de parede: 200 px = 1 m). Sem will-change: o texto ficaria borrado. */
+  .parede-bloco.em-3d {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: block;
+    width: 640px;
+    height: 120px;
+    animation: bloco-entra 240ms var(--ease-std) backwards;
+  }
+
+  @keyframes bloco-entra {
+    from { opacity: 0; }
+  }
+
+  .em-3d .parede {
+    position: absolute;
+    left: 0;
+    top: 0;
+    gap: 6px;
+    white-space: nowrap;
+    user-select: text;
+  }
+
+  .em-3d .parede-nome {
+    font-size: 44px;
+  }
+
+  .em-3d .parede-dir {
+    font-size: 20px;
+  }
+
+  /* Post-it "Fale comigo!" na parede: centro em (3,10; 2,24) m = 96 × 80 px de parede maiores para caber o texto (128 × 104) */
+  .em-3d .postit-contato {
+    position: absolute;
+    left: 510px;
+    top: 0;
+    width: 128px;
+    height: 104px;
+    aspect-ratio: auto;
+    rotate: -5deg;
+  }
+
+  .em-3d .pc-titulo {
+    font-size: 22px;
+  }
+
+  .em-3d .pc-cta {
+    font-size: 13px;
+  }
+
+  /* ---------- Anotações à mão (13.8.3): só ≥ 1024 px, no passo 0, e somem após a 1ª interação ---------- */
   .anotacoes {
     opacity: 0;
     visibility: hidden;
@@ -665,13 +866,19 @@
 
   .anot {
     position: absolute;
-    left: calc(var(--ax) * 1%);
-    top: calc(var(--ay) * 1%);
-    max-width: calc(var(--amax) * 1%);
+    max-width: var(--amax);
     margin: 0;
     color: var(--text);
     font: 400 24px/1.1 var(--font-hand);
     rotate: var(--arot);
+  }
+
+  /* "role…": fixa na tela, centralizada, a 96 px da base */
+  .anot[data-anot='role'] {
+    left: var(--ax);
+    bottom: var(--abase);
+    text-align: center;
+    translate: -50% 0;
   }
 
   .setas {
@@ -693,23 +900,23 @@
 
   .seta-halo {
     stroke: var(--halo);
-    stroke-width: 0.42;
+    stroke-width: 6;
   }
 
   .seta-traco {
     stroke: var(--text);
-    stroke-width: 0.18;
+    stroke-width: 2.5;
   }
 
   @media (min-width: 1024px) {
-    html:not([data-intro]):not([data-anot-fim]) .palco[data-passo='0'][data-estado='repouso'] .anotacoes {
+    html[data-cena='pronta']:not([data-intro]):not([data-anot-fim]) .palco[data-passo='0'][data-estado='repouso'] .anotacoes {
       opacity: 1;
       visibility: visible;
     }
 
     @media (prefers-reduced-motion: no-preference) {
-      html:not([data-intro]) .palco[data-passo='0'] .seta-halo,
-      html:not([data-intro]) .palco[data-passo='0'] .seta-traco {
+      html[data-cena='pronta']:not([data-intro]) .palco[data-passo='0'] .seta-halo,
+      html[data-cena='pronta']:not([data-intro]) .palco[data-passo='0'] .seta-traco {
         animation: desenha-seta 500ms var(--ease-out) 300ms backwards;
       }
     }
@@ -720,7 +927,7 @@
     to { stroke-dashoffset: 0; }
   }
 
-  /* ---------- Tour (12.13.2): cartões no fluxo; o palco fica sticky atrás deles ---------- */
+  /* ---------- Tour (12.13.2, 13.5.2): cartões no fluxo; o palco fica sticky atrás deles ---------- */
   .tour {
     position: relative;
     z-index: 2;
@@ -735,12 +942,14 @@
     display: flex;
     align-items: center;
     height: 100dvh;
-    padding-inline: clamp(24px, 6vw, 96px);
+    padding-inline: 24px;
     scroll-snap-align: center;
   }
 
+  /* À direita, o cartão fica a 56 px da borda: o trilho do tour (12 px + 28 px) não pode ser coberto */
   .passo[data-lado='direita'] {
     justify-content: flex-end;
+    padding-right: 56px;
   }
 
   .cartao {
@@ -868,15 +1077,12 @@
     transform: rotate(90deg);
   }
 
-  /* Passo 9: o SO embutido na tela do monitor, sem <dialog> (posição calculada pelo JS, em px) */
+  /* Passo 9: o SO embutido na tela 3D do monitor, sem <dialog> e sem bisel em CSS (a carcaça 3D é o bisel). Posição em px, pelo JS. */
   .so-tour {
     position: absolute;
     z-index: 5;
     display: block;
-    padding: 12px;
-    background: var(--room-metal);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-panel);
+    padding: 0;
   }
 
   .so-tour[hidden] {
@@ -889,7 +1095,6 @@
     height: 100%;
     overflow: hidden;
     background: var(--surface);
-    border-radius: var(--radius-xs);
   }
 
   .so-tour .secao-in {
@@ -906,8 +1111,10 @@
     clip: rect(0 0 0 0);
     white-space: nowrap;
   }
+}
 
-  /* ---------- Intro: "query carregando o quarto" (11.2, 12.8). Linha do tempo só em CSS (2,5 s). ---------- */
+/* ---------- Intro: "query carregando o quarto" (11.2, 13.10). Linha do tempo só em CSS (2,5 s); pausa enquanto a cena não está pronta. ---------- */
+@media screen and (min-width: 768px) and (min-aspect-ratio: 13/10) {
   html[data-intro] .intro {
     position: absolute;
     inset: 0;
@@ -920,18 +1127,6 @@
 
   .intro.saindo {
     opacity: 0;
-  }
-
-  /* A cena fica escurecida por uma película (a opacidade da <img> não muda: ela é o candidato a LCP) */
-  html[data-intro] .pelicula {
-    background: var(--pelicula-intro);
-    opacity: 1;
-    animation: intro-pelicula 2500ms linear both;
-  }
-
-  html[data-intro] .objeto {
-    visibility: hidden;
-    animation: intro-revela 1ms linear 2500ms forwards;
   }
 
   .intro-cartao {
@@ -967,6 +1162,7 @@
   }
 
   .intro-trilho {
+    position: relative;
     flex: 1;
     height: 8px;
     overflow: hidden;
@@ -981,6 +1177,27 @@
     background: var(--accent);
     transform-origin: left;
     animation: intro-enche 600ms linear 1200ms both;
+  }
+
+  /* Cena ainda não pronta no fim da execução: a barra segue indeterminada e a linha de resultado espera */
+  html[data-intro-espera] .intro,
+  html[data-intro-espera] .intro * {
+    animation-play-state: paused;
+  }
+
+  html[data-intro-espera] .intro-trilho::after {
+    animation-play-state: paused;
+  }
+
+  html[data-intro-espera] .intro-trilho::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 35%;
+    background: var(--accent);
+    border-radius: inherit;
+    animation: carregando-barra 1.1s var(--ease-std) infinite;
+    animation-play-state: running;
   }
 
   .intro-exec-txt { color: var(--text-muted); font-size: 13px; }
@@ -1011,8 +1228,6 @@
     from { visibility: visible; pointer-events: auto; }
     to { visibility: hidden; pointer-events: none; }
   }
-  @keyframes intro-revela { to { visibility: visible; } }
-  @keyframes intro-pelicula { 0%, 84% { opacity: 1; } 100% { opacity: 0; } }
   @keyframes intro-sai { to { opacity: 0; } }
   @keyframes intro-aparece { from { opacity: 0; } }
   @keyframes intro-enche { from { transform: scaleX(0); } }
@@ -1020,27 +1235,64 @@
     from { opacity: 0; clip-path: inset(0 100% 0 0); }
     to { opacity: 1; clip-path: inset(0); }
   }
+}
 
-  /* Calibração (só no dev, com ?calibrar=1): cliques, post-its e parede do nome sobre a imagem */
-  html[data-calibrar] .objeto {
-    background: rgb(255 0 200 / 0.18);
-    outline: 2px dashed #ff00c8;
+/* A entrada escalonada dos post-its (160 ms cada, 40 ms de intervalo, depois da chegada de 1200 ms) */
+@media screen and (min-width: 768px) and (min-aspect-ratio: 13/10) and (prefers-reduced-motion: no-preference) {
+  html[data-cena='pronta']:not([data-intro]) .objeto {
+    animation: postit-entra 160ms var(--ease-out) backwards;
+    animation-delay: calc(var(--dur-chegada) + var(--i, 0) * 200ms);
   }
 
-  html[data-calibrar] .parede {
-    outline: 2px dashed #00b8ff;
-    min-height: 3em;
+  @keyframes postit-entra {
+    from { opacity: 0; translate: 0 6px; }
   }
 
-  html[data-calibrar] .postit {
-    outline: 2px dashed #00aa44;
+  /* Próximo sugerido: balanço de ±1,5° em 1,6 s × 3 (≤ 5 s); estático em movimento reduzido */
+  .palco[data-estado='repouso'][data-passo='0'] .objeto[data-proximo] {
+    animation: postit-entra 160ms var(--ease-out) backwards, balanca 1.6s ease-in-out 1.6s 3;
+    animation-delay: calc(var(--dur-chegada) + var(--i, 0) * 200ms), calc(var(--dur-chegada) + 1.6s);
   }
+
+  @keyframes balanca {
+    0%, 100% { --balanco: 0deg; }
+    25% { --balanco: -1.5deg; }
+    75% { --balanco: 1.5deg; }
+  }
+}
+
+/* Calibração (só no dev, com ?calibrar=1): alvos de clique, focos, janelas e âncoras (desenhados pela própria cena) */
+html[data-calibrar='og'] .topo,
+html[data-calibrar='og'] .tour,
+html[data-calibrar='og'] .anotacoes,
+html[data-calibrar='og'] .objetos,
+html[data-calibrar='og'] .parede-bloco,
+html[data-calibrar='og'] .carregando,
+html[data-calibrar='og'] .intro {
+  display: none !important;
+}
+
+/* ?calibrar=og: a visão geral em 1200×630, sem HUD, para capturar o og.png */
+html[data-calibrar='og'] .palco {
+  position: fixed;
+  inset: 0 auto auto 0;
+  width: 1200px;
+  height: 630px;
+  margin: 0;
+}
+
+html[data-calibrar='1'] .objeto {
+  outline: 2px dashed #00aa44;
 }
 
 /* Movimento reduzido: o tour vira uma lista, sem snap nem animação de câmera (corte direto no JS) */
 @media screen and (prefers-reduced-motion: reduce) {
   html[data-modo='quarto'] {
     scroll-snap-type: none;
+  }
+
+  .objeto {
+    animation: none !important;
   }
 }
 

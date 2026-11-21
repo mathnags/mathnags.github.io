@@ -1,18 +1,15 @@
 ---
 /**
- * O quarto (design 12.1 a 12.4, 12.13): UMA imagem raster (dia/noite, recorte vertical no mobile) numa caixa 16:9 em "cover",
- * com a camada de <a class="objeto"> (área de clique + post-it) posicionados em % da imagem, o nome na parede, o post-it
- * "Fale comigo!", as anotações, a intro e o tour pela rolagem (cartões no fluxo). Abaixo de 768 px ou em retrato, a mesma
- * <picture> vira o herói recortado e os objetos viram a lista de nichos (um por capítulo). Tudo sai de src/config/quarto.ts
- * e de textos.<lang>.json; nada de texto ou coordenada fixa aqui. Visível só com data-modo="quarto".
+ * O quarto 3D (design 13). O palco leva um <canvas> decorativo (aria-hidden) onde a cena Three.js aparece depois do load; o texto é
+ * sempre HTML real: o nome na parede (bloco que vira um CSS3DObject), os post-its (<a class="objeto">, projetados de frente para a
+ * tela), as anotações, a intro, o tour pela rolagem (cartões no fluxo) e, no mobile sem 3D, os nichos só de texto. Tudo sai de
+ * src/config/quarto.ts e de textos.<lang>.json; nada de texto ou coordenada fixa aqui. Visível só com data-modo="quarto".
  */
 import Icone from '../ui/Icone.astro';
 import { objetosEmOrdem, quarto } from '../../config/quarto';
 import { numeroDoCapitulo } from '../../i18n/secoes';
 import { getTextos } from '../../lib/textos';
 import { getUi } from '../../lib/ui';
-import { comBase } from '../../lib/url';
-import lqip from '../../assets/lqip.json';
 import type { Idioma } from '../../i18n/idiomas';
 
 interface Props {
@@ -21,35 +18,6 @@ interface Props {
 const { lang } = Astro.props;
 const t = getTextos(lang);
 const ui = getUi(lang);
-const arq = (nome: string) => comBase(`img/quarto/${nome}`);
-
-/* ---- <picture> da cena: desktop (16:9) e herói (9:16) × dia/noite × AVIF/WebP ---- */
-const TELA_CHEIA = '(min-width: 768px) and (min-aspect-ratio: 13/10)';
-const TELA_RETRATO = ['(max-width: 767px)', '(max-aspect-ratio: 1299/1000)'];
-const mq = (tela: 'cheia' | 'retrato', escuro: boolean) => {
-  const e = escuro ? ' and (prefers-color-scheme: dark)' : '';
-  return tela === 'cheia' ? `${TELA_CHEIA}${e}` : TELA_RETRATO.map((q) => `${q}${e}`).join(', ');
-};
-const mqTela = (tela: 'cheia' | 'retrato') => (tela === 'cheia' ? TELA_CHEIA : TELA_RETRATO.join(', '));
-const larguras = { cheia: [1280, 1920, 2560], retrato: [480, 720, 1080] } as const;
-const sizes = { cheia: '(min-aspect-ratio: 16/9) 100vw, 178vh', retrato: 'max(100vw, 56.25vh)' };
-const fontes = (['cheia', 'retrato'] as const).flatMap((tela) =>
-  ([true, false] as const).flatMap((escuro) =>
-    (['avif', 'webp'] as const).map((tipo) => {
-      const base = `${tela === 'cheia' ? '' : 'heroi-'}${escuro ? 'noite' : 'dia'}`;
-      return {
-        tipo,
-        tela,
-        escuro,
-        media: escuro ? mq(tela, true) : mqTela(tela),
-        srcset: larguras[tela].map((l) => `${arq(`${base}-${l}.${tipo}`)} ${l}w`).join(', '),
-        sizes: sizes[tela],
-      };
-    }),
-  ),
-);
-// Ordem: desktop escuro, desktop claro, retrato escuro, retrato claro (o 1º que combina vence).
-const fontesOrdenadas = [...fontes].sort((a, b) => Number(a.tela === 'retrato') - Number(b.tela === 'retrato'));
 
 /* ---- Objetos, tour e nichos ---- */
 const itens = objetosEmOrdem.map((o) => ({
@@ -60,21 +28,6 @@ const itens = objetosEmOrdem.map((o) => ({
 }));
 const progresso = (n: string) => t.tour.progresso.replace('{n}', n);
 const [antes, depois] = t.parede.direcao.split('→').map((s) => s.trim());
-
-/* ---- Setas das anotações: curva quadrática + ponta aberta, em unidades de 100 × 56.25 ---- */
-const setas = quarto.anotacoes.map((a) => {
-  const k = 9 / 16;
-  const [x1, y1] = [a.seta.de[0], a.seta.de[1] * k];
-  const [x2, y2] = [a.seta.para[0], a.seta.para[1] * k];
-  const cx = (x1 + x2) / 2 - (y2 - y1) * a.seta.curva * 0.5;
-  const cy = (y1 + y2) / 2 + (x2 - x1) * a.seta.curva * 0.5;
-  const ang = Math.atan2(y2 - cy, x2 - cx);
-  const p = (d: number): [number, number] => [x2 - 1.6 * Math.cos(ang + d), y2 - 1.6 * Math.sin(ang + d)];
-  const [a1x, a1y] = p(0.5);
-  const [a2x, a2y] = p(-0.5);
-  const f = (n: number) => Math.round(n * 100) / 100;
-  return { id: a.id, d: `M${f(x1)} ${f(y1)}Q${f(cx)} ${f(cy)} ${f(x2)} ${f(y2)}M${f(a1x)} ${f(a1y)}L${f(x2)} ${f(y2)}L${f(a2x)} ${f(a2y)}` };
-});
 
 const PALAVRAS_SQL = /\b(SELECT|FROM|WHERE|AND|BETWEEN|ORDER BY)\b/g;
 const trechosSql = (linha: string) => {
@@ -88,82 +41,82 @@ const trechosSql = (linha: string) => {
   if (fim < linha.length) partes.push({ txt: linha.slice(fim), kw: false });
   return partes;
 };
-const pc = quarto.postitContato;
-const pn = quarto.paredeNome;
+const [anotComece, anotRole] = quarto.anotacoes;
 ---
 
 <nav id="quarto" aria-label={t.quarto.titulo} data-passo="0">
+  <p class="sr-only">{t.quarto.cenaDescricao}</p>
   <p class="sr-only">{t.quarto.ajuda}</p>
 
-  <div class="palco" data-estado="repouso" data-passo="0" style={`--lqip-dia:url(${lqip.dia});--lqip-noite:url(${lqip.noite});--lqip-heroi-dia:url(${lqip['heroi-dia']});--lqip-heroi-noite:url(${lqip['heroi-noite']})`}>
-    <div class="caixa">
-      <picture>
-        {
-          fontesOrdenadas.map((f) => (
-            <source type={`image/${f.tipo}`} media={f.media} srcset={f.srcset} sizes={f.sizes} data-tema={f.escuro ? 'dark' : 'light'} data-mq={mqTela(f.tela)} />
-          ))
-        }
-        <img src={arq('dia-1920.webp')} width={quarto.imagem.l} height={quarto.imagem.a} alt={t.quarto.imagemAlt} fetchpriority="high" decoding="async" />
-      </picture>
+  <div class="palco" data-estado="repouso" data-passo="0">
+    <!-- Mobile sem 3D: a assinatura (a carreira que dobra em 2026 rumo a IA) em grande atrás do nome. -->
+    <svg class="heroi-linha" viewBox="0 0 200 80" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+      <path d="M8 62H64L94 62" fill="none" stroke="var(--text-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"></path>
+      <path d="M94 62L126 22H192" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+      <circle cx="192" cy="22" r="5" fill="none" stroke="var(--pine)" stroke-width="2"></circle>
+    </svg>
+    <canvas class="cena" aria-hidden="true"></canvas>
 
-      <div class="parede-bloco" style={`--nx:${pn.x};--ny:${pn.y};--nl:${pn.l};--cx:${pc.x};--cy:${pc.y};--crot:${pc.rot}deg`}>
-        <p class="parede" aria-hidden="true">
-          <span class="parede-nome">{t.hero.nome}</span>
-          <span class="parede-dir">{antes}{' '}<Icone nome="seta" tamanho={18} />{' '}{depois}</span>
-        </p>
-        <a class="postit-contato" href={t.contato.linkedinUrl}>
-          <span class="pc-titulo">{t.postit.contato.titulo}</span>
-          <span class="pc-cta">{t.postit.contato.cta}<Icone nome="externo" tamanho={12} /><span class="sr-only">{ui.linkExterno}</span></span>
-        </a>
-        <a class="explorar" href="#nichos">{t.quarto.explorarAbaixo}<Icone nome="seta" tamanho={16} class="seta-baixo" /></a>
-      </div>
-
-      <ol class="objetos">
-        {
-          itens.map(({ o, txt, num }) => (
-            <li>
-              <a
-                class="objeto"
-                href={`#${o.destino}`}
-                data-objeto={o.id}
-                data-cap={o.capitulo}
-                style={`--x:${o.clique.x};--y:${o.clique.y};--w:${o.clique.l};--h:${o.clique.a};--px:${o.postit.x - o.clique.x};--py:${o.postit.y - o.clique.y};--rot:${o.postit.rot}deg`}
-              >
-                <span class="postit">
-                  <span class="p-num">{num}</span>
-                  <span class="sr-only"> · {txt.tema}, </span>
-                  <span class="p-nome">{txt.comum}</span>
-                  <Icone nome="check" tamanho={14} class="p-check" />
-                  <span class="sr-only estado" data-lido={t.quarto.estado.lido} data-proximo={t.quarto.estado.proximo}></span>
-                </span>
-              </a>
-            </li>
-          ))
-        }
-      </ol>
-
-      <div class="anotacoes" aria-hidden="true">
-        <svg class="setas" viewBox="0 0 100 56.25" focusable="false">
-          {
-            setas.map((s, i) => (
-              <>
-                <path class="seta-halo" d={s.d} pathLength="1" data-seta={i}></path>
-                <path class="seta-traco" d={s.d} pathLength="1" data-seta={i}></path>
-              </>
-            ))
-          }
-        </svg>
-        {
-          quarto.anotacoes.map((a) => (
-            <p class="anot" style={`--ax:${a.x};--ay:${a.y};--arot:${a.rot}deg;--amax:${a.larguraMax}`} data-anot={a.id}>
-              {t.anotacoes[a.id]}
-            </p>
-          ))
-        }
-      </div>
+    <div class="parede-bloco">
+      <p class="parede" aria-hidden="true">
+        <span class="parede-nome">{t.hero.nome}</span>
+        <span class="parede-dir">{antes}{' '}<Icone nome="seta" tamanho={18} />{' '}{depois}</span>
+      </p>
+      <a class="postit-contato" href={t.contato.linkedinUrl}>
+        <span class="pc-titulo">{t.postit.contato.titulo}</span>
+        <span class="pc-cta">{t.postit.contato.cta}<Icone nome="externo" tamanho={12} /><span class="sr-only">{ui.linkExterno}</span></span>
+      </a>
+      <a class="explorar" href="#nichos">{t.quarto.explorarAbaixo}<Icone nome="seta" tamanho={16} class="seta-baixo" /></a>
     </div>
 
-    <div class="pelicula" aria-hidden="true"></div>
+    <ol class="objetos">
+      {
+        itens.map(({ o, txt, num }, i) => (
+          <li>
+            <a class="objeto" href={`#${o.destino}`} data-objeto={o.id} data-cap={o.capitulo} style={`--i:${i};--rot:${o.postit.rot}deg`}>
+              <span class="p-num">{num}</span>
+              <span class="sr-only"> · {txt.tema}, </span>
+              <span class="p-nome">{txt.comum}</span>
+              <span class="p-tema" aria-hidden="true">{txt.tema}</span>
+              <Icone nome="check" tamanho={14} class="p-check" />
+              <span class="sr-only estado" data-lido={t.quarto.estado.lido} data-proximo={t.quarto.estado.proximo}></span>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="anotacoes" aria-hidden="true">
+      <svg class="setas" focusable="false">
+        <path class="seta-halo" pathLength="1" data-seta="0"></path>
+        <path class="seta-traco" pathLength="1" data-seta="0"></path>
+        <path class="seta-halo" pathLength="1" data-seta="1"></path>
+        <path class="seta-traco" pathLength="1" data-seta="1"></path>
+      </svg>
+      <p class="anot" data-anot="comece" style={`--arot:${anotComece.rot}deg;--amax:${anotComece.larguraMax}px`}>{t.anotacoes.comece}</p>
+      <p
+        class="anot"
+        data-anot="role"
+        style={`--ax:${anotRole.id === 'role' ? anotRole.tela.x : '50%'};--abase:${anotRole.id === 'role' ? anotRole.tela.base : 96}px;--arot:${anotRole.rot}deg;--amax:${anotRole.larguraMax}px`}
+      >
+        {t.anotacoes.role}
+      </p>
+    </div>
+
+    <!-- Enquanto a cena carrega (visitas seguintes à intro): pílula de status com barra indeterminada. -->
+    <div class="carregando" role="status" data-texto={t.quarto.carregando}>
+      <span class="carregando-txt"></span>
+      <span class="carregando-barra" aria-hidden="true"></span>
+    </div>
+
+    <!-- Falha ao carregar a cena: não há troca automática de modo, para evitar salto de layout e surpresa. -->
+    <div class="erro-cena papel" hidden>
+      <p>{t.quarto.erroCena}</p>
+      <div class="erro-cena-acoes">
+        <button class="cta cta-primario" type="button" data-cena-tentar>{t.quarto.tentarDeNovo}</button>
+        <button class="cta" type="button" data-cena-recrutador>{t.topo.modoRecrutador}</button>
+      </div>
+    </div>
 
     <div class="intro" data-intro-overlay>
       <div class="intro-cartao">
@@ -223,22 +176,6 @@ const pn = quarto.paredeNome;
       itens.map(({ o, txt, num, resumo }) => (
         <li>
           <a class="nicho" href={`#${o.destino}`} data-objeto={o.id} data-cap={o.capitulo}>
-            <picture>
-              {
-                ([true, false] as const).flatMap((escuro) =>
-                  (['avif', 'webp'] as const).map((tipo) => (
-                    <source
-                      type={`image/${tipo}`}
-                      media={escuro ? '(prefers-color-scheme: dark)' : undefined}
-                      srcset={[480, 720].map((l) => `${arq(`obj-${o.id}-${escuro ? 'noite' : 'dia'}-${l}.${tipo}`)} ${l}w`).join(', ')}
-                      sizes="(min-width: 560px) 520px, 100vw"
-                      data-tema={escuro ? 'dark' : 'light'}
-                    />
-                  )),
-                )
-              }
-              <img src={arq(`obj-${o.id}-dia-480.webp`)} width="480" height="360" alt="" loading="lazy" decoding="async" />
-            </picture>
             <span class="postit">
               <span class="p-num">{num}</span>
               <span class="sr-only"> · {txt.tema}, </span>

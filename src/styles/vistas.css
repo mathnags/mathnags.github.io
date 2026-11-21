@@ -25,7 +25,7 @@
 
   #vista[data-fase='trocando'] .vista-moldura { visibility: hidden; }
 
-  /* O escurecimento atrás da vista é a película do palco (12.5): o backdrop é transparente. */
+  /* Sem película (13.1): o objeto fica iluminado e destacado ao lado do painel; o backdrop é transparente. */
   #vista::backdrop { background: transparent; }
 
   .vista-quadro {
@@ -131,8 +131,8 @@
   #vista .secao { padding: 0; }
   #vista .secao-in { max-width: none; padding: var(--space-5); }
 
-  /* tela (monitor): bisel de 12 px desenhado em CSS; o SO ocupa a tela inteira do monitor (12.13.1) */
-  #vista[data-vista='tela'] .vista-moldura { padding: 12px; background: var(--room-metal); }
+  /* tela (monitor): o SO cobre exatamente a tela 3D; o bisel é a carcaça 3D, nada de bisel em CSS (13.8.4) */
+  #vista[data-vista='tela'] .vista-moldura { padding: 0; border-radius: var(--radius-xs); }
   #vista[data-vista='tela'] .vista-miolo { display: flex; overflow: hidden; background: var(--surface); border-radius: var(--radius-xs); }
   #vista[data-vista='tela'] .secao { flex: 1; min-width: 0; }
   #vista[data-vista='tela'] .secao-in { height: 100%; padding: 0; }
@@ -349,8 +349,8 @@
   #vista[data-vista='carta'] .secao-in { padding-top: 40px; }
   #vista[data-vista='carta'] .carta { border: 0; box-shadow: none; max-width: none; }
 
-  /* ---------- Mobile: tela cheia (design 4.4) ---------- */
-  @media (max-width: 767px) {
+  /* ---------- Mobile e retrato (13.9): folha inferior de 70svh com a cena 3D nos 30% de cima ---------- */
+  @media (max-width: 767px), (max-aspect-ratio: 1299/1000) {
     .vista-quadro {
       left: 0;
       top: 0;
@@ -402,6 +402,21 @@
     #vista .secao-in { padding: var(--space-4); }
     #vista[data-vista='caderno'] .secao-in { padding-left: 52px; }
     #vista .atalhos { display: flex; }
+
+    /* Com a cena pronta: a vista vira uma folha na base (70svh); os 30% de cima mostram o objeto enquadrado. */
+    #vista[data-folha='baixo'] .vista-quadro {
+      inset: auto 0 0;
+      top: auto;
+      height: 70svh;
+      background: var(--surface);
+      border-radius: var(--radius-md) var(--radius-md) 0 0;
+      box-shadow: var(--shadow-panel);
+      overflow: hidden;
+    }
+
+    /* A barra fica estática no topo da folha; a navegação, ancorada na base da folha (o .vista-quadro é o bloco de contenção). */
+    #vista[data-folha='baixo'] .vista-barra { position: static; border-radius: var(--radius-md) var(--radius-md) 0 0; }
+    #vista[data-folha='baixo'] .vista-nav { position: absolute; }
   }
 }
 

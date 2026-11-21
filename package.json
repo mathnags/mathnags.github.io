@@ -13,16 +13,17 @@
     "check": "astro check",
     "lint": "astro check && eslint .",
     "test": "vitest run",
-    "verify": "npm run lint && npm run test && npm run build && node scripts/medir-imagens.mjs",
-    "imagens": "node scripts/gerar-imagens.mjs"
+    "verify": "npm run lint && npm run test && npm run build && node scripts/medir-cena.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.5",
-    "astro": "^7.4.12"
+    "astro": "^7.4.12",
+    "three": "^0.187.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
     "@types/node": "^26.6.6",
+    "@types/three": "^0.187.0",
     "eslint": "^10.15.0",
     "eslint-plugin-astro": "^3.2.1",
     "sharp": "^0.35.5",

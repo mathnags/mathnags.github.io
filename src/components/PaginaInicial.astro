@@ -21,7 +21,6 @@ import Vista from './quarto/Vista.astro';
 import { configCliente } from '../config/quarto';
 import { getTextos } from '../lib/textos';
 import { ID_CONFIG_QUARTO } from '../i18n/secoes';
-import { comBase } from '../lib/url';
 import type { Idioma } from '../i18n/idiomas';
 import '../styles/layout.css';
 import '../styles/quarto.css';
@@ -33,30 +32,9 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = getTextos(lang);
-// Preload da imagem da cena (design 12.2): AVIF, na variante que o aparelho vai usar (tela cheia ou herói, dia ou noite).
-const preloads = [
-  { media: '(min-width: 768px) and (min-aspect-ratio: 13/10) and (prefers-color-scheme: light)', base: 'dia', l: [1280, 1920, 2560], sizes: '(min-aspect-ratio: 16/9) 100vw, 178vh' },
-  { media: '(min-width: 768px) and (min-aspect-ratio: 13/10) and (prefers-color-scheme: dark)', base: 'noite', l: [1280, 1920, 2560], sizes: '(min-aspect-ratio: 16/9) 100vw, 178vh' },
-  { media: '(max-width: 767px) and (prefers-color-scheme: light), (max-aspect-ratio: 1299/1000) and (prefers-color-scheme: light)', base: 'heroi-dia', l: [480, 720, 1080], sizes: 'max(100vw, 56.25vh)' },
-  { media: '(max-width: 767px) and (prefers-color-scheme: dark), (max-aspect-ratio: 1299/1000) and (prefers-color-scheme: dark)', base: 'heroi-noite', l: [480, 720, 1080], sizes: 'max(100vw, 56.25vh)' },
-];
 ---
 
 <BaseLayout lang={lang}>
-  {
-    preloads.map((p) => (
-      <link
-        slot="head"
-        rel="preload"
-        as="image"
-        type="image/avif"
-        media={p.media}
-        imagesrcset={p.l.map((l) => `${comBase(`img/quarto/${p.base}-${l}.avif`)} ${l}w`).join(', ')}
-        imagesizes={p.sizes}
-        fetchpriority="high"
-      />
-    ))
-  }
   <Topo lang={lang} />
   <main id="conteudo" tabindex="-1">
     <div class="nome-bloco"><h1 id="nome">{t.hero.nome}</h1></div>
@@ -73,7 +51,7 @@ const preloads = [
   </main>
   <Rodape lang={lang} />
   <Vista lang={lang} />
-  <p id="status-modo" class="sr-only" role="status" data-recrutador={t.status.modoAtivado.recrutador} data-quarto={t.status.modoAtivado.quarto}></p>
+  <p id="status-modo" class="sr-only" role="status" data-recrutador={t.status.modoAtivado.recrutador} data-quarto={t.status.modoAtivado.quarto} data-sem-webgl={t.quarto.semWebgl}></p>
   <script is:inline type="application/json" id={ID_CONFIG_QUARTO} set:html={JSON.stringify(configCliente())} />
   <script>
     import '../scripts/quarto';

@@ -1,11 +1,11 @@
 /**
- * Tipos e listas fechadas do quarto (docs/design.md 12.6 e 12.13.7).
+ * Tipos e listas fechadas do quarto 3D (docs/design.md 13.12).
  * Módulo puro: usado pela config, pela validação, pelos schemas de texto e pelos testes.
- * Todas as posições são em % da imagem mestre 16:9 (0 a 100).
+ * Todas as posições são em METROS no espaço da cena (eixo y para cima, origem no canto interno do piso).
  */
 
-/** Retângulo em % da imagem. l = largura, a = altura. */
-export type Rect = { x: number; y: number; l: number; a: number };
+export type V3 = [number, number, number];
+export type Caixa = { min: V3; max: V3 };
 
 export const TIPOS_VISTA_DENTRO = ['tela', 'cortica', 'estante'] as const;
 export const TIPOS_VISTA_PAINEL = ['porta-retrato', 'caderno', 'caixa', 'tecido', 'carta'] as const;
@@ -17,8 +17,8 @@ export type IdObjeto = (typeof IDS_OBJETOS)[number];
 
 export type Capitulo = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
-/** Câmera: centro (cx, cy) em % da imagem e escala. A translação é limitada às bordas da imagem. */
-export type Camera = { cx: number; cy: number; escala: number };
+/** Ponto do post-it que fica sobre a âncora 3D. */
+export type Pivo = 'topo-esq' | 'topo-centro' | 'topo-dir' | 'esq-centro' | 'dir-centro' | 'base-centro';
 
 export interface ObjetoQuarto {
   id: IdObjeto;
@@ -27,41 +27,29 @@ export interface ObjetoQuarto {
   destino: string;
   /** Seções movidas para a vista; o porta-retrato abre ['ficha', 'sobre']. */
   secoes: string[];
-  /** Área clicável sobre o objeto. */
-  clique: Rect;
-  /** Post-it colado no objeto: centro (x, y) em % e rotação em graus. É o rótulo visível do link. */
-  postit: { x: number; y: number; rot: number };
-  vista: {
-    tipo: TipoVista;
-    camera: Camera;
-    /** Moldura do HTML; obrigatória nas vistas "dentro" (tela, cortica, estante). */
-    janela?: Rect;
-    /** Lado do painel estilizado (padrão: 'direita'). */
-    lado?: 'esquerda' | 'direita';
-  };
-  /** Passo do tour pela rolagem: câmera e lado do cartão (oposto ao objeto). */
-  tour: { camera: Camera; lado: 'esquerda' | 'direita' };
+  /** AABB em metros (alvo de clique, contorno e enquadramento). */
+  caixa: Caixa;
+  /** Câmera do objeto: alvo (lookAt), azimute a partir de +z (positivo para +x) e elevação, em graus. A distância é calculada. */
+  foco: { alvo: V3; az: number; el: number; margem?: number };
+  /** Só nas vistas "dentro" (01, 03, 06): retângulo plano (em z) que a moldura HTML cobre. */
+  janela?: Caixa;
+  /** Moldura alvo da vista "dentro" (em vw, px, dvh). */
+  preencher?: { lVw: number; lMax: number; aVh: number; aMenos: number; aMax: number };
+  vista: { tipo: TipoVista; lado?: 'esquerda' | 'direita' };
+  /** Passo do tour pela rolagem: lado do cartão (o objeto fica no lado oposto). */
+  tour: { lado: 'esquerda' | 'direita' };
+  /** Post-it: âncora 3D (m), pivô e rotação em graus. É o rótulo visível do link. */
+  postit: { ancora: V3; pivo: Pivo; rot: number };
 }
 
-export interface AnotacaoQuarto {
-  id: 'comece' | 'role';
-  /** Âncora do texto em % e rotação. */
-  x: number;
-  y: number;
-  rot: number;
-  larguraMax: number;
-  /** Seta à mão livre em %: de, para e curvatura (0 = reta). */
-  seta: { de: [number, number]; para: [number, number]; curva: number };
-  ate: 'primeira-interacao';
-}
+export type AnotacaoQuarto =
+  | { id: 'comece'; relativoA: IdObjeto; dx: number; dy: number; rot: number; larguraMax: number }
+  | { id: 'role'; tela: { x: string; base: number }; rot: number; larguraMax: number };
 
 export interface ConfigQuarto {
-  imagem: { l: number; a: number };
-  /** Faixas reservadas aos HUDs: nenhum clique nem post-it entra nelas. */
-  areasReservadas: { nome: string; area: Rect }[];
-  /** Parede lisa reservada ao nome (HTML sobre a imagem) e âncora do post-it "Fale comigo!". */
-  paredeNome: Rect;
-  postitContato: { x: number; y: number; rot: number };
+  limites: Caixa;
+  geral: { alvo: V3; az: number; el: number; margem: number; fov: number };
+  paredeNome: { ancora: V3; pxPorMetro: number };
   objetos: ObjetoQuarto[];
   anotacoes: AnotacaoQuarto[];
 }

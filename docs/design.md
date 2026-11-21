@@ -21,6 +21,7 @@ Esta versão **substitui** o "caderno de campo" e a "Trilha do Vértice". Os tex
 | **Referência externa** (`docs/referencias/raomuhammadhamza.md`), usada como inspiração e não como cópia: marcadores flutuantes, intro temática, menu numerado em pílula com o nome grande sobre a cena, e 2D com profundidade | **11** (revisão 5) e ajustes em 4.1, 4.2, 5.3 e 9 |
 | **Revisão 6:** quarto em tela cheia com HUD translúcido; arte em **imagem raster** com áreas clicáveis em HTML; **só 8 objetos clicáveis**; o resumo passa para o porta-retrato | **12**, que **prevalece** sobre as seções 4.1–4.3, 6, 9.1 (desenho SVG), 9.2 (unidades), 9.4, 11.1, 11.3, 11.4 e 11.5 onde houver conflito. Prompt da imagem em `docs/prompt-imagem-quarto.md` |
 | **Revisão 6b/6c** (2ª e 3ª referências): monitor como "SO", tour guiado pela rolagem que termina no monitor, nome na parede, post-its como menu, anotações à mão, interruptor dia/noite e cena mais densa | **12.13**, que prevalece sobre 11.1, 11.4, 12.1 (HUD), 12.6 e 12.8 |
+| **Revisão 7:** quarto **3D real em Three.js**, modelado em código (low-poly com cantos arredondados), voo de câmera que enquadra o objeto inteiro, luz do sol de dia e luminária à noite; sai a arte raster | **13**, que prevalece sobre 12.2–12.6, 12.9, 12.13.7, 12.13.8 e as tarefas 1, 6, 7, 8 e 11 de 12.11 |
 
 A metáfora é a **embalagem**, não o conteúdo. Se um objeto exigir um fato que não está em `perfil.json`, o objeto sai. O Vértice nunca aparece como "concluído", "em produção", "no ar" ou "com usuários".
 
@@ -1656,3 +1657,484 @@ Os valores são o alvo do prompt e serão **calibrados** quando a imagem chegar 
     - reduced motion (cortes + lista);
     - nenhuma diferença de LCP e CLS no passo 0;
     - contraste do nome e das anotações medido sobre a área mais clara e a mais escura da parede, nos dois temas.
+
+---
+
+## 13. Revisão 7: quarto 3D (Three.js, modelado em código)
+
+Feedback do Matheus: quer "mais 3D, conforme as referências"; a resolução da imagem não está boa; os zooms são sem graça e não enquadram o objeto inteiro. **Esta seção prevalece** sobre 12.2, 12.3, 12.4, 12.5, 12.6, 12.9, 12.13.7, 12.13.8 e as tarefas 1, 6, 7, 8 e 11 de 12.11 onde houver conflito.
+
+**Continua valendo:** os 8 capítulos, objetos, destinos e `secoes` (12.6/`src/config/quarto.ts`); modo recrutador (1º focável, sem JS, SEO, `?modo=recrutador`); `<dialog>` com `#id`, Esc e voltar do navegador (5.6); SO no monitor com Esc em dois níveis (12.13.1); tour pela rolagem com cartões no fluxo, *snap* `proximity`, trilho, "Sair do tour" e "Ir para o monitor" (12.13.2); post-its como links e seus estados (12.13.4); anotações (12.13.5); interruptor (12.13.6); HUD só de controles (12.13.0); intro SQL (11.2, agora também como tela de carregamento, 13.10); tokens de interface e contraste (2, 3); acenos de fã e proibições (9.1 e `content/fonte/hobbies.md`).
+
+**Regra das referências (inalterada):** inspirar-se, não copiar. Do mbilalkhan vem a ideia de quarto 3D com luz de sol, nome na parede e tour pela rolagem; do stubborn-room, o SO e as anotações; do raomuhammadhamza, o 3D em Three.js e os rótulos sobre os objetos. **Não** entram: paleta lilás, sofá, computador retrô, mascote, robô, rosa-neon, composição ou textos de qualquer um deles.
+
+### 13.0 Conceito
+
+**"A maquete do quarto."** O quarto vira uma **maquete low-poly** que flutua sobre o fundo da página: piso e duas paredes cortados como um modelo de arquitetura, com objetos de cantos arredondados nas cores chapadas da paleta. De dia, o sol entra pela janela e desenha um feixe e uma mancha de luz no tapete; à noite, a luminária da mesa, o monitor e o varal de luzinhas são as únicas fontes. **A câmera é a narradora:** ela voa em arco até cada objeto, enquadra o objeto inteiro com folga e abre o capítulo ao lado dele, ou dentro dele (monitor, mural e estante).
+
+### 13.1 O que sai e o que entra
+
+| Sai | Entra |
+|---|---|
+| Imagem raster dia/noite, `<picture>`, `srcset`, *preload* da imagem, LQIP, recortes do herói e dos nichos | Cena WebGL (`<canvas>`) construída em código, sem nenhum arquivo de imagem |
+| `scripts/gerar-imagens.mjs`, `scripts/medir-imagens.mjs`, `npm run imagens`, `public/img/quarto/**`, `src/config/recortes.json`, `src/assets/lqip.json` | `scripts/medir-cena.mjs` (orçamento de JS, 13.10) |
+| Câmera por `transform` na caixa 16:9 (`src/scripts/camera.ts`) e limite de escala 2×/3× | Câmera perspectiva com voo em arco e enquadramento calculado (13.5) |
+| Áreas de clique em % (`clique`), `janela` em %, `vista.camera` e `tour.camera` em % | Caixas e âncoras em **metros** no espaço da cena (13.12) |
+| Película escura atrás das vistas | Objeto iluminado e destacado ao lado do painel (sem película) |
+| Fallback de noite por `filter` | Iluminação real de noite (13.7) |
+| Herói recortado e nichos com recortes no mobile | Mobile em duas camadas: HTML leve por padrão + "Entrar no quarto em 3D" (13.9) |
+
+- **Arte do Matheus** (`content/fonte/arte/*`): **não é usada** no site (os direitos da ferramenta não estão claros, e ela não corresponde à cena 3D). Fica só local e privada, como hoje.
+- **`docs/prompt-imagem-quarto.md`:** vira histórico. Acrescente no topo: "Obsoleto desde a revisão 7 (design 13)".
+- **`public/og.png`:** continua o atual. Depois que o Matheus aprovar o visual 3D, ele pode ser trocado por uma captura da visão geral (13.14, tarefa 37).
+
+### 13.2 Sistema de coordenadas e casca da maquete
+
+- **Unidades: metros.** Eixo `y` para cima. Origem no canto interno do piso entre a parede do fundo e a parede esquerda. `x` cresce para a direita (ao longo da parede do fundo), e `z` cresce para a frente (na direção do visitante).
+- **Quarto:** `x` 0–5,6 · `z` 0–3,6 · pé-direito 2,8. Paredes com 0,12 de espessura, para fora (`x` < 0 e `z` < 0). **Não há** teto, parede direita nem parede da frente (corte de maquete).
+- **Abreviações das primitivas:** `RB(l, a, p, r)` = `RoundedBoxGeometry(l, a, p, 2, r)` (addon); `Box(l, a, p)`; `Cyl(rTopo, rBase, a, seg)`; `Ico(r, det)` = `IcosahedronGeometry`; `Tor(r, tubo, segR, segT, arco)`; `Cone(r, a, seg)`; `Plane(l, a)`; `Ext(forma, prof)` = `ExtrudeGeometry` sem bisel; `Tube(curva, seg, r)`. Medidas sempre em metros e na ordem **largura (x) × altura (y) × profundidade (z)**, depois de aplicada a rotação indicada.
+- **Cores:** paleta de 2.1. A cena usa **sempre os valores de dia como cor do material** (albedo), nos dois temas. A noite vem da luz (13.7), e só os materiais emissivos trocam de cor. Os valores ficam em `src/cena/paleta.ts`, copiados desta tabela: `--room-wall #EFE9DC`, `--room-wall-shade #E2DACA`, `--room-floor #C9B79A`, `--room-wood #A9774E`, `--room-wood-dark #7C5536`, `--room-metal #2B2F38`, `--room-cork #C89B63`, `--room-paper #FFFDF7`, `--room-fabric #6F8F86`, `--surface-2 #ECE8DD`, `--fan-red #C8352E`, `--fan-blue #2D4F8E`, `--fan-coral #FF5F57`, `--fan-herb-green #4F8A3C`, `--fan-herb-red #C2413A`. Os emissivos estão em 13.7.
+
+| Peça da casca | Primitiva e posição | Cor |
+|---|---|---|
+| Laje do piso | `Box(5.72, 0.12, 3.72)`, centro (2.74, −0.06, 1.74) | `--room-wood-dark` (só as laterais aparecem) |
+| Superfície do piso | `Box(5.6, 0.004, 3.6)`, centro (2.8, 0.002, 1.8) | `--room-floor` |
+| Parede do fundo | `Box(5.72, 2.8, 0.12)`, centro (2.74, 1.4, −0.06) | `--room-wall` |
+| Parede esquerda (com vão da janela) | 4 `Box` de 0,12 de espessura em `x` −0,12–0, cobrindo `z` 0–3,6 e `y` 0–2,8 **menos o vão** `z` 1,35–2,45 × `y` 1,00–2,10 | `--room-wall` |
+| Tampas do corte | `Box` de 0,03 de altura no topo das duas paredes (`y` 2,80–2,83) e `Box(0.12, 2.8, 0.03)` na borda frontal da parede esquerda (`z` 3,6) | `--room-wall-shade` |
+| Rodapé | `Box` de 0,08 de altura e 0,015 de profundidade ao longo das duas paredes; interrompido na porta (`x` 4,615–5,615) | `--room-wall-shade` |
+| Palco (CSS, fora do WebGL) | O `<canvas>` é transparente (`alpha: true`). Atrás dele, `.palco` tem `background: radial-gradient(ellipse 70% 55% at 50% 62%, var(--surface-2), var(--bg))` | tokens de interface (mudam com o tema) |
+
+### 13.3 Decoração (não clicável)
+
+Tudo é **estático** e é **fundido por material** (`mergeGeometries`) depois de posicionado, para economizar *draw calls*.
+
+| Objeto | Primitivas (posição = centro) | Cor |
+|---|---|---|
+| **Janela** (parede esquerda) | Batente: 4 `Box` de seção 0,05 × 0,12 ao redor do vão. Travessa vertical `Box(0.12, 1.10, 0.03)` em `z` 1,90. Peitoril `Box(0.18, 0.03, 1.24)` em (0.03, 0.985, 1.90) | `--room-paper` |
+| Céu e cidade | `Plane(3.2, 2.4)` virado para +x em (−0.9, 1.6, 1.9). `MeshBasicMaterial`, `toneMapped: false`, `CanvasTexture` 512×384 (13.8.5) | dia/noite (13.7) |
+| Cortina | `PlaneGeometry(0.28, 1.5, 8, 1)` com os vértices deslocados em `x` por `0.03·sin(u·3π)`, em `x` 0,06, `z` 1,08–1,36, `y` 0,75–2,25, `DoubleSide`; varão `Cyl(0.012, 0.012, 1.6, 8)` ao longo de `z` em `y` 2,25 | `--room-fabric`; varão `--room-metal` |
+| **Pôster** (aceno ao Homem-Aranha: vermelho e azul com teia geométrica **original**) | `RB(0.01, 0.82, 0.60, 0.004)` na parede esquerda, centro (0.006, 1.58, 3.05), virado para +x; `CanvasTexture` 256×352 (13.8.5) | `--fan-red` / `--fan-blue` |
+| Prateleira de estojos (aceno aos games) | Tábua `Box(0.22, 0.025, 0.60)` em (0.11, 1.55, 0.55) e 2 mãos-francesas `Box(0.02, 0.10, 0.02)`. Sobre ela, 5 estojos `Box(0.135, 0.19, 0.014)` em pé, lado a lado de `z` 0,30 a 0,40, com a lombada virada para +x | tábua `--room-wood`; mãos `--room-metal`; estojos alternando `--room-paper` e `--room-metal`; lombadas com textura (13.8.5) |
+| **Mesa** | Tampo `RB(2.0, 0.04, 0.76, 0.012)` em (1.25, 0.74, 0.42) (`x` 0,25–2,25, `z` 0,04–0,80). Pés da esquerda: 2 `Box(0.04, 0.72, 0.04)` em (0.29, 0.36, 0.10) e (0.29, 0.36, 0.74) | tampo `--room-wood`; pés `--room-metal` |
+| Gaveteiro | `RB(0.40, 0.70, 0.62, 0.01)` em (2.02, 0.35, 0.40); 2 frisos `Box(0.36, 0.004, 0.005)` em `y` 0,36 na frente (`z` 0,712); 2 puxadores `Box(0.10, 0.015, 0.015)` em `y` 0,55 e 0,20 | `--room-wood`; frisos `--room-wood-dark`; puxadores `--room-metal` |
+| Teclado | `RB(0.46, 0.022, 0.15, 0.006)` em (0.95, 0.771, 0.58) | `--surface-2` |
+| Mousepad e mouse | Mousepad `Box(0.32, 0.004, 0.24)` em (1.46, 0.762, 0.56); mouse `SphereGeometry(0.03, 10, 8)` escalado (1, 0.5, 1.5) em (1.48, 0.775, 0.56) | `--fan-coral`; mouse `--room-metal` |
+| Caneca | `Cyl(0.04, 0.04, 0.09, 12)` em (1.50, 0.805, 0.24) + alça `Tor(0.025, 0.007, 6, 12, π)` | `--room-paper` |
+| Headset no suporte | Base `Cyl(0.06, 0.06, 0.012, 12)` e haste `Cyl(0.008, 0.008, 0.26, 6)` em (2.08, 0.76…1.02, 0.22); arco `Tor(0.085, 0.012, 6, 16, π)` no topo; 2 conchas `Cyl(0.04, 0.04, 0.03, 12)` deitadas, em x 2,08 ± 0,085, `y` 0,97 | `--room-metal` (genérico, sem marca) |
+| **Luminária** (fonte de luz da noite) | Base `Cyl(0.07, 0.07, 0.02, 16)` em (0.42, 0.77, 0.24); braço inferior `Cyl(0.012…)` de (0.42, 0.78, 0.24) a (0.40, 1.10, 0.26); braço superior de (0.40, 1.10, 0.26) a (0.58, 1.18, 0.42); cúpula `Cone(0.075, 0.12, 12)` aberta, em (0.60, 1.14, 0.44), apontando para (1.15, 0.76, 0.52); lâmpada `SphereGeometry(0.025, 8, 6)` dentro da cúpula | `--room-metal`; lâmpada emissiva (13.7) |
+| **Cadeira** | Assento `RB(0.46, 0.07, 0.44, 0.02)` em `y` 0,46; encosto `RB(0.44, 0.48, 0.06, 0.02)` em `y` 0,51–0,99, no lado +z do assento; pistão `Cyl(0.025, 0.025, 0.36, 8)`; estrela com 5 `Box(0.28, 0.025, 0.04)` a cada 72°; 5 rodízios `SphereGeometry(0.022, 6, 4)`. Grupo em (1.05, 0, 1.30), `rotation.y = −0.35` | `--room-metal` |
+| Tapete | `RB(2.0, 0.012, 1.3, 0.004)` em (1.75, 0.006, 1.65) + miolo `Box(1.8, 0.013, 1.1)` em (1.75, 0.0065, 1.65) | borda `--room-fabric`; miolo `--room-wall-shade` |
+| Mesinha | Tampo `RB(0.70, 0.03, 0.45, 0.01)` em (2.85, 0.515, 0.305) (`x` 2,50–3,20, `z` 0,08–0,53); 4 pés `Cyl(0.018, 0.018, 0.50, 8)` a 0,04 dos cantos | `--room-wood`; pés `--room-wood-dark` |
+| Vaso com ervas (aceno: verde e vermelho) | Vaso `Cyl(0.06, 0.045, 0.10, 12)` em (3.08, 0.58, 0.20); 6 `Cone(0.02, 0.10…0.14, 6)` agrupados e inclinados até ±15° | vaso `--room-wall-shade`; 3 `--fan-herb-green` e 3 `--fan-herb-red` |
+| **Porta** (recebe o 07 e o 08) | Folha `RB(0.85, 2.05, 0.04, 0.01)` em (5.10, 1.025, 0.02) (`x` 4,675–5,525); batentes `Box(0.06, 2.10, 0.03)` em `x` 4,645 e 5,555 e travessa `Box(0.97, 0.06, 0.03)` em `y` 2,08; maçaneta `SphereGeometry(0.028, 10, 8)` em (4.76, 0.95, 0.07); 2 dobradiças `Box(0.02, 0.08, 0.01)` em `x` 5,52, `y` 0,35 e 1,70 | folha `--room-wood`; batentes `--room-wood-dark`; metais `--room-metal` |
+| Bola e joelheiras de vôlei | Bola `Ico(0.105, 1)` com `flatShading: true` em (4.98, 0.105, 0.78); joelheiras: 2 `Cyl(0.05, 0.05, 0.09, 12)` deitadas em (5.24, 0.05, 0.70) e (5.30, 0.05, 0.82) | bola `--room-paper` (branca, genérica, **sem** o padrão azul e amarelo de marca); joelheiras `--room-metal` |
+| Planta de chão | Vaso `Cyl(0.14, 0.11, 0.30, 12)` em (0.30, 0.15, 3.25); 4 `Ico(0.16, 0)` e 3 `Cone(0.06, 0.45, 5)` entre `y` 0,45 e 0,95 | vaso `--room-wall-shade`; folhas `--fan-herb-green` |
+| **Varal de luzinhas** | Fio `Tube(CatmullRomCurve3, 64, 0.004)` pelos pontos (0.15, 2.70, 0.03), (1.0, 2.62, 0.05), (1.9, 2.70, 0.03), (2.8, 2.62, 0.05), (3.7, 2.70, 0.03), (4.6, 2.62, 0.05), (5.5, 2.70, 0.03); 24 lâmpadas `SphereGeometry(0.022, 8, 6)` em `InstancedMesh`, distribuídas por comprimento de arco, 0,03 abaixo do fio | fio `--room-metal`; lâmpadas emissivas (13.7) |
+| Feixe de sol | Tronco de pirâmide aberto (4 faces) do vão da janela até a mancha no piso (13.7), `MeshBasicMaterial` com `vertexColors`, alfa 0,10 na janela → 0 no piso, `AdditiveBlending`, `depthWrite: false` | `#FFF1D6`; só de dia |
+
+**Proibido na cena** (conferir no PR): logos (mesmo redesenhados), personagens, máscaras, rostos, armas, miras, símbolo da Umbrella, teia ou traje reconhecível, padrões oficiais de bola. A teia do pôster é **geométrica e original** (13.8.5).
+
+### 13.4 Os 8 objetos clicáveis
+
+Cada clicável é um `Group` com materiais **próprios** (clonados), para o destaque não vazar para outros objetos. Dentro do grupo, as malhas também são fundidas por material. A `caixa` é a AABB usada para **enquadrar** e como **alvo de clique** (13.6).
+
+| Cap. | `id` → destino | Geometria (posição = centro) | Cor | `caixa` (min → max) |
+|---|---|---|---|---|
+| 01 | `monitor` → `vertice` | Carcaça `RB(0.78, 0.46, 0.035, 0.012)` em (0.95, 1.22, 0.30); **tela** `Plane(0.74, 0.42)` em (0.95, 1.22, 0.318) com `CanvasTexture` (assinatura, 13.8.5); pescoço `Box(0.06, 0.22, 0.04)` em (0.95, 0.88, 0.27); base `RB(0.26, 0.015, 0.18, 0.005)` em (0.95, 0.768, 0.30). Monitor **moderno widescreen**, não retrô | carcaça `--room-metal`; tela emissiva (13.7) | (0.56, 0.76, 0.21) → (1.34, 1.45, 0.39) |
+| 02 | `porta-retrato` → `sobre` (+ `ficha`) | Moldura `RB(0.20, 0.25, 0.025, 0.006)` em (1.78, 0.89, 0.32), `rotation.y = +0.30`, `rotation.x = −0.12`; fundo `Plane(0.15, 0.19)` 2 mm à frente; silhueta genérica **sem rosto**: cabeça `CircleGeometry(0.03, 16)` + ombros `Shape` semicírculo de raio 0,06; apoio traseiro `Box(0.02, 0.20, 0.01)` | moldura `--room-wood`; fundo `--room-fabric`; silhueta `--room-metal` | (1.66, 0.76, 0.22) → (1.90, 1.03, 0.42) |
+| 03 | `mural` → `experiencia` | Cortiça `Box(1.00, 0.78, 0.03)` em (2.95, 1.45, 0.015); moldura: 4 `Box` de seção 0,03 × 0,04 ao redor (externo `x` 2,42–3,48, `y` 1,03–1,87); 3 papéis `RB(0.20, 0.26, 0.004, 0.002)` em (2.62, 1.52, 0.033), (2.92, 1.38, 0.033) e (3.20, 1.30, 0.033), girados em `z` −4°, +3° e −2°; 3 tachinhas `SphereGeometry(0.012, 8, 6)` no topo de cada papel. Os papéis 3D **somem** (`visible = false`) enquanto a vista do mural está aberta | cortiça `--room-cork`; moldura `--room-wood`; papéis `--room-paper`; tachinhas `#F2B84B` (`--bulb-on` de dia) | (2.42, 1.03, 0.00) → (3.48, 1.87, 0.06) |
+| 04 | `caderno` → `projetos` | Caderno **aberto** sobre a mesinha. Grupo em (2.76, 0.53, 0.33) com `rotation.y = −0.20`: capa `Box(0.42, 0.006, 0.285)` em `y` +0,003; 2 páginas `RB(0.20, 0.012, 0.27, 0.004)` em x ±0,10, `y` +0,012, giradas em `z` ±0,06 (formato em V); `CanvasTexture` nas páginas (pauta + esboço de gráfico de barras, 13.8.5); caneta `Cyl(0.006, 0.006, 0.15, 6)` deitada na diagonal sobre a página direita | capa `--room-metal`; páginas `--room-paper`; caneta `--fan-blue` | (2.53, 0.53, 0.17) → (2.99, 0.57, 0.49) |
+| 05 | `caixa` → `habilidades` | Grupo no chão em (3.42, 0, 0.70), `rotation.y = −0.25`: corpo `RB(0.44, 0.20, 0.22, 0.012)` em `y` 0,10; tampa `RB(0.45, 0.04, 0.23, 0.012)` em `y` 0,21; junta `Box(0.452, 0.008, 0.232)` em `y` 0,19; alça `Tor(0.07, 0.011, 6, 12, π)` em `y` 0,235; 2 fechos `Box(0.04, 0.05, 0.012)` na frente | corpo e tampa `--fan-red`; junta, alça e fechos `--room-metal` | (3.18, 0.00, 0.55) → (3.66, 0.31, 0.85) |
+| 06 | `estante` → `formacao` | Laterais 2 `RB(0.03, 1.95, 0.34, 0.006)` em `x` 3,665 e 4,535; base e topo `Box(0.84, 0.03, 0.34)` em `y` 0,035 e 1,935; prateleiras `Box(0.84, 0.025, 0.32)` em `y` 0,48, 0,92 e 1,36; fundo `Box(0.84, 1.95, 0.01)` em `z` 0,005. **Livros:** 1 `InstancedMesh` de `Box` (cerca de 46), alturas 0,20–0,30, larguras 0,028–0,05, profundidades 0,20–0,24, cores sorteadas com semente fixa (`mulberry32(7)`) entre `--room-fabric`, `--fan-blue`, `--room-paper`, `--room-wood-dark`, `--room-cork`, `--room-metal` e `--fan-red`; os 2 últimos de cada fileira inclinados 12°. No compartimento de cima, 2 **quadros de certificado** `RB(0.18, 0.14, 0.015, 0.004)` encostados a 10°, com miolo `Plane` `--room-paper`. Os livros 3D **somem** enquanto a vista da estante está aberta | madeira `--room-wood`; fundo `--room-wood-dark` | (3.65, 0.00, 0.00) → (4.55, 1.95, 0.34) |
+| 07 | `lenco` → `alem` | Gancho `Cyl(0.008, 0.008, 0.05, 6)` ao longo de `z` em (5.33, 1.80, 0.06) + ponta `SphereGeometry(0.012)`; lenço dobrado: `Ext(triângulo [(−0.16, 0), (0.16, 0), (0, −0.42)], 0.008)` com o topo em `y` 1,78 (ponta em 1,36), em `z` 0,045; debrum: o mesmo triângulo escalado 1,08, 5 mm atrás; anel `Tor(0.022, 0.008, 6, 12)` em (5.33, 1.62, 0.058). Genérico, **sem** símbolo de nenhuma associação | lenço `--room-fabric`; debrum `--room-paper`; anel `--room-wood`; gancho `--room-metal` | (5.15, 1.35, 0.035) → (5.51, 1.82, 0.09) |
+| 08 | `envelope` → `contato` | Porta-cartas `RB(0.26, 0.17, 0.04, 0.006)` em (4.95, 1.105, 0.06); envelope `Box(0.22, 0.14, 0.004)` em (4.95, 1.21, 0.07), `rotation.z = 0.08`, saindo do porta-cartas; selo `Box(0.03, 0.035, 0.002)` no canto superior direito do envelope | porta-cartas `--room-wood-dark`; envelope `--room-paper`; selo `--fan-coral` | (4.81, 1.01, 0.04) → (5.09, 1.30, 0.09) |
+
+**Focos** (câmera de cada clicável). `alvo` é o `lookAt`. `az` é o azimute em graus a partir de +z, positivo para +x; `el` é a elevação em graus. A direção da câmera é `dir = (sin az·cos el, sin el, cos az·cos el)`. A **distância é calculada** por `enquadrar()` (13.5.2) para o objeto caber **inteiro** na área livre, em qualquer proporção de tela. A "posição nominal" é o resultado em 1920×1080 e serve só para conferência (±5%).
+
+| Cap. | `alvo` | `az` / `el` | Enquadramento | Vista: tipo e `lado` do painel | Lado do cartão do tour | Posição nominal (1920×1080) |
+|---|---|---|---|---|---|---|
+| 01 | (0.95, 1.22, 0.32) | 0 / 0 (de frente) | **dentro:** a tela (`janela` = (0.58, 1.01, 0.318) → (1.32, 1.43, 0.318)) preenche a moldura do SO, `min(92vw, 1100px) × min(86dvh − 56px, 700px)` | `tela` (SO) | direita | (0.95, 1.22, 1.68) |
+| 02 | (1.78, 0.89, 0.32) | 17 / 14 | `margem` 0,35 | painel `porta-retrato`, `esquerda` | direita | (2.08, 1.14, 1.29) |
+| 03 | (2.95, 1.45, 0.03) | 0 / 0 (de frente) | **dentro:** a cortiça (`janela` = (2.45, 1.06, 0.03) → (3.45, 1.84, 0.03)) preenche `min(86vw, 1040px) × min(80dvh − 56px, 680px)` | `cortica` | direita | (2.95, 1.45, 2.34) |
+| 04 | (2.76, 0.55, 0.33) | 20 / 50 (de cima) | `margem` 0,35 | painel `caderno`, `esquerda` | direita | (3.12, 1.81, 1.33) |
+| 05 | (3.42, 0.15, 0.70) | 12 / 30 | `margem` 0,35 | painel `caixa`, `direita` | esquerda | (3.74, 1.05, 2.23) |
+| 06 | (4.10, 0.985, 0.34) | 0 / 0 (de frente) | **dentro:** a abertura (`janela` = (3.68, 0.05, 0.34) → (4.52, 1.92, 0.34)) preenche a altura `100dvh − 56px − 32px` (largura livre) | `estante` | esquerda | (4.10, 0.985, 4.14) |
+| 07 | (5.33, 1.585, 0.06) | −22 / 6 | `margem` 0,35 | painel `tecido`, `esquerda` | esquerda | (4.81, 1.73, 1.35) |
+| 08 | (4.95, 1.155, 0.065) | −18 / 6 | `margem` 0,35 | painel `carta`, `esquerda` | esquerda | (4.61, 1.27, 1.11) |
+| — | **Visão geral:** (2.80, 1.00, 1.40) | 32 / 20 | caixa do quarto (−0.12, −0.12, −0.12) → (5.6, 2.83, 3.6), `margem` 0,05 | — | — | (8.18, 4.69, 10.01) |
+
+- As vistas **dentro** (01, 03, 06) são **de frente** (`az = el = 0`) de propósito: assim a projeção da `janela` é um retângulo, e a moldura HTML encaixa nela sem distorção (13.8.4).
+- Os painéis (02, 04, 05, 07, 08) usam ângulo de 3/4 para mostrar volume ("mais 3D"), e o objeto fica na **área livre** ao lado do painel.
+- Nenhuma posição atravessa móveis. Verificado: a cadeira não entra no quadro do 01 nem do 02, e a bola não cobre a estante no 06 (por isso ela fica perto da porta).
+
+### 13.5 Câmera
+
+#### 13.5.1 Lente e visão geral
+
+- `PerspectiveCamera`, **`fov` vertical de 30°** (perspectiva achatada, perto do isométrico, sem ser ortográfica), `near` 0,05, `far` 40.
+- **Visão geral:** vista de frente-direita e de cima (`az` 32°, `el` 20°), com o quarto inteiro enquadrado na área livre. Área livre da visão geral: a tela menos 72 px no topo (HUDs) e 64 px na base (anotação "role").
+- **Chegada** (1ª vez que a cena aparece em cada carregamento): a câmera começa na visão geral com distância × 1,25 e `az` + 8° e voa até a visão geral em **1200 ms** `--ease-chegada`, enquanto o `<canvas>` vai de opacidade 0 a 1 em 400 ms. Depois, os post-its entram em sequência (opacidade e 6 px de subida, 160 ms cada, com 40 ms de intervalo). **Com movimento reduzido:** tudo aparece direto, sem voo.
+
+#### 13.5.2 Enquadramento: `enquadrar()`
+
+Função pura em `src/cena/camera.ts`, testada no Vitest. Ela recebe a caixa do objeto, o alvo, a direção, o retângulo livre (px) e a margem, e devolve a posição e o deslocamento de tela que **centraliza o objeto na área livre**:
+
+```ts
+// caixa: Box3 (ou a janela, nas vistas "dentro", com margem 0); dir: unitário, do alvo para a câmera
+// vp: { L, A } = tamanho do canvas em px; livre: { x, y, l, a } em px; fovV em radianos
+export function enquadrar(caixa: Box3, alvo: Vector3, dir: Vector3, fovV: number,
+                          vp: { L: number; A: number }, livre: Rect, margem: number) {
+  const t = Math.tan(fovV / 2);
+  const tH = t * (livre.l / vp.A) * (1 - margem);
+  const tV = t * (livre.a / vp.A) * (1 - margem);
+  const r = new Vector3().crossVectors(dir.clone().negate(), UP).normalize();
+  const u = new Vector3().crossVectors(r, dir.clone().negate());
+  let d = 0.6;                                     // distância mínima
+  for (const p of cantos(caixa)) {                 // os 8 cantos
+    const q = p.clone().sub(alvo);
+    const prof = q.dot(dir);
+    d = Math.max(d, prof + Math.abs(q.dot(r)) / tH, prof + Math.abs(q.dot(u)) / tV);
+  }
+  return {
+    pos: alvo.clone().addScaledVector(dir, d),
+    offX: vp.L / 2 - (livre.x + livre.l / 2),     // camera.setViewOffset(L, A, offX, offY, L, A)
+    offY: vp.A / 2 - (livre.y + livre.a / 2),
+  };
+}
+```
+
+**Áreas livres** (px, recalculadas a cada `resize`):
+
+| Contexto | Área livre |
+|---|---|
+| Visão geral (≥ 768 e proporção ≥ 1,3) | `x` 0…L, `y` 72…A − 64 |
+| Painel de vista (02, 04, 05, 07, 08) | Painel com `min(56vw, 760px)` de largura no `lado` da config, de `y` 64 a A − 8. Área livre = o restante da largura menos 16 px de folga, de `y` 64 a A − 16 |
+| Vista dentro (01, 03, 06) | O retângulo da moldura (tamanhos da tabela de 13.4), centralizado em `x` e centralizado verticalmente em `y` 56…A |
+| Passo do tour (1–8) | Cartão `min(420px, 34vw)` a 24 px da borda do lado configurado. Área livre = o outro lado, a partir de 24 px do cartão, até L − 48 (o trilho fica à direita), de `y` 72 a A − 24. `margem` **0,30**, com o mesmo `alvo` e a mesma direção do foco |
+| Passo 9 do tour | Igual à vista do 01 (SO embutido) |
+| Mobile 3D (13.9) | Tour: `x` 0…L, `y` 56…0,55·A. Vista: `x` 16…L − 16, `y` 16…0,30·A − 8 |
+
+**O tour reaproveita os focos:** os passos usam o `alvo` e a direção de cada objeto (13.4), só com outra área livre e margem. Não há câmera própria do tour na config.
+
+#### 13.5.3 Voo até o objeto
+
+- **Duração:** `--dur-voo` **900 ms** na ida, `--dur-voo-volta` **700 ms** na volta e `--dur-tour` **900 ms** entre passos. Curva `--ease-voo` = `cubic-bezier(0.65, 0, 0.35, 1)` (*ease-in-out* cúbico), aplicada a um único `t` eased.
+- **Trajetória em arco** (é o que tira o voo do "sem graça"): a posição segue uma **Bézier quadrática** de `P0` a `P1` com ponto de controle `C = (P0 + P1)/2 + ŷ · min(0.6, 0.18·|P1 − P0|)`. O alvo vai de `T0` a `T1` por interpolação linear com o mesmo `t`, e `offX`/`offY` também são interpolados. A câmera chama `lookAt(alvo)` a cada quadro, sem rolagem (*roll*) nem mudança de `fov`.
+- **Sequência ao clicar num objeto:**
+  1. Em t = 0, os post-its, o nome na parede e as anotações vão a opacidade 0 em 120 ms, e o objeto mantém o destaque de hover (13.6).
+  2. O voo começa.
+  3. Em **75% do voo** (675 ms), `showModal()` abre a vista: o painel entra com opacidade 0 → 1 e deslocamento de 16 px em `--dur-reveal` (160 ms), e o foco vai para o título (5.6). Nas vistas dentro, a moldura aparece já no retângulo final (13.8.4).
+  4. Na chegada, a emissão do objeto faz um pulso único (0 → 0,15 → 0 em 400 ms) e se apaga.
+- **Durante o voo,** cliques e teclas são ignorados, **exceto Esc**, que cancela e volta. Um novo voo sempre parte da pose em que a câmera está (interrupção sem salto).
+- **"Capítulo anterior/próximo"** dentro da vista: o conteúdo sai (opacidade em 120 ms), a câmera voa direto entre os dois focos (900 ms) e o novo conteúdo entra aos 75% do voo.
+- **Voltar** (botão "Voltar ao quarto", Esc ou o voltar do navegador): a vista fecha (opacidade em 120 ms) e a câmera volta em 700 ms para a pose de origem (visão geral ou passo do tour em que o visitante estava), **recalculada** para o tamanho atual da tela. Depois, os post-its e o nome reaparecem (160 ms), e o foco volta ao post-it do objeto (5.6).
+- **Link direto** (`/#exp-kpmg`, `/#ficha`): a vista abre **na hora**, sem esperar o 3D. Se a cena ainda estiver carregando, a moldura usa a geometria de painel padrão. Quando a cena fica pronta, a câmera **corta** (sem voo) para o foco, e as vistas dentro reposicionam a moldura.
+
+#### 13.5.4 Paralaxe na visão geral
+
+- **Só** na visão geral (passo 0, sem vista aberta), com `(hover: hover) and (pointer: fine)` e **sem** `prefers-reduced-motion`.
+- O ponteiro normalizado (`nx`, `ny` ∈ [−1, 1], a partir do centro do palco) orbita a câmera em volta do alvo da visão geral: `az + 1,5°·nx` e `el + 1,0°·(−ny)` (o ponteiro subindo mostra mais de cima). Distância e alvo não mudam.
+- **Amortecimento exponencial:** `atual += (meta − atual) · (1 − e^(−5·dt))`, com `dt` em segundos. A renderização para quando `|meta − atual| < 0,0005 rad`. Com o ponteiro fora da janela, a meta volta a 0.
+- O nome, os post-its e as anotações acompanham a paralaxe, porque são reprojetados a cada quadro (13.8).
+
+#### 13.5.5 Movimento reduzido (`prefers-reduced-motion: reduce`)
+
+- Todos os voos, a chegada e os passos do tour viram **corte direto** (pose final no quadro seguinte), e o conteúdo da vista aparece sem deslocamento.
+- **Sem** paralaxe, pulso de emissão, desenho animado da linha do monitor, transição de luz (a troca dia/noite é instantânea) ou entrada escalonada dos post-its.
+- O tour continua como **lista** de cartões (12.13.2), e a câmera corta a cada passo.
+
+### 13.6 Hover, foco e clique
+
+- **Alvo de clique:** um `Box` invisível por objeto, do tamanho da `caixa` + 0,04 m em cada eixo. Esses alvos ficam **fora do grafo da cena** (matriz atualizada uma vez) e são os **únicos** testados pelo `Raycaster`, no máximo uma vez por quadro, no `pointermove`.
+- **Destaque** (hover do ponteiro, foco de teclado no `<a class="objeto">` ou hover do post-it; os três dão o mesmo resultado):
+  1. **Contorno:** um "casco invertido" com a geometria fundida do objeto, `MeshBasicMaterial` com `side: BackSide`, escalado por eixo em `(s + 0.024)/s` (onde `s` é o tamanho da `caixa` naquele eixo). Isso dá cerca de 1,2 cm de contorno. Cor `#15171C` de dia e `#ECE8DF` à noite (= `--text`), `toneMapped: false`. Fica `visible = false` fora do destaque (custo zero).
+  2. **Emissão:** a `emissive` dos materiais do objeto vai de 0 a `#FFFFFF` × 0,08 (dia) / × 0,12 (noite) em `--dur-1` (120 ms).
+  3. **Rótulo:** o post-it do objeto entra no estado de hover de 12.13.4 (sobe 3 px e a rotação vai a 0°), e a linha temática aparece abaixo do nome comum ("O monitor", mono 12 px, `--text-muted` sobre `--postit`, 6,72 / 5,35:1). No foco de teclado, o post-it ganha também o anel duplo de 3.3.
+  4. **Cursor** `pointer` no `<canvas>` enquanto houver um objeto sob o ponteiro.
+- **Sincronia DOM ↔ cena:** o `<a class="objeto">` (post-it) continua sendo **o** elemento acessível. `focus`/`mouseenter` no link chamam `cena.destacar(id)`, e o hover na cena aplica `data-hover` no link. **Clique no objeto 3D = `link.click()`** (o roteador, o histórico e as vistas são os mesmos de hoje). Um clique só conta com deslocamento < 6 px e duração < 500 ms entre `pointerdown` e `pointerup`.
+- **Teclado:** sem mudança (7.1 e 12.8). `Tab` e as setas percorrem os post-its 01…08 na ordem do DOM, e o destaque segue o foco. Focar um objeto **não** move a câmera.
+- **Toque:** não há hover. Um toque no objeto ou no post-it abre a vista.
+- Na visão geral, no tour e na chegada, o destaque funciona; com uma vista aberta, ele fica desligado (só o objeto da vista mantém o pulso de chegada).
+
+### 13.7 Luz dia e noite
+
+- **Renderizador:** `outputColorSpace = SRGBColorSpace`; `toneMapping = NeutralToneMapping`, exposição 1. Todos os materiais **sem luz** (tela, céu, lâmpadas, feixe, contorno) usam `toneMapped: false`, para as cores de token saírem exatas. Os materiais com luz são `MeshLambertMaterial`.
+- **O número de luzes é fixo nos dois temas.** O tema só interpola intensidade e cor, então nunca há recompilação de shader.
+- **Sombras** (só no nível completo, 13.9): `PCFShadowMap`. **Só o sol/lua projeta sombra**, com `mapSize` 1024, câmera ortográfica de ±3,2, `near` 0,5, `far` 12, `bias` −0,0004, `normalBias` 0,02 e `radius` 3. A cena é estática, então `shadowMap.autoUpdate = false`, com `needsUpdate = true` uma única vez depois de montar. A troca de tema não exige refazer a sombra, porque a direção da luz não muda. Paredes, móveis e objetos projetam e recebem sombra; o céu, o feixe e as lâmpadas, não.
+
+| Luz | Dia (luz acesa) | Noite (luz apagada) |
+|---|---|---|
+| `HemisphereLight` | céu `#F4F1EA`, chão `#C9B79A`, 2,2 | céu `#2B3560`, chão `#14120F`, 0,55 |
+| `DirectionalLight` "sol/lua", em (−3.6, 4.4, 2.6) → alvo (1.3, 0, 1.9), **entra pela janela** e desenha a mancha no tapete | `#FFF1D6`, 2,6 | `#9FB3FF`, 0,5 (a lua projeta a mesma janela, mais fria e fraca) |
+| `DirectionalLight` de preenchimento, em (6, 5, 8) → (2.8, 1, 1.4), sem sombra | `#FFFFFF`, 0,8 | `#FFFFFF`, 0,15 |
+| `SpotLight` da luminária, na cúpula (0.60, 1.14, 0.44) → (1.15, 0.76, 0.52), ângulo 0,75 rad, penumbra 0,7, `decay` 2 | 0 | `#FFD27A`, 6 |
+| `PointLight` de halo da luminária, no mesmo ponto, distância 2,6, `decay` 2 | 0 | `#FFD27A`, 1,2 |
+| `PointLight` do monitor, em (0.95, 1.20, 0.65), distância 2,0, `decay` 2 | 0 | `#BFE6DA`, 0,8 |
+
+| Emissivo (`MeshBasicMaterial`) | Dia | Noite |
+|---|---|---|
+| Tela do monitor | textura de dia (fundo `--room-screen` `#F2F6F4`) | textura de noite (fundo `#10241F`) |
+| Céu da janela | `#BFDDE8` + prédios `#9FB3BF` | `#0B1430` + prédios `#1A2440` + janelas acesas `#FFD27A` + lua `#F2E8C9` |
+| Lâmpadas do varal e da luminária | `--bulb-off` `#D6D2C6` | `--bulb-on` `#FFD27A` |
+| Feixe de sol | visível (alfa 0,10 → 0) | `visible = false` |
+
+- **Critério de calibração** (o `dev-frontend` ajusta as intensidades acima até cumprir, e o `revisor-qualidade` confere com o conta-gotas numa captura de tela):
+  - de dia, a parede do fundo **fora** da mancha de sol fica em `#EFE9DC` ± 6% de luminância;
+  - o tapete **dentro** da mancha nunca chega a branco puro;
+  - à noite, nenhuma face visível fica mais escura que `#191C28`, e a mesa sob a luminária fica claramente quente.
+- **Troca pelo interruptor:** a cena ouve a mudança de `data-theme` no `<html>` (`MutationObserver`) e interpola as luzes e as cores dos emissivos em `--dur-light` (320 ms, `--ease-std`). As texturas da tela e do céu trocam no meio da transição. O fundo CSS do palco acompanha o tema. **Com movimento reduzido,** a troca é instantânea.
+- **Nível leve** (sem sombras): a mancha de sol vira um **decalque** no piso. É o polígono obtido projetando os 4 cantos do vão da janela na direção da luz até `y` = 0,002, com `MeshBasicMaterial` `#FFF1D6`, opacidade 0,35 (dia) ou `#9FB3FF` com 0,12 (noite), `transparent` e `depthWrite: false`. Sob a cadeira, a mesinha, a caixa, a bola e a planta entram **sombras de contato**: `CircleGeometry` com textura radial compartilhada (64×64, `rgba(21,23,28,.18)` → 0).
+
+### 13.8 Texto na cena: sempre HTML real
+
+Nenhum texto com significado fica só no WebGL. O `<canvas>` é `aria-hidden="true"`, e todo texto de canvas é decorativo e repete algo que já está no HTML.
+
+#### 13.8.1 Nome na parede: HTML em 3D (`CSS3DRenderer`)
+
+- O bloco `.parede-bloco` (o `<h1>` com o nome, "Dados → IA" e o post-it "Fale comigo!") é **um único `CSS3DObject`** plano, colado na parede do fundo. O `CSS3DRenderer` (addon) usa a mesma câmera do WebGL, então o texto fica em perspectiva junto com a parede, mas continua selecionável, legível por leitor de tela e com foco no link.
+- O `domElement` do `CSS3DRenderer` é inserido **no mesmo lugar do DOM** onde o bloco estava. Assim, a ordem de leitura e de `Tab` não muda: "Modo recrutador" → PT|EN → interruptor → (Pular) → "Fale comigo!" → objetos 01…08 → tour.
+- **Escala:** o bloco é desenhado em "px de parede", com **200 px = 1 m** (`CSS3DObject.scale = 1/200`). Canto superior esquerdo do bloco em (0.32, 2.50, 0.004).
+  - Nome: Bricolage 800, **44 px de parede** (0,22 m), `white-space: nowrap`. Mede cerca de 2,4 m, de `x` 0,32 a 2,72.
+  - "Dados → IA": Atkinson Hyperlegible Mono 500, 20 px de parede, 6 px abaixo do nome, com a seta em SVG `--accent`.
+  - Na tela, isso dá cerca de 45 px de corpo em 1920×1080 e 33 px em 1024×768.
+- **Contraste:** mantém o halo de 12.13.3 (`-webkit-text-stroke: 6px var(--halo)` + `paint-order`), ou seja, 17,93:1 de dia e 15,06:1 à noite sobre qualquer pixel. **Não use** `will-change` nos elementos CSS3D (o texto ficaria borrado).
+- **Post-it "Fale comigo!":** dentro do mesmo bloco, à direita do nome, com centro em (3.10, 2.24) na parede, `rotate(−5deg)`, 96 × 80 px de parede. Cores e textos de 12.13.3.
+- **Antes de a cena ficar pronta** (e quando o 3D não está ativo), o bloco aparece **plano**, em CSS normal, no canto superior esquerdo do palco (`left: 6vw; top: 14vh`). Quando a cena fica pronta, ele recebe a transformação 3D, num cruzamento de opacidade de 240 ms junto com a chegada (instantâneo com movimento reduzido).
+- O bloco some (opacidade 0 em 120 ms) em voos, vistas e passos do tour ≥ 1, como hoje.
+
+#### 13.8.2 Post-its dos objetos: HTML voltado para a tela
+
+- Os post-its continuam `<a class="objeto">` dentro do `<ol class="objetos">` (12.13.4) e **não** entram no CSS3D. Ficam **de frente para a tela** (sem perspectiva), para o texto não deformar.
+- A posição vem da **projeção de uma âncora 3D** (`postit.ancora`) mais um **pivô** (o ponto do post-it que fica sobre a âncora), via `transform: translate3d(px, px, 0) rotate(rot)`. A reprojeção acontece só nos quadros em que a câmera se move.
+- **Tamanho na cena 3D:** `inline-size: max-content; max-inline-size: 9.5rem`, com `padding` de 8 × 10 px. Número em mono 12 px e nome comum em Patrick Hand **17 px**, em até 2 linhas. Mesmas cores, sombra e estados de 12.13.4.
+
+| Cap. | `ancora` (m) | `pivo` | `rot` |
+|---|---|---|---|
+| 01 | (0.62, 1.41, 0.34): canto superior esquerdo da tela | `topo-esq` | 4° |
+| 02 | (1.93, 0.96, 0.30): à direita da moldura | `topo-esq` | −3° |
+| 03 | (3.44, 1.83, 0.05): canto superior direito da cortiça | `topo-dir` | 3° |
+| 04 | (2.76, 0.50, 0.54): borda da frente da mesinha | `topo-centro` | −2° |
+| 05 | (3.42, 0.00, 0.88): no chão, à frente da caixa | `topo-centro` | 2° |
+| 06 | (4.10, 1.95, 0.30): em cima da estante | `base-centro` | −3° |
+| 07 | (5.33, 1.34, 0.08): abaixo da ponta do lenço | `topo-centro` | −4° |
+| 08 | (4.95, 1.00, 0.08): abaixo do porta-cartas | `topo-centro` | 3° |
+
+- **Regra de colisão** (testada em 13.14): na visão geral em 1280×800, 1440×900, 1920×1080 e 2560×1080, nenhum post-it encosta em outro, no bloco do nome ou nos HUDs (folga ≥ 8 px). Se colidir, ajuste só a `ancora` ou o `pivo` na config.
+
+#### 13.8.3 Anotações à mão
+
+- Mesmas regras de 12.13.5, com novas âncoras:
+  - **"comece aqui":** relativa ao post-it 01, com o texto em (−180 px, −90 px) a partir do canto superior esquerdo do post-it e a seta até esse canto (`relativoA: 'monitor'`);
+  - **"role…":** fixa na tela, centralizada, a 96 px da base.
+- A seta é recalculada nos quadros em que a câmera se move.
+
+#### 13.8.4 SO, mural e estante: moldura HTML sobre a `janela` projetada
+
+- Depois do voo (e a cada `resize`), `cena.retanguloJanela(id)` projeta os 4 cantos da `janela` e devolve a caixa em px. Como essas vistas são de frente, o retângulo é exato.
+- `vista.ts` usa esse retângulo no lugar do cálculo em % de hoje. O mínimo de 560 × 360 px e o *clamp* à tela continuam.
+- **Monitor/SO:** a área de trabalho HTML cobre exatamente a tela 3D, e a carcaça 3D aparece em volta como bisel. **Não** desenhe bisel em CSS. No passo 9 do tour, é o mesmo nó (12.13.1).
+- **Mural e estante:** a moldura HTML continua opaca, com o fundo temático em CSS (cortiça e madeira, como hoje), cobrindo a `janela`. Os papéis e os livros 3D ficam `visible = false` enquanto a vista está aberta, para não aparecerem pelas bordas.
+- As bordas 3D reais (moldura do mural e laterais da estante) aparecem em volta da moldura HTML. Na estante, a moldura tem pelo menos 560 px de largura e cobre as laterais quando a estante projetada for mais estreita.
+
+#### 13.8.5 Texturas de canvas (decorativas)
+
+Todas são `CanvasTexture` com `colorSpace = SRGBColorSpace`, desenhadas **depois** de `document.fonts.load()` das fontes usadas. Todas são decorativas.
+
+| Textura | Tamanho | Conteúdo |
+|---|---|---|
+| Tela do monitor (assinatura) | 1024×576 (nível leve: 768×432) | Fundo `#F2F6F4` (dia) ou `#10241F` (noite) com grade de pontos (`--border` / `#2E3240`, 1,5 px a cada 32 px). A **linha da carreira** usa o mesmo `d` do SVG de sobreposição atual (`Path2D`): traço de 6 px, `#4F545C` / `#A3A6AE` até 2026 e `#B8400F` / `#FF8A4C` depois do vértice. Rótulos "2026" e "IA" em mono 500 28 px na mesma cor do trecho. No 1º hover ou foco do monitor, a linha se desenha em `--dur-draw` (700 ms, atualizando a textura a cada quadro). Nível leve e movimento reduzido: estática |
+| Céu e cidade | 512×384 × 2 (dia/noite) | Céu chapado; 9 prédios retangulares de alturas fixas; à noite, 14 janelas acesas 6×8 px e a lua (círculo de 26 px) |
+| Pôster | 256×352 | Diagonal do canto inferior esquerdo ao superior direito: metade `--fan-red`, metade `--fan-blue`. **Teia geométrica original:** 7 raios retos a partir do canto inferior esquerdo + 4 anéis poligonais concêntricos, linha `--room-paper` de 2 px com alfa 0,55. Sem figura, máscara, logo ou texto |
+| Páginas do caderno | 512×320 | Pauta `#D6D2C6` a cada 20 px; na página direita, esboço de 5 barras crescentes em contorno `#4F545C` de 2 px (aceno a dados, sem números) |
+| Lombadas dos estojos | 512×128 (atlas) | Os nomes "VALORANT", "Counter-Strike", "Resident Evil 4" e "Call of Duty" em Atkinson Hyperlegible Mono 500, na vertical, `#15171C` sobre `#FFFDF7` ou `#FFFDF7` sobre `#2B2F38`; 1 estojo sem nome. Só texto em fonte comum, **sem** logo nem fonte oficial |
+
+### 13.9 Mobile, retrato e níveis de qualidade
+
+**Telas em tela cheia** (largura ≥ 768 **e** proporção ≥ 1,3): o 3D carrega **automaticamente** (13.10).
+
+**Mobile e retrato** (largura < 768 **ou** proporção < 1,3): o 3D **não carrega sozinho**. Isso protege a 1ª impressão no celular e o Lighthouse mobile.
+
+```
+360 × 640 — padrão (sem 3D)                360 × 640 — depois de "Entrar no quarto em 3D"
+┌──────────────────────────────┐          ┌──────────────────────────────┐
+│[≡ Modo recrutador]  [PT|EN][◑]│          │[≡ Modo recrutador]  [PT|EN][◑]│
+│                              │          │      (canvas: maquete na     │
+│   ╱‾‾‾ linha da carreira ↗IA │ ← SVG    │       área livre de cima,    │
+│                              │   atual  │       55% da altura)         │
+│ Matheus Maki Nagano          │          │                              │
+│ Dados → IA                   │          ├──────────────────────────────┤
+│ [Fale comigo! · LinkedIn ↗]  │          │ 01 de 08 · O monitor ·       │
+│ [Entrar no quarto em 3D]     │          │ Projeto Vértice              │
+│ Explorar o quarto ↓          │          │ {tour.vertice.resumo}        │
+├──────────────────────────────┤          │ [Abrir capítulo]             │
+│ ▢01 Projeto Vértice  resumo →│ nichos   └──────────────────────────────┘
+│ ▢02 Sobre mim        resumo →│ só texto   cartões do tour rolando na base (45%)
+└──────────────────────────────┘
+```
+
+- **Padrão (sem 3D):**
+  - herói em 100svh com o SVG da linha da carreira (a assinatura, já existente, ≤ 1 KB) em grande atrás do nome;
+  - o bloco do nome em fluxo normal (não CSS3D), com o post-it "Fale comigo!" e o botão secundário **[Entrar no quarto em 3D]**;
+  - abaixo, os **nichos só de texto**, em 1 coluna: post-it do capítulo, `{tema}`, `{tour.<id>.resumo}` e "Abrir capítulo". As vistas abrem em tela cheia, como hoje.
+- **Depois do toque em "Entrar no quarto em 3D"** (escolha guardada em `sessionStorage`):
+  - o herói e os nichos dão lugar ao palco `sticky` de 100svh com o tour pela rolagem;
+  - o cartão ocupa os 45% de baixo, e a câmera enquadra nos 55% de cima;
+  - não há post-its nem paralaxe; tocar num objeto 3D abre a vista, e [Abrir capítulo] no cartão é o caminho acessível;
+  - a vista vira uma **folha inferior** de 70svh, com o objeto enquadrado nos 30% de cima;
+  - nível leve sempre.
+- **Tablet deitado** (≥ 768, proporção ≥ 1,3): layout de desktop, no nível leve se o ponteiro for `coarse`.
+
+| | Nível completo | Nível leve |
+|---|---|---|
+| Quando | Padrão em tela cheia | `(pointer: coarse)`, **ou** `hardwareConcurrency ≤ 4`, **ou** `deviceMemory ≤ 4`, **ou** `saveData`, **ou** queda automática |
+| `pixelRatio` | `min(devicePixelRatio, 2)` | `min(devicePixelRatio, 1.5)` |
+| `antialias` | `true` | `false` |
+| Sombras | `PCFShadowMap` 1024 (13.7) | **desligadas**; decalque de sol + sombras de contato |
+| `powerPreference` | `'high-performance'` | `'low-power'` |
+| Textura da tela | 1024×576, linha animada | 768×432, estática |
+| Paralaxe | sim (ponteiro fino) | só com ponteiro fino |
+
+- **Queda automática:** durante o 1º voo, se a média de 30 quadros passar de 24 ms, `pixelRatio` vai para 1. Se no voo seguinte ainda passar, as sombras desligam e o decalque liga. Isso exige recompilar uma única vez e vale pelo resto da sessão.
+
+### 13.10 Carregamento, fallback e performance
+
+**Carregamento sob demanda** (o modo recrutador continua sendo o HTML base):
+1. **Script do `<head>`** (≤ 1,5 KB): além do que já faz, em tela cheia e sem `?modo=recrutador`, ele testa `canvas.getContext('webgl2', { failIfMajorPerformanceCaveat: true })` e libera o contexto com `WEBGL_lose_context`.
+   - Se falhar, define `data-modo="recrutador"` **antes da 1ª pintura** (sem CLS) e grava `sessionStorage.semWebgl = 1`. Depois do `load`, anuncia `{quarto.semWebgl}` na região `role="status"`.
+   - No mobile, o teste acontece só no toque em "Entrar no quarto em 3D". Se falhar, o botão some e a mensagem aparece no lugar dele.
+2. **Módulo principal** (`src/scripts/quarto.ts`, ≤ 14 KB gzip): em tela cheia, depois do `load`, chama `requestIdleCallback` (*timeout* de 2000 ms; sem suporte, `setTimeout` de 200 ms) e faz `import('../cena/index.ts')`. Esse é **o único** caminho que traz o `three`.
+3. **Montagem fatiada:** casca → móveis → clicáveis → texturas, com `scheduler.yield()` (ou `setTimeout(0)`) entre as fatias, para nenhuma tarefa passar de 50 ms. Antes do 1º quadro, `await renderer.compileAsync(scene, camera)`.
+4. **Enquanto carrega:** HUD, bloco do nome plano (13.8.1) e a **intro SQL** (11.2) como tela de carregamento na 1ª visita. Se a cena ficar pronta antes do fim da animação (cerca de 2,4 s), a intro termina normalmente; se não, a barra "executando…" continua até a cena ficar pronta, e só então aparece a linha de resultado. "Pular" esconde a intro, mas não cancela o carregamento.
+   - Nas visitas seguintes: uma pílula `role="status"` com fundo do HUD, `{quarto.carregando}` e uma barra indeterminada (estática com movimento reduzido), centralizada a 96 px da base.
+   - Os post-its ficam `visibility: hidden` até a cena estar pronta (sem links invisíveis no `Tab`).
+5. **Falha** (erro de rede no *chunk*, `webglcontextlost` sem `webglcontextrestored` em 2 s ou exceção na montagem): o palco mostra um cartão `.papel` com `{quarto.erroCena}`, **[Tentar de novo]** e **[Modo recrutador]**. Não há troca automática de modo, para evitar CLS e surpresa.
+6. **Renderização sob demanda:** não existe laço contínuo. `invalidar()` pede um `requestAnimationFrame` só enquanto houver voo, paralaxe amortecendo, transição de luz, desenho da linha ou mudança de destaque. Parado = 0 quadros por segundo. Com `visibilitychange` oculto, tudo pausa. Ao sair do modo quarto, a cena pausa; no `pagehide`, ela é destruída (`dispose` de geometrias, materiais, texturas e do renderizador).
+7. **`resize`:** `ResizeObserver` no palco → `setSize`, `aspect` e a pose atual recalculada por `enquadrar()` (sem animação), mais o tamanho do `CSS3DRenderer`.
+
+**Importações permitidas** (*tree-shaking*: só importações nomeadas, nunca `import * as THREE`): `three` (última estável, ≥ r170, `WebGLRenderer`); `three/addons/geometries/RoundedBoxGeometry.js`; `three/addons/utils/BufferGeometryUtils.js`; `three/addons/renderers/CSS3DRenderer.js`. **Proibido:** `three/webgpu`/TSL, `OrbitControls`, `GLTFLoader` ou qualquer modelo externo, `EffectComposer`/`OutlinePass`/pós-processamento, `troika-three-text` e HDRI. `@types/three` entra como devDependency. Custo zero: tudo MIT.
+
+**Orçamento** (substitui 12.9 e 12.13.8; `scripts/medir-cena.mjs` faz o CI falhar se passar):
+
+| Recurso | Orçamento |
+|---|---|
+| *Chunk* da cena (`three` + addons + `src/cena/**`), gzip | **≤ 250 KB** (meta ≤ 190 KB) |
+| Módulo principal + script do `<head>`, gzip | ≤ 14 KB + ≤ 1,5 KB |
+| HTML por idioma / CSS | ≤ 45 KB / ≤ 24 KB gzip |
+| Fontes | ≤ 130 KB (sem mudança) |
+| Imagens da cena | **0 bytes** |
+| *Draw calls* / triângulos (visão geral, nível completo) | ≤ 100 / ≤ 60 mil |
+| Memória de GPU (texturas + sombra) | ≤ 32 MB |
+| Cena pronta após o `load` | ≤ 1,5 s (desktop médio, banda larga); ≤ 3 s no nível leve |
+| Quadro durante voos | ≤ 16,7 ms (completo); ≤ 33 ms (leve) |
+| **Metas Lighthouse** | **≥ 90 nas 4 categorias.** Mobile (emulado, retrato): o 3D não carrega, a página é o HTML leve, LCP ≤ 2,5 s. Desktop: TBT ≤ 150 ms com o 3D carregando no *idle*, CLS ≤ 0,02, INP ≤ 200 ms. O LCP é texto (nome ou cabeçalho), nunca o `<canvas>` |
+
+- **Medição honesta:** o `revisor-qualidade` roda o Lighthouse desktop **com GPU real** (Chrome local, não *headless* com SwiftShader). No SwiftShader, o teste do `<head>` falha de propósito e a página vira o modo recrutador. Os dois resultados vão para o relatório.
+
+### 13.11 Contraste (novas combinações)
+
+Todo texto novo é HTML com tokens já verificados: post-its (12.13.4), bloco do nome com halo (12.13.3), HUD e pílula de carregamento (12.1: pior caso 11,74:1 em `--text` e 4,99:1 em `--text-muted`), cartão de erro `.papel` (3.4), herói e nichos mobile sobre `--bg`/`--surface` (3.1, 3.2) e linha temática do post-it (13.6). As únicas cores novas aparecem no canvas, são decorativas e mesmo assim passam de AA:
+
+| Texto / traço (canvas da tela) | Fundo | Razão |
+|---|---|---|
+| Rótulos e linha até 2026, dia: `#4F545C` | `#F2F6F4` | **6,99:1** |
+| Linha depois de 2026, dia: `#B8400F` | `#F2F6F4` | **5,10:1** |
+| Rótulos e linha até 2026, noite: `#A3A6AE` | `#10241F` | **6,66:1** |
+| Linha depois de 2026, noite: `#FF8A4C` | `#10241F` | **6,95:1** |
+
+- Os materiais sem luz usam `toneMapped: false`, então esses valores saem exatos na tela.
+- O contorno de destaque (13.6) é reforço; o indicador de foco que conta para a WCAG é o anel duplo do post-it (3.3).
+- Em `forced-colors`, o `<canvas>` não muda, e todos os textos e controles HTML seguem as cores do sistema.
+
+### 13.12 Config e validador (`src/config/quarto.ts`)
+
+O formato muda para metros. Os campos `imagem`, `areasReservadas`, `clique`, `vista.camera`, `vista.janela` (%), `tour.camera` e `postit.{x,y}` saem.
+
+```ts
+type V3 = [number, number, number];
+type Caixa = { min: V3; max: V3 };
+type Pivo = 'topo-esq' | 'topo-centro' | 'topo-dir' | 'esq-centro' | 'dir-centro' | 'base-centro';
+
+interface ObjetoQuarto {
+  id: IdObjeto; capitulo: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8; destino: string; secoes: string[];
+  caixa: Caixa;                                       // AABB em metros (13.4)
+  foco: { alvo: V3; az: number; el: number; margem?: number };   // margem padrão 0.35
+  janela?: Caixa;                                     // só nas vistas dentro (01, 03, 06); plana em z
+  preencher?: { lVw: number; lMax: number; aVh: number; aMenos: number; aMax: number }; // moldura alvo da vista dentro
+  vista: { tipo: TipoVista; lado?: 'esquerda' | 'direita' };
+  tour: { lado: 'esquerda' | 'direita' };
+  postit: { ancora: V3; pivo: Pivo; rot: number };
+}
+interface ConfigQuarto {
+  limites: Caixa;                                     // (−0.12, −0.12, −0.12) → (5.6, 2.83, 3.6)
+  geral: { alvo: V3; az: number; el: number; margem: number; fov: number };
+  paredeNome: { ancora: V3; pxPorMetro: 200 };
+  objetos: ObjetoQuarto[];
+  anotacoes: Array<{ id: 'comece'; relativoA: IdObjeto; dx: number; dy: number; rot: number; larguraMax: number }
+                 | { id: 'role'; tela: { x: string; base: number }; rot: number; larguraMax: number }>;
+}
+```
+
+- `preencher` do 01: `{ lVw: .92, lMax: 1100, aVh: .86, aMenos: 56, aMax: 700 }`; do 03: `{ lVw: .86, lMax: 1040, aVh: .80, aMenos: 56, aMax: 680 }`; do 06: `{ lVw: .92, lMax: 99999, aVh: 1, aMenos: 88, aMax: 99999 }`.
+- **Validador** (derruba a build):
+  - 8 objetos, capítulos 1–8 e destinos únicos;
+  - cada `caixa` dentro de `limites`, e nenhuma `caixa` se cruza com outra;
+  - `foco.alvo` dentro da própria `caixa` (as vistas dentro aceitam o alvo na face da `janela`);
+  - `janela` e `preencher` presentes **só e sempre** em `tela`, `cortica` e `estante`;
+  - nas vistas dentro, `az = el = 0`;
+  - `az` ∈ [−60, 60], `el` ∈ [−10, 70] e `margem` ∈ [0,05; 0,5];
+  - `postit.ancora` a no máximo 0,4 m da `caixa` do objeto, e `rot` ∈ [−6, 6].
+- **Calibração:** `?calibrar=1` (só em desenvolvimento) mostra os alvos de clique em *wireframe*, os `alvo`s como esferas de 2 cm, as `janela`s em contorno vermelho e as âncoras dos post-its. Ele também registra no console as colisões de post-its na tela atual. `?calibrar=og` renderiza a visão geral em 1200×630, sem HUD, para capturar o `og.png`.
+
+### 13.13 Chaves de texto
+
+| Chave | pt | en |
+|---|---|---|
+| `quarto.cenaDescricao` (parágrafo `sr-only` antes de `quarto.ajuda`; substitui `quarto.imagemAlt`) | "Quarto de trabalho em 3D, visto do alto, com mesa, monitor, mural de cortiça, estante e porta. Oito objetos abrem os capítulos do site." | "A 3D workroom seen from above, with a desk, monitor, corkboard, bookshelf and door. Eight objects open the site's chapters." |
+| `quarto.carregando` | "Montando o quarto em 3D…" | "Building the 3D room…" |
+| `quarto.entrar3d` | "Entrar no quarto em 3D" | "Enter the 3D room" |
+| `quarto.semWebgl` | "Este navegador não exibe o quarto em 3D. Mostrando o modo recrutador." | "This browser can't show the 3D room. Showing recruiter mode." |
+| `quarto.erroCena` / `quarto.tentarDeNovo` | "Não foi possível carregar o quarto em 3D." / "Tentar de novo" | "Couldn't load the 3D room." / "Try again" |
+
+- **Saem:** `quarto.imagemAlt`.
+- **Mantidas:** todas as de 12.13.9, `intro.*`, `quarto.ajuda`, `quarto.explorarAbaixo` (link do herói mobile para os nichos) e `quarto.objetos.*.tema` (agora também na linha temática do post-it, 13.6).
+- Nenhuma chave nova afirma fatos sobre o Matheus.
+
+### 13.14 Tarefas para o `dev-frontend` (prevalecem sobre 12.11 e 12.13.9 onde conflitarem)
+
+25. **Remover a pipeline raster** (13.1):
+    - scripts, `npm run imagens`, `medir-imagens` no `verify`, `public/img/quarto/**`, `recortes.json`, `lqip.json`;
+    - `<picture>`, *preload* da imagem, LQIP, película das vistas e `src/scripts/camera.ts`.
+    - Acrescentar a nota de obsoleto em `docs/prompt-imagem-quarto.md`.
+26. **Dependências:** `three` e `@types/three` (dev). Criar `src/cena/` com `index.ts` (API: `iniciar(opts)`, `irPara(id | 'geral' | passo, { animar })`, `voltar()`, `destacar(id | null)`, `retanguloJanela(id)`, `pausar()`, `destruir()`), `paleta.ts`, `casca.ts`, `decoracao.ts`, `objetos/*.ts` (um por clicável), `luzes.ts`, `texturas.ts`, `camera.ts` (`enquadrar`, voo, paralaxe), `projecao.ts` (post-its e anotações), `escolha.ts` (*raycast*) e `nivel.ts`.
+27. **Casca, decoração e clicáveis** exatamente como em 13.2–13.4, com fusão por material, livros e lâmpadas em `InstancedMesh` e materiais próprios por clicável.
+28. **Luz** (13.7): luzes fixas, interpolação no tema, sombra estática, `toneMapped: false` nos emissivos, calibração pelo critério dado; decalque e sombras de contato no nível leve.
+29. **Câmera** (13.5): `enquadrar()` com `setViewOffset`, áreas livres, voo em arco, sequência de abertura aos 75%, volta, interrupção, chegada, paralaxe e cortes com movimento reduzido. Tokens novos em `tokens.css`: `--dur-voo: 900ms; --dur-voo-volta: 700ms; --dur-tour: 900ms; --dur-chegada: 1200ms; --ease-voo: cubic-bezier(0.65, 0, 0.35, 1); --ease-chegada: cubic-bezier(0.33, 1, 0.68, 1)`.
+30. **Hover, foco e clique** (13.6) sincronizados com os `<a class="objeto">`; linha temática no post-it.
+31. **Texto na cena** (13.8): bloco do nome via `CSS3DRenderer` no mesmo lugar do DOM, post-its projetados com pivô, anotações relativas, `retanguloJanela` alimentando `vista.ts`, objetos 3D ocultos nas vistas dentro e texturas de canvas.
+32. **Tour** (12.13.2) usando `cena.irPara(passo)` com as áreas livres de 13.5.2; o passo 9 é a pose do 01.
+33. **Mobile** (13.9): herói com a linha da carreira, nichos só de texto, botão "Entrar no quarto em 3D", palco do tour mobile e folha inferior.
+34. **Carregamento e fallback** (13.10): teste no `<head>`, `import()` no *idle*, montagem fatiada + `compileAsync`, intro como carregamento, pílula de status, cartão de erro e renderização sob demanda.
+35. **Config e validador** (13.12) com os valores de 13.4 e 13.8.2; `?calibrar=1` e `?calibrar=og`.
+36. **Textos** (13.13) em pt e en.
+37. **Testes e verificação:**
+    - **Vitest:** `enquadrar()` deve manter os 8 cantos de cada `caixa` dentro da área livre (reduzida pela metade da margem) em 1920×1080, 1440×900, 1280×800, 1024×768 e 2560×1080, nos contextos de vista e de tour; o validador recusa configs inválidas.
+    - **No navegador:**
+      - os 8 objetos aparecem inteiros em cada foco nas 5 resoluções;
+      - nenhum post-it colide na visão geral (13.8.2);
+      - SO, mural e estante com a moldura sobre a `janela`;
+      - Esc, "Voltar" e o voltar do navegador em todos os capítulos e no meio do voo;
+      - teclado, leitor de tela, movimento reduzido, `forced-colors` e troca dia/noite;
+      - links diretos `/#exp-kpmg` e `/#ficha` antes e depois da cena pronta;
+      - Chrome com a aceleração de hardware desligada (deve cair no modo recrutador sem CLS);
+      - 360×640 e tablet em pé.
+    - **Lighthouse** conforme 13.10 (mobile emulado e desktop com GPU real); `scripts/medir-cena.mjs` no `verify`.
+    - Depois da aprovação do Matheus: capturar o novo `og.png` com `?calibrar=og` (≤ 150 KB).
+
+### 13.15 Riscos
+
+- **Peso do `three` no celular:** mitigado por não carregar o 3D sozinho no mobile e pelo orçamento no CI. Se o *chunk* passar de 250 KB, corte primeiro o `CSS3DRenderer` (o nome vira HTML projetado sem perspectiva, como os post-its) e depois o `RoundedBoxGeometry` (troque por `Box`).
+- **Aparência "genérica de Three.js":** a identidade vem da maquete cortada, dos cantos arredondados, da paleta chapada dos tokens e da luz da janela, sem texturas fotográficas. Não acrescente HDRI, *bloom* nem materiais PBR brilhantes.
+- **Teste dos 30 segundos:** sem mudança em relação a 12.12. "Modo recrutador" continua sendo o 1º focável, e no celular a 1ª tela já tem nome, Dados → IA e LinkedIn em HTML.
+- **Acessibilidade do 3D:** todo caminho existe sem ponteiro e sem WebGL (links, cartões e modo recrutador). O `<canvas>` é decorativo.
+- **Calibração da luz:** as intensidades são o ponto de partida; o critério de 13.7 é o que vale.

@@ -72,6 +72,10 @@ export default defineConfig({
     },
   ],
 
+  // O chunk da cena (three + src/cena) passa de 500 KB sem minificar, de propósito: ele só carrega sob demanda e o orçamento
+  // (≤ 250 KB gzip) é conferido por scripts/medir-cena.mjs, então o aviso genérico do bundler não ajuda.
+  vite: { build: { chunkSizeWarningLimit: 800 } },
+
   integrations: [
     verificarAncoras(),
     sitemap({

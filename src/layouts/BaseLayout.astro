@@ -39,12 +39,14 @@ const pessoa = {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!--
-      Script de início (design 1.4), antes de qualquer CSS ou pintura, ≤ 1 KB:
-      tema salvo, classe "js" e modo. Chaves de localStorage: "tema" (light|dark) e "modo" (quarto|recrutador).
+      Script de início (design 1.4, 13.10), antes de qualquer CSS ou pintura, ≤ 1,5 KB: tema salvo, classe "js", modo e teste de
+      WebGL2. Chaves: "tema" (light|dark) e "modo" (quarto|recrutador). Sem WebGL2 (ou com aceleração desligada), o modo
+      recrutador entra ANTES da 1ª pintura, sem salto de layout, e sessionStorage.semWebgl avisa o módulo principal.
     -->
     <script is:inline>
       (function () {
         const d = document.documentElement;
+        const w = window;
         d.classList.add('js');
         let tema = null;
         let modo = null;
@@ -55,9 +57,26 @@ const pessoa = {
         if (tema === 'dark' || tema === 'light') d.dataset.theme = tema;
         const q = new URLSearchParams(location.search).get('modo');
         if (q === 'recrutador' || q === 'quarto') modo = q;
-        if (modo !== 'recrutador') d.dataset.modo = 'quarto';
-        // Intro SQL (design 11.2): só no quarto, na 1ª visita, sem hash nem ?modo, sem movimento reduzido e com palco.
-        if (d.dataset.modo && !location.hash && !location.search.includes('modo=') && innerWidth > 767 && innerWidth / innerHeight >= 1.3 && !matchMedia('(prefers-reduced-motion:reduce)').matches && !navigator.connection?.saveData) {
+        if (modo !== 'recrutador') {
+          let ok = 0;
+          try {
+            const g = document.createElement('canvas').getContext('webgl2', { failIfMajorPerformanceCaveat: true });
+            if (g) {
+              ok = 1;
+              const x = g.getExtension('WEBGL_lose_context');
+              if (x) x.loseContext();
+            }
+          } catch {}
+          if (ok) d.dataset.modo = 'quarto';
+          else {
+            d.dataset.semWebgl = '';
+            try {
+              sessionStorage.setItem('semWebgl', '1');
+            } catch {}
+          }
+        }
+        // Intro SQL (design 11.2): só no quarto, na 1ª visita, sem hash nem ?modo, sem movimento reduzido e em tela cheia.
+        if (d.dataset.modo && !location.hash && !location.search.includes('modo=') && w.innerWidth > 767 && w.innerWidth / w.innerHeight >= 1.3 && !matchMedia('(prefers-reduced-motion:reduce)').matches && !navigator.connection?.saveData) {
           try {
             if (!localStorage.getItem('quarto-intro-vista')) {
               localStorage.setItem('quarto-intro-vista', '1');

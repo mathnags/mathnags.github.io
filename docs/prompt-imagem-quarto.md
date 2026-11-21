@@ -1,5 +1,7 @@
 # Prompt e especificação da imagem do quarto
 
+> **Obsoleto desde a revisão 7 (design 13).** O quarto agora é uma cena 3D modelada em código (Three.js), sem arte raster. Este arquivo fica só como histórico.
+
 Para o Matheus gerar a arte do quarto (dia e noite) numa IA de imagem gratuita ou no Blender. A especificação de uso no site está em `docs/design.md`, seções 12 e **12.13** (versão atual: cena densa, monitor grande, parede livre para o nome, luz suave e raio de sol).
 
 > **Antes de começar: confira os termos de uso da ferramenta.** Eles precisam permitir usar a imagem gerada **no seu portfólio público** (alguns planos gratuitos restringem o uso, exigem atribuição ou não garantem direitos). Guarde um print ou link dos termos e anote a ferramenta, o modelo, a data, o prompt e a seed em `content/fonte/arte/origem.md`. Isso documenta a origem da arte.

@@ -69,7 +69,12 @@
   },
   "quarto": {
     "titulo": "Room: pick an object",
-    "imagemAlt": "Illustration of a workroom with a desk, monitor, corkboard, bookshelf and door, with eight objects that open the site's chapters.",
+    "cenaDescricao": "A 3D workroom seen from above, with a desk, monitor, corkboard, bookshelf and door. Eight objects open the site's chapters.",
+    "carregando": "Building the 3D room…",
+    "entrar3d": "Enter the 3D room",
+    "semWebgl": "This browser can't show the 3D room. Showing recruiter mode.",
+    "erroCena": "Couldn't load the 3D room.",
+    "tentarDeNovo": "Try again",
     "explorarAbaixo": "Explore the room",
     "ajuda": "8 chapters across 8 objects. Use Tab or the arrow keys to choose, Enter to open and Esc to go back.",
     "dica": {

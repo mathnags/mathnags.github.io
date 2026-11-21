@@ -69,7 +69,12 @@
   },
   "quarto": {
     "titulo": "Quarto: escolha um objeto",
-    "imagemAlt": "Ilustração de um quarto de trabalho com mesa, monitor, mural de cortiça, estante e porta, com oito objetos que abrem os capítulos do site.",
+    "cenaDescricao": "Quarto de trabalho em 3D, visto do alto, com mesa, monitor, mural de cortiça, estante e porta. Oito objetos abrem os capítulos do site.",
+    "carregando": "Montando o quarto em 3D…",
+    "entrar3d": "Entrar no quarto em 3D",
+    "semWebgl": "Este navegador não exibe o quarto em 3D. Mostrando o modo recrutador.",
+    "erroCena": "Não foi possível carregar o quarto em 3D.",
+    "tentarDeNovo": "Tentar de novo",
     "explorarAbaixo": "Explorar o quarto",
     "ajuda": "8 capítulos em 8 objetos. Use Tab ou as setas para escolher, Enter para abrir e Esc para voltar.",
     "dica": {

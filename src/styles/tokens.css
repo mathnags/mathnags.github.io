@@ -42,13 +42,11 @@
   --fan-red: #c8352e;
   --fan-blue: #2d4f8e;
 
-  /* 12.1 HUD, 12.13.3 halo do nome, 12.13.4 post-it, 12.2 película */
+  /* 12.1 HUD, 12.13.3 halo do nome, 12.13.4 post-it */
   --hud-bg: rgb(255 255 255 / 0.82);
   --hud-borda: rgb(21 23 28 / 0.12);
   --halo: #ffffff;
   --postit: #fff1b8;
-  --pelicula-intro: rgb(246 244 238 / 0.4);
-  --pelicula-vista: rgb(18 20 26 / 0.25);
 
   /* 2.5 Sombras (chapadas) */
   --shadow-1: 0 2px 0 rgb(21 23 28 / 0.08);
@@ -103,13 +101,17 @@
   /* 2.6 Animação */
   --dur-1: 120ms;
   --dur-2: 180ms;
-  --dur-zoom: 400ms;
-  --dur-zoom-out: 320ms;
+  --dur-voo: 900ms;
+  --dur-voo-volta: 700ms;
+  --dur-tour: 900ms;
+  --dur-chegada: 1200ms;
   --dur-reveal: 160ms;
   --dur-light: 320ms;
   --dur-draw: 700ms;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-std: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-voo: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-chegada: cubic-bezier(0.33, 1, 0.68, 1);
 }
 
 /* Luz apagada por escolha manual (interruptor grava data-theme no <html>) */
@@ -134,7 +136,6 @@
   --hud-borda: rgb(236 232 223 / 0.14);
   --halo: #12141a;
   --postit: #e8d98f;
-  --pelicula-intro: rgb(18 20 26 / 0.4);
   --room-wall-shade: #191c28;
   --room-wood: #4e3a2b;
   --room-wood-dark: #3a2b20;
@@ -174,8 +175,7 @@
     --hud-borda: rgb(236 232 223 / 0.14);
     --halo: #12141a;
     --postit: #e8d98f;
-    --pelicula-intro: rgb(18 20 26 / 0.4);
-    --room-wall-shade: #191c28;
+      --room-wall-shade: #191c28;
     --room-wood: #4e3a2b;
     --room-wood-dark: #3a2b20;
     --room-metal: #0e1015;

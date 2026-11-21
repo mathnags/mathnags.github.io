@@ -188,7 +188,12 @@ export const textosSchema = z.strictObject({
   /* Quarto e vistas */
   quarto: z.strictObject({
     titulo: texto,
-    imagemAlt: texto,
+    cenaDescricao: texto,
+    carregando: texto,
+    entrar3d: texto,
+    semWebgl: texto,
+    erroCena: texto,
+    tentarDeNovo: texto,
     explorarAbaixo: texto,
     ajuda: texto,
     dica: z.strictObject({ ponteiro: texto, toque: texto }),
