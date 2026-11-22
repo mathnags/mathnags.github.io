@@ -1,7 +1,7 @@
 /**
  * Intro "query carregando o quarto" (design 11.2, 13.10). A decisão de mostrar (data-intro) e a linha do tempo são do
  * script inline do <head> e do CSS. A intro também é a tela de carregamento da cena: se a cena não estiver pronta no fim
- * da execução (cerca de 1,7 s), a linha do tempo pausa com a barra "executando…" indeterminada, e só continua (linha de
+ * da execução (cerca de 0,9 s), a linha do tempo pausa com a barra "executando…" indeterminada, e só continua (linha de
  * resultado, saída) quando a cena ficar pronta. "Pular" esconde a intro, mas não cancela o carregamento.
  */
 import { html, palco } from './ctx';
@@ -24,7 +24,7 @@ export function vigiarEspera() {
   if (!('intro' in html.dataset)) return;
   setTimeout(() => {
     if ('intro' in html.dataset && html.dataset.cena !== 'pronta') html.dataset.introEspera = '';
-  }, 1700);
+  }, 900);
 }
 
 /** A cena ficou pronta: a linha do tempo da intro segue do ponto em que parou. */

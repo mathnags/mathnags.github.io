@@ -80,21 +80,7 @@
     gap: var(--space-2);
   }
 
-  .vista-alvo {
-    display: none;
-    font: 500 var(--fs-label)/1 var(--ff-mono);
-    white-space: nowrap;
-  }
-
-  @media (min-width: 1024px) {
-    .vista-alvo { display: inline; }
-  }
-
-  .vista-alvo .c { display: none; }
-
-  @media (min-width: 1024px) {
-    .vista-alvo .c { display: inline; }
-  }
+  .vista-alvo { white-space: nowrap; }
 
   .vista-ant[hidden],
   .vista-prox[hidden] { display: none; }
@@ -107,6 +93,17 @@
   }
 
   .vista-titulo .dual:focus { outline: none; }
+
+  /* Só o nome comum no título; número e nome temático seguem no DOM só para leitores de tela (item 5). */
+  .vista-titulo .dual .cap,
+  .vista-titulo .dual .tema {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
 
   /* ---------- Moldura e miolo ---------- */
   .vista-moldura {
@@ -127,6 +124,13 @@
     overflow: auto;
     overscroll-behavior: contain;
     border-radius: inherit;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+
+  /* Há mais conteúdo abaixo: a borda inferior esmaece (data-mais é ligado em vista.ts). A tela do monitor tem rolagem própria. */
+  #vista:not([data-vista='tela']) .vista-moldura[data-mais] .vista-miolo {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 56px), transparent);
   }
 
   #vista .secao { padding: 0; }
@@ -148,7 +152,6 @@
 
   #vista .ficha-col { gap: var(--space-3); }
   #vista .ficha-h3 { margin: 0; padding: var(--space-5) var(--space-5) 0; font: 700 var(--fs-h3) / var(--lh-h3) var(--ff-display); }
-  #vista .ficha .selos { margin: 0; }
 
   /* cortiça (mural) */
   #vista[data-vista='cortica'] .vista-moldura {
@@ -171,7 +174,8 @@
   }
 
   #vista .exp {
-    display: block;
+    display: grid;
+    gap: var(--space-2);
     padding: 20px;
     border: 0;
     border-radius: var(--radius-xs);
@@ -237,22 +241,16 @@
   #vista .livro {
     position: relative;
     margin-left: var(--desl);
-    padding: var(--space-3) var(--space-4) var(--space-3) calc(var(--space-4) + 8px);
+    padding: var(--space-3) var(--space-4);
     min-height: 44px;
+    border: 2px solid var(--cor-livro, var(--border-strong));
     border-radius: var(--radius-xs);
   }
 
-  #vista .livro-faixa {
-    position: absolute;
-    inset: 0 auto 0 0;
-    display: block;
-    width: 8px;
-    border-radius: var(--radius-xs) 0 0 var(--radius-xs);
-  }
-
-  #vista .livro-ia .livro-faixa { background: var(--room-fabric); }
-  #vista .livro-formacao .livro-faixa { background: var(--room-wood); }
-  #vista .livro-cert .livro-faixa { background: var(--fan-blue); }
+  /* Cor do grupo na borda inteira (sem barra lateral). */
+  #vista .livro-ia { --cor-livro: var(--room-fabric); }
+  #vista .livro-formacao { --cor-livro: var(--room-wood); }
+  #vista .livro-cert { --cor-livro: var(--fan-blue); }
 
   @media (prefers-reduced-motion: reduce) {
     #vista .livro { margin-left: 0; }
@@ -294,8 +292,10 @@
 
   /* caixa de ferramentas */
   #vista[data-vista='caixa'] .vista-moldura {
-    background: var(--surface-2);
-    border-top: 16px solid var(--room-metal);
+    padding-top: 16px;
+    /* Tampa da caixa desenhada como fundo (sem borda grossa no cartão arredondado). */
+    background: linear-gradient(var(--room-metal) 0 16px, transparent 16px) top / 100% 16px no-repeat, var(--surface-2);
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
   }
 
   #vista[data-vista='caixa'] .vista-miolo { background: transparent; }
@@ -316,24 +316,37 @@
 
   /* tecido (lenço, bola, headset, estojos) */
   #vista[data-vista='tecido'] .vista-moldura {
-    background: var(--bg);
-    border-top: 28px solid var(--room-fabric);
+    padding-top: 28px;
+    /* Faixa do lenço desenhada como fundo (sem borda grossa no cartão arredondado). */
+    background: linear-gradient(var(--room-fabric) 0 28px, transparent 28px) top / 100% 28px no-repeat, var(--bg);
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
   }
 
   #vista[data-vista='tecido'] .vista-moldura::before {
     content: '';
     position: absolute;
-    top: -2px;
+    top: 26px;
     left: var(--space-5);
-    border-top: 22px solid var(--room-fabric);
-    border-inline: 22px solid transparent;
-    transform: translateY(0);
+    width: 44px;
+    height: 22px;
+    background: var(--room-fabric);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
   }
 
   #vista[data-vista='tecido'] .vista-miolo { background: transparent; }
 
   /* carta */
   #vista[data-vista='carta'] .vista-moldura { background: var(--room-paper); }
+
+  /* Desktop: o envelope tem a altura do conteúdo e fica centrado na faixa do painel (sem metade vazia). */
+  @media (min-width: 768px) and (min-aspect-ratio: 13/10) {
+    #vista[data-vista='carta'] .vista-moldura {
+      bottom: calc(100% - var(--my) - var(--mh));
+      height: fit-content;
+      max-height: var(--mh);
+      margin-block: auto;
+    }
+  }
 
   #vista[data-vista='carta'] .vista-moldura::before {
     content: '';
@@ -384,7 +397,10 @@
       border-top: 1px solid var(--border);
     }
 
-    .vista-alvo { display: inline; }
+    /* Nomes completos nos botões (sem número): encolhem e cortam com reticências em vez de estourar a largura. */
+    .vista-ant,
+    .vista-prox { min-width: 0; padding: 0 10px; gap: 6px; font-size: 0.875rem; }
+    .vista-alvo { display: inline; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 
     .vista-moldura {
       inset: 56px 0 56px;
@@ -431,4 +447,10 @@
   padding: 0 var(--space-3);
   background: var(--surface);
   border-radius: var(--radius-xs);
+}
+
+/* Atalhos entre blocos da vista: discretos, para não competir com o título. */
+#vista .atalhos a {
+  color: var(--text-muted);
+  font-size: var(--fs-small);
 }

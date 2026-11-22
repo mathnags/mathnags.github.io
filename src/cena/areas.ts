@@ -23,9 +23,9 @@ const FOLGA = 8;
 /** Borda direita reservada ao trilho do tour: 12 px de margem + 28 px de largura + 16 px de ar. */
 export const TRILHO = 56;
 
-/** Visão geral. Mobile: a mesma área do tour mobile (a câmera enquadra os 55% de cima). */
+/** Visão geral. Mobile: do HUD até o cartão do nome (28% da base), para o quarto ficar centrado no espaço livre e não colado ao topo. */
 export function areaGeral(L: number, A: number): Rect {
-  if (compacto(L, A)) return { x: 0, y: BARRA, l: L, a: 0.55 * A - BARRA };
+  if (compacto(L, A)) return { x: 0, y: BARRA, l: L, a: 0.72 * A - BARRA };
   return { x: 0, y: HUD_TOPO, l: L, a: A - HUD_TOPO - BASE_GERAL };
 }
 

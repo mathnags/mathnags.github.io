@@ -180,18 +180,17 @@
   }
 }
 
-@media (min-width: 1280px) {
-  .topo-nav {
-    flex-basis: auto;
-    order: 0;
+/* Grade fixa do cabeçalho do recrutador, igual em pt e en: marca e controles na 1ª linha, nav na 2ª. No celular, idioma e luz moram dentro do Menu. */
+@media (max-width: 767px) {
+  html.js:not([data-modo='quarto']) .topo-dir {
+    display: none;
   }
 
-  .topo-nome {
-    margin-right: 0;
-  }
-
-  .topo-nav {
-    margin-right: auto;
+  html.js:not([data-modo='quarto']) .btn-menu[aria-expanded='true'] ~ .topo-dir {
+    display: flex;
+    flex-basis: 100%;
+    order: 11;
+    margin-left: 0;
   }
 }
 
@@ -270,9 +269,12 @@
   position: absolute;
   left: 11px;
   top: 9px;
+  display: grid;
+  place-items: center;
   width: 20px;
   height: 22px;
   background: var(--text);
+  color: var(--surface);
   border-radius: var(--radius-xs);
   transition: transform 160ms var(--ease-std);
 }
@@ -298,8 +300,8 @@
   white-space: nowrap;
 }
 
-/* No modo recrutador o texto só cabe na barra a partir de 1440 px; no HUD do quarto, a partir de lg (1024 px). */
-@media (min-width: 1440px) {
+/* O rótulo da luz fica visível a partir de md (768 px) nos dois modos. */
+@media (min-width: 768px) {
   .luz-txt {
     position: static;
     width: auto;
@@ -581,11 +583,8 @@ main:focus {
   }
 }
 
-.ficha-topo {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3);
+.frase-ini {
+  color: var(--accent-strong);
 }
 
 .eyebrow {
@@ -665,24 +664,6 @@ main:focus {
   margin-right: var(--space-2);
   border-radius: var(--radius-full);
   background: var(--pine);
-}
-
-.provas {
-  display: grid;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.provas li::before {
-  content: '';
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-right: 10px;
-  background: var(--accent);
-  transform: rotate(45deg);
 }
 
 /* ---------- 01 Vértice: o "SO" do monitor (design 12.13.1) ---------- */
@@ -1129,9 +1110,11 @@ main:focus {
 }
 
 .exp-cargo {
-  display: grid;
-  gap: 2px;
-  margin: 0 0 var(--space-2);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px var(--space-3);
+  margin: 0;
 }
 
 .cargo-nome {
@@ -1148,7 +1131,7 @@ main:focus {
 }
 
 .exp-meta {
-  margin: 2px 0 var(--space-3);
+  margin: 0 0 var(--space-2);
   color: var(--text-muted);
   font-size: var(--fs-small);
   line-height: var(--lh-small);
@@ -1160,13 +1143,6 @@ main:focus {
 
 .aprendizado strong {
   color: var(--paper-text);
-}
-
-@container (min-width: 640px) {
-  .exp {
-    grid-template-columns: 140px 1fr;
-    column-gap: var(--space-5);
-  }
 }
 
 /* ---------- 04 Projetos ---------- */
@@ -1210,14 +1186,6 @@ main:focus {
   font-size: var(--fs-small);
 }
 
-.amostra {
-  display: inline-block;
-  width: 20px;
-  height: 14px;
-  background: var(--pine-tint);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-xs);
-}
 
 .nota-hab {
   max-width: 62ch;
@@ -1377,9 +1345,16 @@ main:focus {
   gap: var(--space-5);
 }
 
+/* Escotismo e Vôlei empilhados à esquerda; Games, mais longo, ocupa a coluna da direita (sem cartões esticados com vazio). */
 @container (min-width: 560px) {
   .cards-alem {
     grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  #alem-games {
+    grid-column: 2;
+    grid-row: 1 / span 2;
   }
 }
 

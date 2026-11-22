@@ -31,6 +31,11 @@ let h2: HTMLElement | null = null;
 let marcaH2: Comment | null = null;
 let rodada = 0;
 
+/** Há mais conteúdo abaixo? A moldura ganha data-mais e o CSS esmaece a borda inferior do miolo (sinal de rolagem). */
+const indicarRolagem = () => moldura.toggleAttribute('data-mais', miolo.scrollHeight - miolo.scrollTop - miolo.clientHeight > 8);
+const observador = new ResizeObserver(indicarRolagem);
+miolo.addEventListener('scroll', indicarRolagem, { passive: true });
+
 function definirEstado(e: Estado) {
   estado = e;
   palco.dataset.estado = e;
@@ -58,7 +63,9 @@ function colocar(obj: ObjCfg) {
     sec.replaceWith(marca);
     miolo.append(sec);
     movidas.push({ sec, marca });
+    observador.observe(sec);
   }
+  observador.observe(miolo);
   const principal = movidas[movidas.length - 1]?.sec;
   h2 = principal?.querySelector<HTMLElement>(':scope > .secao-in > h2') ?? null;
   if (h2) {
@@ -73,6 +80,8 @@ function colocar(obj: ObjCfg) {
 }
 
 function devolver() {
+  observador.disconnect();
+  moldura.removeAttribute('data-mais');
   if (h2 && marcaH2) {
     h2.removeAttribute('tabindex');
     marcaH2.replaceWith(h2);
@@ -103,12 +112,7 @@ function atualizarNavegacao(obj: ObjCfg) {
     botao.hidden = !o;
     const alvo = botao.querySelector<HTMLElement>('.vista-alvo');
     const l = o ? linkDe(o) : null;
-    if (o && alvo && l) {
-      const c = document.createElement('span');
-      c.className = 'c';
-      c.textContent = ` ${l.querySelector('.p-nome')?.textContent ?? ''}`;
-      alvo.replaceChildren(l.querySelector('.p-num')?.textContent ?? '', c);
-    }
+    if (o && alvo && l) alvo.textContent = l.querySelector('.p-nome')?.textContent ?? '';
   };
   rotulo(principais.find((o) => o.capitulo === obj.capitulo - 1), botaoAnt);
   rotulo(principais.find((o) => o.capitulo === obj.capitulo + 1), botaoProx);
@@ -134,6 +138,10 @@ function abrirVista(obj: ObjCfg, alvoId: string, comAnimacao: boolean) {
   definirEstado('aberto');
   marcarLido(obj.capitulo);
   rolarPara(alvoId, obj);
+  // A rolagem nativa do #fragmento pode chegar depois (hashchange): reaplica nos próximos quadros.
+  requestAnimationFrame(() => requestAnimationFrame(() => objAtual === obj && rolarPara(alvoId, obj)));
+  // O navegador rola o #fragmento para o alvo ao fim do load, já dentro do miolo: repete a rolagem certa depois dele.
+  if (document.readyState !== 'complete') addEventListener('load', () => setTimeout(() => objAtual === obj && rolarPara(alvoId, obj), 0), { once: true });
   if (obj.vista.tipo !== 'tela' || mobile.matches) h2?.focus({ preventScroll: true });
   else document.getElementById('vertice-leiame-titulo')?.focus({ preventScroll: true });
   if (comAnimacao) {
@@ -227,6 +235,23 @@ function irPara(obj: ObjCfg, alvoId: string) {
   void mostrar(obj, alvoId, true, true);
 }
 
+const semHover = matchMedia('(hover: none)');
+
+/** Sem hover (toque): o 1º toque num objeto mostra o rótulo e a luz; o 2º abre. Devolve true se o toque foi só o 1º. */
+function primeiroToque(a: HTMLAnchorElement, e: MouseEvent) {
+  const toque = !e.isTrusted || e.detail > 0; // Enter/Espaço no teclado (detail 0 e confiável) abre direto
+  if (!semHover.matches || !toque || !a.classList.contains('objeto') || a.hasAttribute('data-hover')) return false;
+  for (const m of document.querySelectorAll('a.objeto[data-hover]')) m.removeAttribute('data-hover');
+  a.setAttribute('data-hover', '');
+  cenaAtual()?.destacar(a.dataset.objeto as never);
+  setTimeout(() => {
+    if (!a.hasAttribute('data-hover')) return;
+    a.removeAttribute('data-hover');
+    cenaAtual()?.destacar(null);
+  }, 4000);
+  return true;
+}
+
 export function iniciarVista() {
   // Marcadores, nichos e botões "Abrir capítulo": abrem a vista (ou ignoram durante o zoom).
   document.addEventListener('click', (e) => {
@@ -236,6 +261,7 @@ export function iniciarVista() {
     e.preventDefault();
     const obj = cfg.objetos.find((o) => o.id === a.dataset.objeto);
     if (!obj || estado !== 'repouso') return;
+    if (primeiroToque(a, e)) return;
     origem = a;
     hist.empurrar(obj.destino);
     void mostrar(obj, obj.destino, true);

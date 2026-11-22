@@ -11,6 +11,7 @@ const { item, rotuloAprendizado } = Astro.props;
 
 <li class="exp" id={item.id}>
   <span class="tachinha" aria-hidden="true"></span>
+  <h3>{item.empresa}</h3>
   <div class="exp-cargos">
     {
       item.cargos.map((c) => (
@@ -21,16 +22,13 @@ const { item, rotuloAprendizado } = Astro.props;
       ))
     }
   </div>
-  <div class="exp-corpo">
-    <h3>{item.empresa}</h3>
-    <p class="exp-meta">{item.area} · {item.local}</p>
-    <ul class="lista">{item.bullets.map((b) => <li>{b}</li>)}</ul>
-    {
-      item.aprendizado && (
-        <p class="aprendizado">
-          <strong>{rotuloAprendizado}:</strong> {item.aprendizado}
-        </p>
-      )
-    }
-  </div>
+  <p class="exp-meta">{item.area} · {item.local}</p>
+  <ul class="lista">{item.bullets.map((b) => <li>{b}</li>)}</ul>
+  {
+    item.aprendizado && (
+      <p class="aprendizado">
+        <strong>{rotuloAprendizado}:</strong> {item.aprendizado}
+      </p>
+    )
+  }
 </li>

@@ -12,12 +12,17 @@ interface Props {
 const { lang } = Astro.props;
 const h = getTextos(lang).habilidades;
 const rotulo = rotuloSecao(lang, 'habilidades');
+// A legenda usa um chip real (o 1º com contexto real) como exemplo, em vez de um quadrado solto.
+const exemplo = h.grupos.flatMap((g) => g.itens).find((i) => i.contextoReal);
 ---
 
 <section id="habilidades" class="secao secao-habilidades" aria-labelledby={rotulo.id}>
   <div class="secao-in">
     <DualLabel nivel="h2" {...rotulo} />
-    <p class="legenda-ctx"><span class="amostra" aria-hidden="true"></span>{h.legendaContextoReal}</p>
+    <p class="legenda-ctx">
+      {exemplo && <span aria-hidden="true"><Chip nome={exemplo.nome} contexto={exemplo.contextoReal} /></span>}
+      {h.legendaContextoReal}
+    </p>
     {h.nota && <p class="nota-hab">{h.nota}</p>}
     <div class="grupos">
       {

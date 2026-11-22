@@ -41,6 +41,11 @@ const statusEscotismo = a.escotismo.status;
         <p>{a.escotismo.texto}</p>
       </article>
 
+      <article class="card-alem" id={ANCORA_VOLEI} aria-labelledby="alem-volei-titulo">
+        <DualLabel nivel="h3" id="alem-volei-titulo" tema={a.volei.tema} comum={a.volei.titulo} />
+        <p>{a.volei.texto}</p>
+      </article>
+
       <article class="card-alem" id={ANCORA_GAMES} aria-labelledby="alem-games-titulo">
         <DualLabel nivel="h3" id="alem-games-titulo" tema={a.games.tema} comum={a.games.titulo} />
         <p>{a.games.texto}</p>
@@ -48,11 +53,6 @@ const statusEscotismo = a.escotismo.status;
         <p>{a.games.filmes}</p>
         <p>{a.games.origemVertice}</p>
         <p><a href="#vertice">{a.games.linkVertice}</a></p>
-      </article>
-
-      <article class="card-alem" id={ANCORA_VOLEI} aria-labelledby="alem-volei-titulo">
-        <DualLabel nivel="h3" id="alem-volei-titulo" tema={a.volei.tema} comum={a.volei.titulo} />
-        <p>{a.volei.texto}</p>
       </article>
     </div>
   </div>

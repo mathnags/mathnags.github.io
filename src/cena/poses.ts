@@ -24,7 +24,7 @@ export function enquadramento(cfg: CfgCliente, ctx: Ctx, L: number, A: number): 
   // O passo 9 do tour é a pose do 01 (SO embutido na tela do monitor).
   if (ctx.k === 'tour' && ctx.n >= 9) ctx = { k: 'vista', id: cfg.objetos[0].id };
   if (ctx.k === 'geral' || (ctx.k === 'tour' && ctx.n <= 0)) {
-    return { caixa: caixaDe(cfg.limites), alvo: new Vector3(...cfg.geral.alvo), dir: direcao(cfg.geral.az, cfg.geral.el), livre: areaGeral(L, A), margem: cfg.geral.margem };
+    return { caixa: caixaDe(cfg.limites), alvo: new Vector3(...cfg.geral.alvo), dir: direcao(cfg.geral.az, cfg.geral.el), livre: areaGeral(L, A), margem: compacto(L, A) ? Math.min(0.01, cfg.geral.margem) : cfg.geral.margem };
   }
   if (ctx.k === 'tour') {
     const x = cfg.objetos[ctx.n - 1];

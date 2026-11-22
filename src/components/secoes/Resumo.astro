@@ -1,9 +1,7 @@
 ---
 /** #ficha: resumo (design 4.5). No quarto vive na vista do porta-retrato (12.7), com h3 "Resumo". Nenhum número, nível ou barra. */
-import Selo from '../ui/Selo.astro';
 import BotaoCTA from '../ui/BotaoCTA.astro';
 import { getTextos } from '../../lib/textos';
-import { getUi } from '../../lib/ui';
 import type { Idioma } from '../../i18n/idiomas';
 
 interface Props {
@@ -11,7 +9,6 @@ interface Props {
 }
 const { lang } = Astro.props;
 const t = getTextos(lang);
-const ui = getUi(lang);
 ---
 
 <section id="ficha" class="ficha" aria-labelledby="ficha-titulo">
@@ -19,12 +16,7 @@ const ui = getUi(lang);
   <h3 class="ficha-h3">{t.ficha.tituloNaVista}</h3>
   <div class="ficha-in">
     <div class="ficha-col">
-    <div class="ficha-topo">
-      <ul class="selos" aria-label={ui.selosStatus}>
-        <Selo variante="transicao" texto={t.resumo.transicao} />
-      </ul>
-    </div>
-    <p class="frase">{t.hero.frase}</p>
+    <p class="frase"><strong class="frase-ini">{t.resumo.transicao}.</strong> {t.hero.frase}</p>
     <div class="ficha-acoes">
       <BotaoCTA lang={lang} href={t.contato.linkedinUrl} texto={t.hero.cta} externo />
       <a class="so-recrutador link-vertice" href="#vertice">{t.hero.ctaSecundario}</a>
@@ -41,9 +33,6 @@ const ui = getUi(lang);
         ))
       }
     </dl>
-    <ul class="provas">
-      {t.hero.provas.map((p) => <li>{p}</li>)}
-    </ul>
     </div>
   </div>
 </section>

@@ -116,16 +116,6 @@
     min-height: 56px;
   }
 
-  @media (min-width: 1024px) {
-    html[data-modo='quarto'] .luz-txt {
-      position: static;
-      width: auto;
-      height: auto;
-      overflow: visible;
-      clip: auto;
-    }
-  }
-
   html[data-modo='quarto'] .int-placa {
     height: 56px;
   }
@@ -300,7 +290,7 @@
     border-radius: 6px;
     box-shadow: var(--shadow-1);
     color: var(--text);
-    font: 500 13px/1.2 var(--ff-text);
+    font: 500 15px/1.2 var(--ff-text);
     text-align: center;
     opacity: 0;
     pointer-events: none;
@@ -463,6 +453,11 @@
 
   html[data-cena='carregando']:not([data-intro]) .carregando {
     opacity: 1;
+  }
+
+  /* Com uma vista aberta (link direto enquanto a cena monta) a pílula não vaza por cima do painel. */
+  .palco:not([data-estado='repouso']) .carregando {
+    visibility: hidden;
   }
 
   .carregando-barra {
@@ -695,6 +690,33 @@
   html[data-cena='pronta'] .parede-bloco {
     inset: auto 16px 16px;
   }
+
+  /* Toque: o 1º toque num objeto marca o link com data-hover; o marcador (oculto no celular) aparece só para mostrar o rótulo. */
+  html[data-cena='pronta'] .palco[data-passo='0'] .objetos:has([data-hover]) {
+    position: absolute;
+    inset: 0;
+    display: block;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    pointer-events: none;
+  }
+
+  html[data-cena='pronta'] .palco[data-passo='0'] .objetos li {
+    display: contents;
+  }
+
+  html[data-cena='pronta'] .palco[data-passo='0'] .objeto[data-hover] {
+    display: flex;
+    visibility: visible;
+    pointer-events: none;
+  }
+
+  /* A pílula de carregamento sobe para a área do quarto: embaixo ela atravessava o nome. */
+  .carregando {
+    top: 30svh;
+    bottom: auto;
+  }
 }
 
 /* ---------- Tela cheia (largura ≥ 768 e proporção ≥ 1.3): maquete 3D em 100dvh com voo de câmera e tour ---------- */
@@ -842,22 +864,23 @@
   /* Post-it "Fale comigo!" na parede: centro em (3,10; 2,24) m; largura para o texto caber em uma linha em pt e en */
   .em-3d .postit-contato {
     position: absolute;
-    left: 512px;
+    left: 490px;
     top: 0;
-    width: 196px;
-    height: 92px;
+    width: 300px;
+    height: 104px;
     padding: 0 12px;
     box-sizing: border-box;
     justify-items: center;
     rotate: -5deg;
   }
 
+  /* A parede reduz o texto (~0,6 ×): os tamanhos abaixo dão cerca de 12 px efetivos no CTA em 1440 px de largura. */
   .em-3d .pc-titulo {
-    font-size: 22px;
+    font-size: 34px;
   }
 
   .em-3d .pc-cta {
-    font-size: 13px;
+    font-size: 23px;
   }
 
   /* ---------- Anotações à mão (13.8.3): só ≥ 1024 px, no passo 0, e somem após a 1ª interação ---------- */
@@ -1125,7 +1148,7 @@
   }
 }
 
-/* ---------- Intro: "query carregando o quarto" (11.2, 13.10). Linha do tempo só em CSS (2,5 s); pausa enquanto a cena não está pronta. ---------- */
+/* ---------- Intro: "query carregando o quarto" (11.2, 13.10). Linha do tempo só em CSS (1,25 s); pausa enquanto a cena não está pronta. ---------- */
 @media screen and (min-width: 768px) and (min-aspect-ratio: 13/10) {
   html[data-intro] .intro {
     position: absolute;
@@ -1134,7 +1157,7 @@
     display: grid;
     place-items: center;
     transition: opacity 120ms var(--ease-std);
-    animation: intro-fim 1ms linear 2500ms forwards;
+    animation: intro-fim 1ms linear 1250ms forwards;
   }
 
   .intro.saindo {
@@ -1152,14 +1175,14 @@
     box-shadow: var(--shadow-2);
     color: var(--text);
     font: 500 15px/1.55 var(--ff-mono);
-    animation: intro-sai 400ms var(--ease-std) 2100ms forwards, intro-fim 1ms linear 2500ms forwards;
+    animation: intro-sai 250ms var(--ease-std) 1000ms forwards, intro-fim 1ms linear 1250ms forwards;
   }
 
   .intro-linha {
     margin: 0;
     overflow: hidden;
     white-space: nowrap;
-    animation: intro-linha 120ms var(--ease-out) calc(var(--n) * 300ms) backwards;
+    animation: intro-linha 120ms var(--ease-out) calc(var(--n) * 120ms) backwards;
   }
 
   .intro-comentario { color: var(--text-muted); }
@@ -1170,7 +1193,7 @@
     align-items: center;
     gap: var(--space-3);
     margin-top: var(--space-2);
-    animation: intro-aparece 120ms linear 1200ms backwards;
+    animation: intro-aparece 120ms linear 480ms backwards;
   }
 
   .intro-trilho {
@@ -1188,7 +1211,7 @@
     height: 100%;
     background: var(--accent);
     transform-origin: left;
-    animation: intro-enche 600ms linear 1200ms both;
+    animation: intro-enche 360ms linear 480ms both;
   }
 
   /* Cena ainda não pronta no fim da execução: a barra segue indeterminada e a linha de resultado espera */
@@ -1217,7 +1240,7 @@
   .intro-resultado {
     margin: var(--space-2) 0 0;
     color: var(--pine);
-    animation: intro-aparece 300ms linear 1800ms backwards;
+    animation: intro-aparece 200ms linear 860ms backwards;
   }
 
   .intro-pular {
@@ -1231,7 +1254,7 @@
     color: var(--text);
     font: 700 0.9375rem/1 var(--ff-text);
     cursor: pointer;
-    animation: intro-fim 1ms linear 2500ms forwards;
+    animation: intro-fim 1ms linear 1250ms forwards;
   }
 
   .intro-pular:hover { background: var(--surface-2); }

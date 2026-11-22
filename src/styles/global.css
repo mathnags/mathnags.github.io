@@ -13,6 +13,20 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  scrollbar-color: var(--border-strong) var(--bg);
+}
+
+/* Seleção com os tokens (as ilhas de papel já redefinem --accent e --on-accent). */
+::selection {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+/* Sem palavra solta na última linha. */
+p,
+li,
+dd {
+  text-wrap: pretty;
 }
 
 @media (min-width: 768px) {
