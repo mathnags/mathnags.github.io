@@ -55,6 +55,8 @@ interface Opcoes {
   sombraContato: Texture;
   janelasCidade: Texture;
   fumaca: Texture;
+  /** Anel de ventoinha em matiz (alfa): girar a textura gira a cor. */
+  anelRgb: Texture;
   rotulo: ReturnType<typeof texturaRotulo>;
 }
 
@@ -102,6 +104,7 @@ export function criarDecoracao(o: Opcoes): Decoracao {
 
   /* ---------- Janela (parede esquerda) ---------- */
   const papel = m.get(P.papel);
+  const ledControle = new MeshBasicMaterial({ color: P.ledDia, toneMapped: false });
   const metal = m.get(P.metal);
   const madeira = m.get(P.madeira);
   lote.add(Box(0.12, 0.05, 1.2), papel, [-0.06, 2.125, 1.9]);
@@ -151,7 +154,10 @@ export function criarDecoracao(o: Opcoes): Decoracao {
   g.add(quadro);
 
   /* ---------- Prateleira de estojos (aceno aos games) ---------- */
+  // Caixa aberta (nicho): base, tampo e duas laterais; fundo aberto contra a parede.
   lote.add(Box(0.22, 0.025, 0.6), madeira, [0.11, 1.55, 0.55]);
+  lote.add(Box(0.22, 0.025, 0.6), madeira, [0.11, 1.7925, 0.55]);
+  for (const z of [0.26, 0.84]) lote.add(Box(0.22, 0.2675, 0.02), madeira, [0.11, 1.67125, z]);
   lote.add(Box(0.02, 0.1, 0.02), metal, [0.02, 1.49, 0.35]);
   lote.add(Box(0.02, 0.1, 0.02), metal, [0.02, 1.49, 0.75]);
   // 8 estojos em pé, lombadas viradas para +x, com o atlas de lombadas (uma faixa de UV por estojo; cinco com nome).
@@ -165,14 +171,24 @@ export function criarDecoracao(o: Opcoes): Decoracao {
     for (let k = 0; k < uv.count; k++) uv.setX(k, (i + uv.getX(k)) / NE);
     lote.add(lombada, matLombada, [0.1785, 1.6575, z], [0, Math.PI / 2, 0]);
   }
-  // Controle genérico deitado na prateleira (forma própria, sem marca): corpo, empunhaduras, direcional, dois analógicos e 4 botões.
-  const yc = 1.5625;
-  lote.add(RB(0.07, 0.024, 0.15, 0.01), papel, [0.11, yc + 0.012, 0.7]);
-  for (const dz of [-0.06, 0.06]) lote.add(Cyl(0.022, 0.02, 0.05, 10), papel, [0.11, yc + 0.025, 0.7 + dz]);
-  for (const z of [0.675, 0.725]) lote.add(Cyl(0.009, 0.009, 0.012, 8), metal, [0.09, yc + 0.03, z]);
-  lote.add(Box(0.022, 0.004, 0.007), papel, [0.13, yc + 0.026, 0.655]);
-  lote.add(Box(0.007, 0.004, 0.022), papel, [0.13, yc + 0.026, 0.655]);
-  for (const [x, z, cor] of [[0.141, 0.745, P.coral], [0.119, 0.745, P.azul], [0.13, 0.756, P.tachinha], [0.13, 0.734, P.ervaVerde]] as const) lote.add(Esfera(0.006, 6, 4), m.get(cor), [x, yc + 0.027, z]);
+  // Controle cinza-grafite deitado na base do nicho (forma própria, sem marca): pegadas, gatilhos, dois analógicos com anel metálico,
+  // direcional em cruz, 4 botões prateados e faixa de luz azul em "V" (emissiva). Pegadas para +x (visitante), gatilhos para a parede.
+  const yc = 1.5625, cx0 = 0.11, cz0 = 0.7, yt = yc + 0.022;
+  const grafite = m.get(P.grafite), cromoC = m.get(P.cromo), pretoC = m.get(P.preto);
+  lote.add(RB(0.06, 0.022, 0.15, 0.01), grafite, [cx0, yc + 0.011, cz0]);
+  for (const lado of [-1, 1]) {
+    lote.add(RB(0.05, 0.022, 0.042, 0.012), grafite, [cx0 + 0.035, yc + 0.011, cz0 + lado * 0.056], [0, lado * 0.2, 0]);
+    lote.add(RB(0.012, 0.014, 0.034, 0.005), grafite, [cx0 - 0.034, yt + 0.002, cz0 + lado * 0.052]);
+    const dz = lado * 0.026;
+    lote.add(Box(0.0025, 0.0016, Math.hypot(0.018, dz)), ledControle, [cx0 - 0.017, yt + 0.0008, cz0 + dz / 2], [0, Math.atan2(0.018, -dz), 0]);
+  }
+  for (const [dx, dz] of [[-0.012, 0.045], [0.018, -0.02]]) {
+    lote.add(Tor(0.0125, 0.0028, 6, 14), cromoC, [cx0 + dx, yt + 0.001, cz0 + dz], [Math.PI / 2, 0, 0]);
+    lote.add(Cyl(0.0095, 0.011, 0.012, 12), pretoC, [cx0 + dx, yt + 0.006, cz0 + dz]);
+  }
+  lote.add(Box(0.023, 0.004, 0.008), pretoC, [cx0 + 0.018, yt + 0.001, cz0 + 0.02]);
+  lote.add(Box(0.008, 0.004, 0.023), pretoC, [cx0 + 0.018, yt + 0.001, cz0 + 0.02]);
+  for (const [dx, dz] of [[-0.026, -0.045], [0.002, -0.045], [-0.012, -0.059], [-0.012, -0.031]]) lote.add(Cyl(0.0055, 0.0055, 0.003, 10), cromoC, [cx0 + dx, yt + 0.0005, cz0 + dz]);
 
   /* ---------- Mesa industrial (tampo mel espesso, estrutura de aço preto em "U", sem gaveteiro) e o que fica sobre ela ---------- */
   const preto = m.get(P.preto);
@@ -264,6 +280,40 @@ export function criarDecoracao(o: Opcoes): Decoracao {
     cad.add(RB(0.07, 0.03, 0.28, 0.012), preto, [lado * 0.27, 0.7, 0.04]);
   }
   g.add(...cad.malhas(o.sombra));
+
+  // Gabinete gamer branco sob o tampo (lado direito, entre as pernas em U): vidro temperado na frente (+z) e na lateral (+x), 3 ventoinhas
+  // com anel RGB (2 na lateral, 1 na frente), fonte escura embaixo e pés cromados. Cabe sob o tampo (y 0,71) e longe da cadeira (z ≥ 1,0).
+  const [gx, gz, gW, gH, gD, gy] = [1.85, 0.42, 0.38, 0.46, 0.44, 0.03];
+  const bx = gx + gW / 2, bz = gz + gD / 2;
+  lote.add(Box(gW, 0.02, gD), papel, [gx, gy + 0.01, gz]);
+  lote.add(Box(gW, 0.02, gD), papel, [gx, gy + gH - 0.01, gz]);
+  lote.add(Box(gW, gH, 0.015), papel, [gx, gy + gH / 2, gz - gD / 2 + 0.0075]);
+  lote.add(Box(0.015, gH, gD), papel, [gx - gW / 2 + 0.0075, gy + gH / 2, gz]);
+  for (const [x, z] of [[bx - 0.01, gz - gD / 2 + 0.01], [gx - gW / 2 + 0.01, bz - 0.01]]) lote.add(Box(0.02, gH - 0.04, 0.02), papel, [x, gy + gH / 2, z]);
+  lote.add(Box(gW - 0.04, 0.09, gD - 0.04), preto, [gx, gy + 0.065, gz]);
+  for (const [x, z] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+    lote.add(Cyl(0.02, 0.022, 0.03, 10), cromo, [gx + x * (gW / 2 - 0.03), gy - 0.015, gz + z * (gD / 2 - 0.03)]);
+  }
+  // Ventoinhas: moldura branca quadrada + aro RGB (plano com textura de alfa, fora do lote para não projetar sombra) + cubo escuro.
+  const anel = new MeshBasicMaterial({ map: o.anelRgb, transparent: true, depthWrite: false, toneMapped: false });
+  const ventoinhas: [number, number, number, boolean][] = [[bx - 0.0185, gy + 0.2, gz + 0.04, true], [bx - 0.0185, gy + 0.37, gz + 0.04, true], [gx - 0.04, gy + 0.28, bz - 0.0185, false]];
+  for (const [x, y, z, lateral] of ventoinhas) {
+    const eixoV: V3 = lateral ? ROT_EIXO_X : ROT_EIXO_Z;
+    lote.add(Box(lateral ? 0.02 : 0.17, 0.17, lateral ? 0.17 : 0.02), papel, [x, y, z]);
+    lote.add(Cyl(0.03, 0.03, 0.024, 12), preto, [x, y, z], eixoV);
+    const aro = new Mesh(Plane(0.16, 0.16), anel);
+    aro.position.set(x + (lateral ? 0.0105 : 0), y, z + (lateral ? 0 : 0.0105));
+    if (lateral) aro.rotation.y = Math.PI / 2;
+    aro.renderOrder = 1;
+    g.add(aro);
+  }
+  const vidro = new MeshLambertMaterial({ color: P.vidro, transparent: true, opacity: 0.16, depthWrite: false, emissive: P.vidro, emissiveIntensity: 0.12 });
+  for (const [dim, pos] of [[[gW - 0.02, gH - 0.04, 0.006], [gx, gy + gH / 2, bz - 0.003]], [[0.006, gH - 0.04, gD - 0.02], [bx - 0.003, gy + gH / 2, gz]]] as [V3, V3][]) {
+    const v = new Mesh(Box(...dim), vidro);
+    v.position.set(...pos);
+    v.renderOrder = 2;
+    g.add(v);
+  }
 
   /* ---------- Tapete, mesinha, vaso ---------- */
   lote.add(RB(2.0, 0.012, 1.3, 0.004), m.get(P.tecido), [1.75, 0.006, 1.65]);
@@ -475,7 +525,7 @@ export function criarDecoracao(o: Opcoes): Decoracao {
     feixe,
     leveGrupo,
     decalqueMat,
-    texturasExtras: [o.janelasCidade, o.fumaca, o.rotulo.textura, o.telaVertical, o.folha, ...(o.kanagawa ? [o.kanagawa] : [])],
+    texturasExtras: [o.anelRgb, o.janelasCidade, o.fumaca, o.rotulo.textura, o.telaVertical, o.folha, ...(o.kanagawa ? [o.kanagawa] : [])],
     atualizarRelogio,
     balancar,
     modoLeve() {
@@ -489,6 +539,7 @@ export function criarDecoracao(o: Opcoes): Decoracao {
       luzInicio = performance.now();
       cidadeMat.uniforms.luz.value = luz;
       cursorMat.color.set(noite ? 0xff8a4c : 0xb8400f);
+      ledControle.color.set(noite ? P.ledNoite : P.ledDia);
       for (const v of vapor) v.material.color.set(noite ? 0xffffff : 0xb4bec4);
       aplicarDesligado();
     },
@@ -504,6 +555,7 @@ export function criarDecoracao(o: Opcoes): Decoracao {
         passoVapor(agora / 1000);
         cursor.visible = Math.floor(agora / 530) % 2 === 0;
         if (noiteAgora) chuvaMat.uniforms.t.value = agora / 1000;
+        o.anelRgb.rotation = (agora / 1000) * 0.6;
       } else if (movAntes) {
         passoVapor(0.8);
         cursor.visible = true;

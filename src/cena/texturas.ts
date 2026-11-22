@@ -376,3 +376,24 @@ export function texturaBola() {
   ctx.putImageData(img, 0, 0);
   return t;
 }
+
+/* ---------- Anel RGB das ventoinhas (256×256, matiz em volta do eixo, alfa radial): girar a textura = ciclo de cor ---------- */
+export function texturaAnelRgb() {
+  const { ctx, t } = nova(256, 256);
+  const N = 72;
+  for (let i = 0; i < N; i++) {
+    ctx.beginPath();
+    ctx.moveTo(128, 128);
+    ctx.arc(128, 128, 128, ((i - 0.5) / N) * 2 * Math.PI, ((i + 1.5) / N) * 2 * Math.PI);
+    ctx.fillStyle = `hsl(${(i / N) * 360} 95% 62%)`;
+    ctx.fill();
+  }
+  // Só o aro e um halo suave para dentro: o resto fica transparente.
+  const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+  for (const [p, a] of [[0.2, 0], [0.5, 0.3], [0.8, 0.55], [0.86, 1], [0.95, 1], [1, 0]] as const) g.addColorStop(p, `rgba(0,0,0,${a})`);
+  ctx.globalCompositeOperation = 'destination-in';
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 256, 256);
+  t.center.set(0.5, 0.5);
+  return t;
+}

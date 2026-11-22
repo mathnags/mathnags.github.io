@@ -28,7 +28,7 @@ import type { Clicavel } from './objetos/base';
 import { P } from './paleta';
 import { geralDe, poseDe as poseDeCtx, type Ctx } from './poses';
 import { Projecao, type AnotacaoProj, type MarcadorProj } from './projecao';
-import { carregarFontes, carregarKanagawa, criarTelaMonitor, texturaFolha, texturaTelaVertical, texturaCaderno, texturaCeu, texturaFumaca, texturaJanelasCidade, texturaLombadas, texturaBola, texturaRotulo, texturaSombraContato } from './texturas';
+import { carregarFontes, carregarKanagawa, criarTelaMonitor, texturaFolha, texturaTelaVertical, texturaCaderno, texturaCeu, texturaAnelRgb, texturaFumaca, texturaJanelasCidade, texturaLombadas, texturaBola, texturaRotulo, texturaSombraContato } from './texturas';
 
 export type CfgCliente = ReturnType<typeof configCliente>;
 export type { Nivel } from './nivel';
@@ -149,13 +149,14 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
   const paginas = await fatiar(texturaCaderno);
   const janelasCidade = await fatiar(texturaJanelasCidade);
   const fumaca = await fatiar(texturaFumaca);
+  const anelRgb = await fatiar(texturaAnelRgb);
   const rotulo = texturaRotulo();
   const texturas: Texture[] = [texCeuDia, texCeuNoite, bola, lombadas, sombraContato, paginas, tela.textura];
 
   const cena = new Scene();
   cena.add(criarCasca(sombra));
   await ceder();
-  const dec = criarDecoracao({ sombra, leve, ceuDia: texCeuDia, kanagawa, telaVertical, folha, bola, lombadas, sombraContato, janelasCidade, fumaca, rotulo });
+  const dec = criarDecoracao({ sombra, leve, ceuDia: texCeuDia, kanagawa, telaVertical, folha, bola, lombadas, sombraContato, janelasCidade, fumaca, anelRgb, rotulo });
   texturas.push(...dec.texturasExtras);
   cena.add(dec.grupo);
   await ceder();

@@ -28,6 +28,12 @@ export const P = {
   terracota: 0xb4553a,
   folhaClara: 0x74ad4e,
   haste: 0x3f6b2e,
+  /** Controle: corpo grafite e faixa de luz (dia mais fraca, noite viva). */
+  grafite: 0x3b3f47,
+  ledDia: 0x4f86b8,
+  ledNoite: 0x6fd0ff,
+  /** Gabinete: vidro temperado. */
+  vidro: 0xcfe6f5,
   /** Emissivos. */
   lampadaApagada: 0xd6d2c6,
   lampadaAcesa: 0xffd27a,
