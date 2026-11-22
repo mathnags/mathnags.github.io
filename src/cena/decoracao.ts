@@ -316,10 +316,11 @@ export function criarDecoracao(o: Opcoes): Decoracao {
   pino.rotation.x = Math.PI / 2;
   pino.position.set(RELOGIO[0], RELOGIO[1], 0.044);
   g.add(pino);
-  const rotuloMat = new SpriteMaterial({ map: o.rotulo.textura, transparent: true, depthWrite: false, depthTest: false });
+  // Tamanho fixo na tela (sizeAttenuation off) para o rótulo continuar legível em janelas pequenas.
+  const rotuloMat = new SpriteMaterial({ map: o.rotulo.textura, transparent: true, depthWrite: false, depthTest: false, sizeAttenuation: false });
   const rotulo = new Sprite(rotuloMat);
-  rotulo.scale.set(0.4, 0.1, 1);
-  rotulo.position.set(RELOGIO[0], 2.17, 0.06);
+  rotulo.scale.set(0.128, 0.032, 1);
+  rotulo.position.set(RELOGIO[0], 2.08, 0.06);
   rotulo.visible = false;
   rotulo.renderOrder = 10;
   g.add(rotulo);

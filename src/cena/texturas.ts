@@ -123,7 +123,7 @@ export function texturaFumaca() {
 
 /** Rótulo do relógio (hover): pílula escura com o texto em fonte comum. */
 export function texturaRotulo() {
-  const { c, ctx, t } = nova(256, 64);
+  const { c, ctx, t } = nova(512, 128);
   const mono = fonteMono();
   let atual = '';
   return {
@@ -131,16 +131,16 @@ export function texturaRotulo() {
     desenhar(texto: string) {
       if (texto === atual) return;
       atual = texto;
-      ctx.clearRect(0, 0, 256, 64);
+      ctx.clearRect(0, 0, 512, 128);
       ctx.fillStyle = 'rgba(43,47,56,0.92)';
       ctx.beginPath();
-      ctx.roundRect(2, 8, c.width - 4, 48, 24);
+      ctx.roundRect(4, 16, c.width - 8, 96, 48);
       ctx.fill();
       ctx.fillStyle = css(P.papel);
-      ctx.font = `500 22px ${mono}`;
+      ctx.font = `600 50px ${mono}`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(texto, 128, 33);
+      ctx.fillText(texto, 256, 66);
       t.needsUpdate = true;
     },
   };
