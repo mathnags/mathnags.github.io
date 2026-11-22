@@ -233,8 +233,8 @@ export function criarDecoracao(o: Opcoes): Decoracao {
   bulbo.position.set(lx, ly, lz).addScaledVector(cupula, -0.02);
   g.add(bulbo);
 
-  // Cadeira ergonômica (grupo em (1.05, 0, 1.30), rotation.y = −0.35; a frente é −z): encosto e assento de tela, apoio de cabeça, braços em T e base estrela cromada.
-  const baseCadeira = new Matrix4().compose(new Vector3(1.05, 0, 1.3), new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -0.35), new Vector3(1, 1, 1));
+  // Cadeira ergonômica (grupo em (0.38, 0, 1.40), rotation.y = 0.55, afastada para a esquerda para não tapar o monitor no foco; a frente é −z): encosto e assento de tela, apoio de cabeça, braços em T e base estrela cromada.
+  const baseCadeira = new Matrix4().compose(new Vector3(0.38, 0, 1.4), new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), 0.55), new Vector3(1, 1, 1));
   const cad = new Lote(baseCadeira);
   const cromo = m.get(P.cromo), tela = m.get(P.telaCadeira);
   cad.add(RB(0.5, 0.05, 0.48, 0.02), preto, [0, 0.44, 0]);
