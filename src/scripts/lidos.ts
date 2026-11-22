@@ -26,7 +26,7 @@ export function render() {
     const estado = l.querySelector<HTMLElement>('.estado');
     if (estado) {
       const texto = lido ? estado.dataset.lido : sugerido ? estado.dataset.proximo : '';
-      estado.textContent = texto ? `, ${texto}` : '';
+      estado.textContent = texto ? `(${texto})` : '';
     }
   }
   ouvintes.forEach((fn) => fn());

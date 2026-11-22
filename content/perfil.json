@@ -3,6 +3,7 @@
     "nome": "Matheus Maki Nagano",
     "nome_exibicao": "Matheus Maki Nagano (content/fonte/respostas-fase2.md)",
     "disponibilidade": "aberto a oportunidades (content/fonte/respostas-fase2.md)",
+    "site": "https://mathnags.github.io/ (endereço do portfólio, publicado e confirmado pelo Matheus em 2026-11-18)",
     "metricas_autorizadas": ["mais de 10 clientes globais (KPMG)", "cerca de 7 oportunidades (Salesforce) — content/fonte/respostas-fase2.md"],
     "titulo": "Analista de Dados em transição para Business Intelligence e Inteligência Artificial",
     "cidade": "São Paulo, SP",
@@ -178,7 +179,7 @@
   ],
   "hobbies": [
     { "nome": "Games de vários gêneros", "detalhe": "Organizou e participou de campeonatos entre amigos (origem do Vértice).", "fonte": "briefing.md (Além do trabalho)" },
-    { "nome": "Vôlei", "detalhe": "Atividade física preferida; joga com amigos, por diversão (não competitivo).", "fonte": "content/fonte/hobbies.md (seção Vôlei)" },
+    { "nome": "Vôlei", "detalhe": "Atividade física preferida; joga com amigos, por diversão (não competitivo).", "texto_do_matheus": "Fora das telas, o vôlei é a minha atividade física preferida. Apesar de não ser bom, me divirto jogando com os amigos!", "fonte": "content/fonte/hobbies.md (seção Vôlei)" },
     { "nome": "Jogos: VALORANT, Counter-Strike, Resident Evil 4, Call of Duty", "detalhe": "Citar apenas em texto; sem logos, personagens, arte ou armas características (regra em hobbies.md).", "fonte": "content/fonte/hobbies.md" },
     { "nome": "Fã de Homem-Aranha", "detalhe": "Fã dos filmes e dos jogos (não HQs). Citar só em texto; sem teia, traje, máscara ou logo (regra em hobbies.md).", "status": "confirmado", "fonte": "content/fonte/hobbies.md" },
     { "nome": "Pôquer Texas Hold'em", "detalhe": "", "status": "NÃO PUBLICAR", "fonte": "content/fonte/respostas-fase2.md (Pôquer: não publicar)" }

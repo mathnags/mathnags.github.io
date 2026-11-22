@@ -84,6 +84,11 @@ a:hover {
   border: 0;
 }
 
+/* Queda automática para o modo recrutador (modo.ts): oculta o corpo por 2 quadros para a troca de layout não pesar no CLS */
+html[data-queda] body {
+  visibility: hidden;
+}
+
 /*
  * MODOS. O modo recrutador é o HTML/CSS base (sem JS, impressão, buscadores).
  * Tudo que é do quarto fica sob html[data-modo='quarto'] e só em tela (@media screen),

@@ -51,7 +51,7 @@
   },
   "hero": {
     "nome": "Matheus Maki Nagano",
-    "rotulo": "Dados → IA",
+    "rotulo": "Aberto a oportunidades",
     "frase": "Formado em Sistemas de Informação e Data Science, com passagem por Salesforce e KPMG. Estou construindo o Vértice orquestrando agentes de IA com Claude Code.",
     "dados": [
       { "id": "local", "rotulo": "Local", "valor": "São Paulo, SP" },
@@ -380,7 +380,7 @@
     "pularRotulo": "Pular introdução"
   },
   "parede": {
-    "direcao": "Dados → IA"
+    "direcao": "Aberto a oportunidades"
   },
   "postit": {
     "contato": {

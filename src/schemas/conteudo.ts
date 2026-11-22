@@ -146,7 +146,7 @@ export const textosSchema = z.strictObject({
     pular: texto,
     pularRotulo: texto,
   }),
-  /** "Dados → IA" pintado na parede (12.13.3). */
+  /** "Aberto a oportunidades" (identidade.disponibilidade) pintado na parede (12.13.3). */
   parede: z.strictObject({ direcao: texto }),
   /** Post-it "Fale comigo!" (CTA do LinkedIn): título manuscrito + texto literal do CTA. */
   postit: z.strictObject({ contato: z.strictObject({ titulo: texto, cta: texto }) }),

@@ -95,10 +95,15 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
   /* ---------- Renderizadores ---------- */
   // Sem GPU de verdade (renderizador por software), o contexto é recusado: iniciar() lança Error('sem-webgl') e carga.ts cai no modo recrutador.
   let renderer: WebGLRenderer;
+  // O three loga console.error ao recusar o contexto; a queda para o modo recrutador é esperada, então o log é silenciado aqui.
+  const erro = console.error;
+  console.error = () => {};
   try {
     renderer = new WebGLRenderer({ canvas, antialias: !leve, alpha: true, powerPreference: leve ? 'low-power' : 'high-performance', failIfMajorPerformanceCaveat: true });
   } catch {
     throw new Error('sem-webgl');
+  } finally {
+    console.error = erro;
   }
   renderer.setClearColor(0x000000, 0);
   renderer.outputColorSpace = SRGBColorSpace;

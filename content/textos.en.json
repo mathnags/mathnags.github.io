@@ -51,7 +51,7 @@
   },
   "hero": {
     "nome": "Matheus Maki Nagano",
-    "rotulo": "Data → AI",
+    "rotulo": "Open to opportunities",
     "frase": "Information Systems and Data Science graduate with experience at Salesforce and KPMG, now building Vértice by orchestrating AI agents with Claude Code.",
     "dados": [
       { "id": "local", "rotulo": "Location", "valor": "São Paulo, Brazil" },
@@ -380,7 +380,7 @@
     "pularRotulo": "Skip intro"
   },
   "parede": {
-    "direcao": "Data → AI"
+    "direcao": "Open to opportunities"
   },
   "postit": {
     "contato": {

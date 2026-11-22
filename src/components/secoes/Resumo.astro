@@ -1,6 +1,5 @@
 ---
 /** #ficha: resumo (design 4.5). No quarto vive na vista do porta-retrato (12.7), com h3 "Resumo". Nenhum número, nível ou barra. */
-import Icone from '../ui/Icone.astro';
 import Selo from '../ui/Selo.astro';
 import BotaoCTA from '../ui/BotaoCTA.astro';
 import { getTextos } from '../../lib/textos';
@@ -13,8 +12,6 @@ interface Props {
 const { lang } = Astro.props;
 const t = getTextos(lang);
 const ui = getUi(lang);
-// "Dados → IA": a seta vira SVG com texto sr-only (design 2.2); o texto vem de hero.rotulo.
-const [antes, depois] = t.hero.rotulo.split('→').map((s) => s.trim());
 ---
 
 <section id="ficha" class="ficha" aria-labelledby="ficha-titulo">
@@ -24,7 +21,7 @@ const [antes, depois] = t.hero.rotulo.split('→').map((s) => s.trim());
     <div class="ficha-col">
     <div class="ficha-topo">
       <p class="eyebrow">
-        {depois === undefined ? antes : <>{antes}{' '}<Icone nome="seta" /><span class="sr-only">{ui.setaPara}</span>{' '}{depois}</>}
+        {t.hero.rotulo}
       </p>
       <ul class="selos" aria-label={ui.selosStatus}>
         <Selo variante="transicao" texto={t.resumo.transicao} />

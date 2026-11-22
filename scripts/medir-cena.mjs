@@ -54,9 +54,12 @@ relatar(css <= 24, `CSS: ${css.toFixed(1)} KB gzip (limite 24)`);
 const fontes = existsSync(join(astro, 'fonts')) ? readdirSync(join(astro, 'fonts')) : arquivos.filter((f) => /\.(woff2?|ttf)$/.test(f));
 const dirFontes = existsSync(join(astro, 'fonts')) ? join(astro, 'fonts') : astro;
 const kbFontes = fontes.reduce((t, f) => t + statSync(join(dirFontes, f)).size, 0) / KB;
-// Informativo: soma TODOS os subsets (latin-ext só baixa sob demanda, por unicode-range). O orçamento de 130 KB vale para o que carrega
-// na 1ª visita e vem de antes da revisão 7 (sem mudança); não derruba o verify.
-console.log(`info  fontes: ${kbFontes.toFixed(1)} KB somando todos os subsets (orçamento de 130 KB para a 1ª visita, sem mudança na revisão 7)`);
+// 1ª visita = só o subset latin de cada família (os demais vêm por unicode-range, sob demanda). Mede no @font-face do HTML.
+const faces = [...readFileSync('dist/index.html', 'utf8').matchAll(/@font-face\{[^}]*?\/_astro\/fonts\/(\w+\.woff2)[^}]*?unicode-range:([^;]+);/g)];
+const latin = new Set(faces.filter((m) => m[2].startsWith('U+0000-00FF')).map((m) => m[1]));
+const kbLatin = [...latin].reduce((t, f) => t + statSync(join(dirFontes, f)).size, 0) / KB;
+relatar(latin.size > 0 && kbLatin <= 130, `fontes na 1ª visita (subsets latin, ${latin.size} arquivos): ${kbLatin.toFixed(1)} KB (limite 130)`);
+console.log(`info  fontes: ${kbFontes.toFixed(1)} KB somando todos os subsets (latin-ext só baixa sob demanda)`);
 
 // Imagens da cena: 0 bytes. Só o favicon e o og.png (compartilhamento) existem como arquivos estáticos.
 relatar(!existsSync(join(dist, 'img')), 'sem imagens da cena (dist/img não existe)');

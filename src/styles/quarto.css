@@ -1028,6 +1028,16 @@
     display: flex;
   }
 
+  /* Passo 9 (monitor aberto): os botões sobem para o centro do topo, para não cobrir o status "Em desenvolvimento" da barra do SO */
+  .palco[data-passo='9'] .tour-acoes {
+    top: 16px;
+    right: auto;
+    bottom: auto;
+    left: 50%;
+    translate: -50% 0;
+    flex-direction: row;
+  }
+
   .traco {
     display: grid;
     place-items: center;

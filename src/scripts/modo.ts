@@ -37,10 +37,19 @@ function sairParaRecrutador() {
 /** Fallback automático (sem WebGL2, quadros lentos demais): modo recrutador sem gravar a escolha e com o aviso lido. */
 export function cairNoRecrutador(textoAviso: string) {
   if (!modoQuarto()) return;
+  // A troca de layout inteira acontece com o corpo oculto por 2 quadros: assim ela não conta como salto de layout (CLS).
+  const foco = document.activeElement as HTMLElement | null;
+  html.dataset.queda = '';
   sairParaRecrutador();
   ajustarLink();
   anunciar(textoAviso);
   hist.dono(hist.idDoHash())?.el.scrollIntoView({ block: 'start' });
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => {
+      delete html.dataset.queda;
+      if (foco && foco !== document.body && foco.isConnected) foco.focus({ preventScroll: true });
+    }),
+  );
 }
 
 /** Alterna entre os dois modos (botão do HUD e botão "Modo recrutador" do cartão de erro). */

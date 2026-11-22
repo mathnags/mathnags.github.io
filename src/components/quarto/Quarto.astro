@@ -27,7 +27,6 @@ const itens = objetosEmOrdem.map((o) => ({
   resumo: t.tour[o.destino as keyof typeof t.tour] as { resumo: string },
 }));
 const progresso = (n: string) => t.tour.progresso.replace('{n}', n);
-const [antes, depois] = t.parede.direcao.split('→').map((s) => s.trim());
 
 const PALAVRAS_SQL = /\b(SELECT|FROM|WHERE|AND|BETWEEN|ORDER BY)\b/g;
 const trechosSql = (linha: string) => {
@@ -60,7 +59,7 @@ const [anotComece, anotRole] = quarto.anotacoes;
     <div class="parede-bloco">
       <p class="parede" aria-hidden="true">
         <span class="parede-nome">{t.hero.nome}</span>
-        <span class="parede-dir">{antes}{' '}<Icone nome="seta" tamanho={18} />{' '}{depois}</span>
+        <span class="parede-dir">{t.parede.direcao}</span>
       </p>
       <a class="postit-contato" href={t.contato.linkedinUrl}>
         <span class="pc-titulo">{t.postit.contato.titulo}</span>
@@ -76,10 +75,9 @@ const [anotComece, anotRole] = quarto.anotacoes;
             <a class="objeto" href={`#${o.destino}`} data-objeto={o.id} data-cap={o.capitulo} style={`--i:${i};--rot:${o.postit.rot}deg`}>
               <span class="p-num">{num}</span>
               <span class="sr-only"> · {txt.tema}, </span>
-              <span class="p-nome">{txt.comum}</span>
+              <span class="p-nome">{txt.comum}</span><span class="sr-only estado" data-lido={t.quarto.estado.lido} data-proximo={t.quarto.estado.proximo}></span>
               <span class="p-tema" aria-hidden="true">{txt.tema}</span>
               <Icone nome="check" tamanho={14} class="p-check" />
-              <span class="sr-only estado" data-lido={t.quarto.estado.lido} data-proximo={t.quarto.estado.proximo}></span>
             </a>
           </li>
         ))
