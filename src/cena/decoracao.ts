@@ -304,20 +304,20 @@ export function criarDecoracao(o: Opcoes): Decoracao {
   lote.add(Cyl(0.02, 0.02, 0.035, 10), papel, [5.42, 0.2175, 0.5]);
 
   // Vaso cerâmico terracota e monstera: folhas recortadas (textura com alfa) em dois tons, hastes finas.
-  lote.add(Cyl(0.14, 0.11, 0.3, 14), m.get(P.terracota), [0.3, 0.15, 3.25]);
-  lote.add(Cyl(0.15, 0.14, 0.04, 14), m.get(P.terracota), [0.3, 0.3, 3.25]);
-  lote.add(Cyl(0.125, 0.125, 0.01, 14), m.get(P.madeiraEscura), [0.3, 0.315, 3.25]);
+  lote.add(Cyl(0.14, 0.11, 0.3, 14), m.get(P.terracota), [0.55, 0.15, 3.25]);
+  lote.add(Cyl(0.15, 0.14, 0.04, 14), m.get(P.terracota), [0.55, 0.3, 3.25]);
+  lote.add(Cyl(0.125, 0.125, 0.01, 14), m.get(P.madeiraEscura), [0.55, 0.315, 3.25]);
   // Folhas e hastes ficam num grupo à parte (pivô na borda do vaso) para balançar com o ponteiro.
-  const lotePlanta = new Lote(new Matrix4().makeTranslation(-0.3, -0.3, -3.25));
+  const lotePlanta = new Lote(new Matrix4().makeTranslation(-0.55, -0.3, -3.25));
   const folhaEscura = mat(P.ervaVerde, { map: o.folha, alphaTest: 0.5, side: DoubleSide });
   const folhaClara = mat(P.folhaClara, { map: o.folha, alphaTest: 0.5, side: DoubleSide });
   // [x, z do fim da haste, altura, giro da face (0 = para +z, π/2 = para +x), inclinação, largura, tom claro]
   const folhas: [number, number, number, number, number, number, boolean][] = [
-    [0.1, 3.14, 0.74, 0.5, -0.55, 0.3, false], [0.2, 3.42, 0.62, 0.2, -0.75, 0.26, true], [0.46, 3.3, 0.7, 1.1, -0.6, 0.28, false],
-    [0.34, 3.12, 0.9, 0.6, -0.4, 0.26, true], [0.22, 3.24, 1.0, 0.8, -0.25, 0.22, false],
+    [0.35, 3.14, 0.74, 0.5, -0.55, 0.3, false], [0.45, 3.42, 0.62, 0.2, -0.75, 0.26, true], [0.71, 3.3, 0.7, 1.1, -0.6, 0.28, false],
+    [0.59, 3.12, 0.9, 0.6, -0.4, 0.26, true], [0.47, 3.24, 1.0, 0.8, -0.25, 0.22, false],
   ];
   for (const [fx, fz, fy, giro, incl, larg, clara] of folhas) {
-    const h = entre([0.3, 0.3, 3.25], [fx, fy, fz]);
+    const h = entre([0.55, 0.3, 3.25], [fx, fy, fz]);
     lotePlanta.add(Cyl(0.006, 0.008, h.comprimento, 5), m.get(P.haste), h.centro, h.q);
     const alt = larg * 0.95;
     lotePlanta.add(Plane(larg, alt).translate(0, alt * 0.375, 0), clara ? folhaClara : folhaEscura, [fx, fy, fz], [incl, giro, 0]);
@@ -325,7 +325,7 @@ export function criarDecoracao(o: Opcoes): Decoracao {
 
   g.add(...lote.malhas(o.sombra));
   const planta = new Group();
-  planta.position.set(0.3, 0.3, 3.25);
+  planta.position.set(0.55, 0.3, 3.25);
   planta.add(...lotePlanta.malhas(o.sombra));
   g.add(planta);
 
@@ -428,7 +428,7 @@ export function criarDecoracao(o: Opcoes): Decoracao {
     cursor.visible = true;
   };
   aplicarDesligado();
-  const PLANTA = new Vector3(0.3, 0.75, 3.25);
+  const PLANTA = new Vector3(0.55, 0.75, 3.25);
   let balanco = { t0: 0, amp: 0 };
   let pertoPlanta = false;
 
@@ -457,7 +457,7 @@ export function criarDecoracao(o: Opcoes): Decoracao {
 
     const matSombra = new MeshBasicMaterial({ map: o.sombraContato, transparent: true, depthWrite: false, toneMapped: false });
     const sombras: [number, number, number, number, number][] = [
-      [1.05, 1.3, 0.38, 0.38, Y_TAPETE], [2.85, 0.31, 0.5, 0.36, 0.005], [3.42, 0.7, 0.34, 0.2, 0.005], [4.98, 0.78, 0.16, 0.16, 0.005], [5.42, 0.5, 0.05, 0.05, 0.005], [0.3, 3.25, 0.22, 0.22, 0.005],
+      [1.05, 1.3, 0.38, 0.38, Y_TAPETE], [2.85, 0.31, 0.5, 0.36, 0.005], [3.42, 0.7, 0.34, 0.2, 0.005], [4.98, 0.78, 0.16, 0.16, 0.005], [5.42, 0.5, 0.05, 0.05, 0.005], [0.55, 3.25, 0.22, 0.22, 0.005],
     ];
     for (const [x, z, rx, rz, y] of sombras) {
       const s = new Mesh(Circulo(1, 24), matSombra);
