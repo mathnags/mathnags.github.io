@@ -784,7 +784,9 @@ main:focus {
     overflow: auto;
   }
 
+  /* Decorativo e, no desktop, ficava cortado atrás da janela do arquivo: escondido (a tela 3D já traz a curva). */
   html[data-modo='quarto'] .so-papel {
+    display: none;
     position: absolute;
     right: 0;
     bottom: 0;
@@ -821,6 +823,10 @@ main:focus {
     text-decoration: none;
     overflow-wrap: anywhere;
     cursor: pointer;
+  }
+
+  .sem-quebra {
+    white-space: nowrap;
   }
 
   .so-icone:hover {

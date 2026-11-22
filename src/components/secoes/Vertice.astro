@@ -83,7 +83,7 @@ const nomeDe = (id: string) => arquivos.find((a) => a.id === id)!.nome;
                 <circle cx="24" cy="20" r="15" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"></circle>
                 <path d="M9 20h30M24 5c-7 8-7 22 0 30M24 5c7 8 7 22 0 30" fill="none" stroke="var(--accent)" stroke-width="2"></path>
               </svg>
-              <span class="so-nome">{so.arquivos.site}<Icone nome="externo" tamanho={12} /><span class="sr-only">{ui.linkExterno}</span></span>
+              <span class="so-nome">{so.arquivos.site.slice(0, -3)}<span class="sem-quebra">{so.arquivos.site.slice(-3)}<Icone nome="externo" tamanho={12} /></span><span class="sr-only">{ui.linkExterno}</span></span>
             </a>
           </li>
         </ul>

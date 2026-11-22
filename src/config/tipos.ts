@@ -45,7 +45,7 @@ export type AnotacaoQuarto =
 
 export interface ConfigQuarto {
   limites: Caixa;
-  geral: { alvo: V3; az: number; el: number; margem: number; fov: number };
+  geral: { alvo: V3; az: number; el: number; margem: number; fov: number; retrato: { alvo: V3; az: number; el: number; margem: number; caixa: Caixa } };
   paredeNome: { ancora: V3; pxPorMetro: number };
   objetos: ObjetoQuarto[];
   anotacoes: AnotacaoQuarto[];

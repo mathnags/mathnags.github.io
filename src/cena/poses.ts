@@ -10,6 +10,9 @@ import { direcao, enquadrar, type Pose } from './camera';
 
 export type Ctx = { k: 'geral' } | { k: 'vista'; id: IdObjeto } | { k: 'tour'; n: number };
 
+/** Pose da visão geral por formato: retrato (compacto) tem a sua. */
+export const geralDe = (cfg: CfgCliente, L: number, A: number) => (compacto(L, A) ? cfg.geral.retrato : { ...cfg.geral, caixa: cfg.limites });
+
 export const caixaDe = (c: Caixa) => new Box3(new Vector3(...c.min), new Vector3(...c.max));
 
 export interface Enquadramento {
@@ -24,7 +27,8 @@ export function enquadramento(cfg: CfgCliente, ctx: Ctx, L: number, A: number): 
   // O passo 9 do tour é a pose do 01 (SO embutido na tela do monitor).
   if (ctx.k === 'tour' && ctx.n >= 9) ctx = { k: 'vista', id: cfg.objetos[0].id };
   if (ctx.k === 'geral' || (ctx.k === 'tour' && ctx.n <= 0)) {
-    return { caixa: caixaDe(cfg.limites), alvo: new Vector3(...cfg.geral.alvo), dir: direcao(cfg.geral.az, cfg.geral.el), livre: areaGeral(L, A), margem: compacto(L, A) ? Math.min(0.01, cfg.geral.margem) : cfg.geral.margem };
+    const g = geralDe(cfg, L, A);
+    return { caixa: caixaDe(g.caixa), alvo: new Vector3(...g.alvo), dir: direcao(g.az, g.el), livre: areaGeral(L, A), margem: g.margem };
   }
   if (ctx.k === 'tour') {
     const x = cfg.objetos[ctx.n - 1];

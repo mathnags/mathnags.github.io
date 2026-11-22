@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest';
 import { PerspectiveCamera, Vector3 } from 'three';
 import { aplicarPose, bezier, direcao, enquadrar } from '../src/cena/camera';
 import { TRILHO, areaTour, compacto, molduraDentro, painelVista } from '../src/cena/areas';
-import { enquadramento, poseDe, type Ctx } from '../src/cena/poses';
+import { caixaDe, enquadramento, poseDe, type Ctx } from '../src/cena/poses';
 import { configCliente } from '../src/config/quarto';
 import type { CfgCliente } from '../src/cena/index';
 import type { IdObjeto } from '../src/config/tipos';
@@ -68,6 +68,18 @@ describe('enquadrar()', () => {
       expect(compacto(L, A)).toBe(true);
       for (const o of cfg.objetos) conferir({ k: 'vista', id: o.id }, L, A);
       for (let n = 0; n <= 8; n++) conferir({ k: 'tour', n }, L, A);
+    }
+  });
+
+  it('retrato: a visão geral mostra os 8 objetos inteiros no quadro', () => {
+    for (const [L, A] of [[390, 844], [375, 667], [360, 740]] as const) {
+      for (const o of cfg.objetos) {
+        for (const c of cantos(caixaDe(o.caixa))) {
+          const r = projetar({ k: 'geral' }, L, A, c);
+          expect(r.x, `${o.id} ${L}x${A}`).toBeGreaterThanOrEqual(0);
+          expect(r.x, `${o.id} ${L}x${A}`).toBeLessThanOrEqual(L);
+        }
+      }
     }
   });
 

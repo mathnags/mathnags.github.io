@@ -14,7 +14,10 @@ import { validarQuarto } from './validar-quarto';
 
 export const quarto: ConfigQuarto = validarQuarto({
   limites: { min: [-0.12, -0.12, -0.12], max: [5.6, 2.83, 3.6] },
-  geral: { alvo: [2.8, 1.0, 1.4], az: 32, el: 20, margem: 0.05, fov: 30 },
+  geral: { alvo: [2.8, 1.0, 1.4], az: 32, el: 20, margem: 0.05, fov: 30,
+    // Retrato (compacto): enquadra só a faixa dos 8 objetos (sem as bordas da parede), mais de frente e de cima, para o quarto usar a largura toda.
+    retrato: { alvo: [3.0, 0.95, 0.4], az: 10, el: 38, margem: 0.01, caixa: { min: [0.45, 0, 0], max: [5.6, 2.0, 0.9] } },
+  },
   paredeNome: { ancora: [0.32, 2.5, 0.004], pxPorMetro: 200 },
   objetos: [
     {

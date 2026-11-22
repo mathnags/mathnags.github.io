@@ -864,7 +864,7 @@
   /* Post-it "Fale comigo!" na parede: centro em (3,10; 2,24) m; largura para o texto caber em uma linha em pt e en */
   .em-3d .postit-contato {
     position: absolute;
-    left: 490px;
+    left: 515px;
     top: 0;
     width: 300px;
     height: 104px;
@@ -872,6 +872,9 @@
     box-sizing: border-box;
     justify-items: center;
     rotate: -5deg;
+    /* --pf: fator inverso à escala projetada (cena/index.ts), para o texto nunca ficar menor que 13/16 px; cresce para a direita, longe do nome. */
+    scale: var(--pf, 1);
+    transform-origin: left center;
   }
 
   /* A parede reduz o texto (~0,6 ×): os tamanhos abaixo dão cerca de 12 px efetivos no CTA em 1440 px de largura. */

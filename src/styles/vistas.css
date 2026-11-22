@@ -269,7 +269,7 @@
     line-height: 28px;
     background-image:
       linear-gradient(to right, transparent 36px, var(--fan-red) 36px 38px, transparent 38px),
-      repeating-linear-gradient(to bottom, transparent 0 27px, var(--border) 27px 28px);
+      repeating-linear-gradient(to bottom, transparent 0 27px, color-mix(in srgb, var(--room-wood) 22%, transparent) 27px 28px);
     background-attachment: local;
   }
 
@@ -434,6 +434,10 @@
     /* A barra fica estática no topo da folha; a navegação, ancorada na base da folha (o .vista-quadro é o bloco de contenção). */
     #vista[data-folha='baixo'] .vista-barra { position: static; border-radius: var(--radius-md) var(--radius-md) 0 0; }
     #vista[data-folha='baixo'] .vista-nav { position: absolute; }
+
+    /* Carta: a folha tem a altura do conteúdo (até 70svh), sem o vazio depois da assinatura. */
+    #vista[data-folha='baixo'][data-vista='carta'] .vista-quadro { height: auto; max-height: 70svh; padding-bottom: 56px; }
+    #vista[data-folha='baixo'][data-vista='carta'] .vista-moldura { position: relative; inset: auto; }
   }
 }
 

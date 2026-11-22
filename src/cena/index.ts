@@ -26,7 +26,7 @@ import { criarMural } from './objetos/mural';
 import { criarPortaRetrato } from './objetos/porta-retrato';
 import type { Clicavel } from './objetos/base';
 import { P } from './paleta';
-import { poseDe as poseDeCtx, type Ctx } from './poses';
+import { geralDe, poseDe as poseDeCtx, type Ctx } from './poses';
 import { Projecao, type AnotacaoProj, type MarcadorProj } from './projecao';
 import { carregarFontes, criarTelaMonitor, texturaCaderno, texturaCeu, texturaLombadas, texturaPoster, texturaSombraContato } from './texturas';
 
@@ -84,6 +84,12 @@ const ceder = (): Promise<void> => {
   const s = (globalThis as { scheduler?: { yield?: () => Promise<void> } }).scheduler;
   return s?.yield ? s.yield() : new Promise((r) => setTimeout(r, 0));
 };
+
+/** Post-it da parede: tamanhos de fonte em px de parede (quarto.css) e piso de legibilidade em px de tela. */
+const CTA_PX = 23;
+const TITULO_PX = 34;
+const PISO_CTA = 13.6; // 13 + folga: a parede em perspectiva encurta o texto na horizontal
+const PISO_TITULO = 16.6;
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const EASE_STD = bezier(0.4, 0, 0.2, 1);
@@ -234,7 +240,7 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
   function poseChegada(): Pose {
     const fim = poseDe({ k: 'geral' });
     const d = fim.pos.distanceTo(fim.alvo) * 1.25;
-    return { ...fim, pos: fim.alvo.clone().addScaledVector(direcao(cfg.geral.az + 8, cfg.geral.el), d), alvo: fim.alvo.clone() };
+    return { ...fim, pos: fim.alvo.clone().addScaledVector(direcao(geralDe(cfg, L, A).az + 8, geralDe(cfg, L, A).el), d), alvo: fim.alvo.clone() };
   }
 
   /* ---------- Tema (dia = 0, noite = 1) ---------- */
@@ -327,7 +333,16 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
   function renderizar() {
     if (!L || !A) return;
     renderer.render(cena, camera);
-    if (objBloco && css3d) css3d.render(cena3d, camera);
+    if (objBloco && css3d) {
+      // Piso de legibilidade do post-it: px de tela por px de parede = px/m na profundidade do bloco ÷ pxPorMetro. Abaixo do piso, amplia-se o post-it.
+      const s = (A / (2 * Math.tan((camera.fov * Math.PI) / 360) * camera.position.distanceTo(objBloco.position))) / cfg.paredeNome.pxPorMetro;
+      const f = Math.min(2.2, Math.max(1, PISO_CTA / (CTA_PX * s), PISO_TITULO / (TITULO_PX * s))).toFixed(2);
+      if (objBloco.element.dataset.pf !== f) {
+        objBloco.element.dataset.pf = f;
+        objBloco.element.style.setProperty('--pf', f);
+      }
+      css3d.render(cena3d, camera);
+    }
     projecao.atualizar(camera, L, A);
   }
 
@@ -363,9 +378,9 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
         dv.set(cl.id, v);
         if (v !== meta) ativo = true;
       }
-      // Subida: exponencial (~200 ms); com movimento reduzido não sobe.
+      // Subida: exponencial (~200 ms); com movimento reduzido não sobe, e na vista fica em 0 (a janela projetada pela moldura HTML é a da posição de repouso).
       let l = lift.get(cl.id)!;
-      const lMeta = o.reduz() ? 0 : meta;
+      const lMeta = o.reduz() || emVista ? 0 : meta;
       if (l !== lMeta) {
         l += (lMeta - l) * (1 - Math.exp(-dt * 18));
         if (Math.abs(lMeta - l) < 0.003) l = lMeta;
@@ -412,7 +427,7 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
       par.el += (parMeta.el - par.el) * f;
       const longe = Math.abs(parMeta.az - par.az) > 0.0005 || Math.abs(parMeta.el - par.el) > 0.0005;
       if (!longe) par = { ...parMeta };
-      const dir = direcao(cfg.geral.az + par.az / GRAU, cfg.geral.el + par.el / GRAU);
+      const dir = direcao(geralDe(cfg, L, A).az + par.az / GRAU, geralDe(cfg, L, A).el + par.el / GRAU);
       piloto.pose.pos.copy(geralBase.alvo).addScaledVector(dir, geralBase.d);
       piloto.aplicar();
       if (longe) ativo = true;
