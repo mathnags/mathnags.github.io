@@ -46,7 +46,7 @@ function anotacoesDoPalco() {
 
 type CenaCarregada = NonNullable<ReturnType<typeof cenaAtual>>;
 
-/** O destaque da cena segue o foco e o hover do link (e o hover na cena marca data-hover no link, em aoHover); lido/próximo viram variações do contorno. */
+/** O destaque da cena segue o foco e o hover do link (e o hover na cena marca data-hover no link, em aoHover); lido/próximo viram variações da luz de repouso. */
 function ligarLinks(cena: CenaCarregada) {
   const estados = () => {
     const e: Parameters<CenaCarregada['marcarEstados']>[0] = {};

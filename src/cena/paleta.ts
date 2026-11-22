@@ -24,9 +24,9 @@ export const P = {
   tachinha: 0xf2b84b,
   sol: 0xfff1d6,
   luaSol: 0x9fb3ff,
-  /** Cor de destaque do tema (--accent) em cada modo. */
-  contornoDia: 0xb8400f,
-  contornoNoite: 0xff8a4c,
+  /** Luz dos objetos interativos (emissive) e contorno fino do hover/foco. */
+  brilho: 0xfff1d0,
+  contornoHover: 0xfffaf0,
 } as const;
 
 /** Mesmas cores em texto, para as texturas de canvas. */

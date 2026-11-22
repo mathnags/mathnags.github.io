@@ -5,7 +5,7 @@
  * Renderização sob demanda: não há laço contínuo. invalidar() pede um requestAnimationFrame só enquanto houver voo,
  * paralaxe amortecendo, transição de luz, desenho da linha do monitor ou mudança de destaque. Parado = 0 quadros por segundo.
  */
-import { MeshBasicMaterial, NeutralToneMapping, PCFShadowMap, PerspectiveCamera, SRGBColorSpace, Scene, Vector3, WebGLRenderer, Color, Mesh } from 'three';
+import { NeutralToneMapping, PCFShadowMap, PerspectiveCamera, SRGBColorSpace, Scene, Vector3, WebGLRenderer, Color, Mesh } from 'three';
 import { CSS3DObject, CSS3DRenderer } from 'three/addons/renderers/CSS3DRenderer.js';
 import type { IdObjeto, V3 } from '../config/tipos';
 import type { configCliente } from '../config/quarto';
@@ -66,7 +66,7 @@ export interface Cena {
   /** Volta da vista à pose de origem (visão geral ou passo do tour), recalculada para a tela atual. */
   voltar(o?: { animar?: boolean }): Promise<boolean>;
   destacar(id: IdObjeto | null): void;
-  /** Estado de leitura de cada objeto, que muda a força do contorno: 'lido' (apagado) e 'proximo' (pulso breve). */
+  /** Estado de leitura de cada objeto, que muda a luz de repouso: 'lido' (sem brilho) e 'proximo' (repouso mais forte e 1º no glint). */
   marcarEstados(e: Partial<Record<IdObjeto, 'lido' | 'proximo'>>): void;
   /** Retângulo (px, no palco) da janela de uma vista "dentro", já na pose final do voo. */
   retanguloJanela(id: IdObjeto): Rect | null;
@@ -257,7 +257,6 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
       escuroMapa = noite;
       dec.ceu.map = noite ? texCeuNoite : texCeuDia;
       tela.desenhar(noite, linhaProgresso());
-      for (const k of clicaveis) (k.contorno.material as MeshBasicMaterial).color.set(noite ? P.contornoNoite : P.contornoDia);
     }
   };
 
@@ -267,17 +266,35 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
   let hoverRaio: IdObjeto | null = null;
   let emVista = false;
   let estados: Partial<Record<IdObjeto, 'lido' | 'proximo'>> = {};
-  /** O pulso do "próximo" começa depois da chegada da câmera; 3 ciclos de 1,6 s (≤ 5 s). */
-  let proxInicio = 0;
+  /** Glint guia: a cada 6 s uma rodada passa pelos não visitados (700 ms entre objetos); 3 rodadas ou até a 1ª interação. */
+  let rodada = -1;
+  let rodadaInicio = 0;
+  let rodadasFeitas = 0;
+  let glintTimer = 0;
+  const lift = new Map<IdObjeto, number>(clicaveis.map((k) => [k.id, 0]));
   let pulsoId: IdObjeto | null = null;
   let pulsoInicio = 0;
   let linhaInicio = -1;
   let linhaFeita = false;
   const linhaProgresso = () => (linhaInicio < 0 ? 1 : Math.min(1, (performance.now() - linhaInicio) / 700));
 
+  const pararGlint = () => {
+    rodadasFeitas = 3;
+    rodadaInicio = -1e9;
+    clearTimeout(glintTimer);
+  };
+  const novaRodada = () => {
+    if (rodadasFeitas >= 3 || destruida) return;
+    rodadasFeitas++;
+    rodadaInicio = performance.now();
+    invalidar();
+    glintTimer = window.setTimeout(novaRodada, 6000);
+  };
+
   const definirDestaque = (id: IdObjeto | null) => {
     if (destaqueId === id) return;
     destaqueId = id;
+    if (id) pararGlint();
     // 1º hover ou foco do monitor: a linha se desenha em 700 ms (nível completo e sem movimento reduzido).
     if (id === 'monitor' && !linhaFeita && !leve && !o.reduz()) {
       linhaFeita = true;
@@ -334,8 +351,10 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
       if (tAtual !== tAlvo) ativo = true;
     }
 
-    // Destaque e pulso de chegada: a emissão vai de 0 a 0,08 (dia) / 0,12 (noite) em 120 ms.
-    const k = lerp(0.08, 0.12, tAtual);
+    // Luz dos objetos: repouso (creme leve), glint guia, hover/foco (emissive + subida de 3 cm) e pulso de chegada.
+    const visaoGeral = atual.k === 'geral' && !emVista;
+    const ordem = clicaveis.filter((x) => estados[x.id] !== 'lido');
+    ordem.sort((x, y) => (estados[y.id] === 'proximo' ? 1 : 0) - (estados[x.id] === 'proximo' ? 1 : 0));
     for (const cl of clicaveis) {
       const meta = destaqueId === cl.id ? 1 : 0;
       let v = dv.get(cl.id)!;
@@ -343,6 +362,16 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
         v = meta > v ? Math.min(meta, v + dt / 0.12) : Math.max(meta, v - dt / 0.12);
         dv.set(cl.id, v);
         if (v !== meta) ativo = true;
+      }
+      // Subida: exponencial (~200 ms); com movimento reduzido não sobe.
+      let l = lift.get(cl.id)!;
+      const lMeta = o.reduz() ? 0 : meta;
+      if (l !== lMeta) {
+        l += (lMeta - l) * (1 - Math.exp(-dt * 18));
+        if (Math.abs(lMeta - l) < 0.003) l = lMeta;
+        else ativo = true;
+        lift.set(cl.id, l);
+        cl.grupo.position.y = 0.03 * l;
       }
       let pulso = 0;
       if (pulsoId === cl.id) {
@@ -352,19 +381,18 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
           ativo = true;
         } else pulsoId = null;
       }
-      const e = Math.max(v * k, pulso);
-      for (const m of cl.materiais) m.emissive.setScalar(e);
-      // Contorno sempre visível na visão geral (sutil; lido mais apagado); no hover/foco vai a 1. Nas vistas e no tour só no hover.
-      let base = atual.k === 'geral' && !emVista ? (estados[cl.id] === 'lido' ? 0.25 : 0.7) : 0;
-      if (base && estados[cl.id] === 'proximo' && !o.reduz()) {
-        const c = (agora - proxInicio) / 1600;
-        if (c >= 0 && c < 3) {
-          base += 0.4 * (0.5 - 0.5 * Math.cos(2 * Math.PI * c));
-          ativo = true;
-        }
+      const est = estados[cl.id];
+      // Repouso: só na visão geral e nos não visitados; na cena leve (celular) um pouco mais forte.
+      let repouso = visaoGeral && est !== 'lido' ? (est === 'proximo' ? lerp(0.08, 0.06, tAtual) : lerp(0.05, 0.035, tAtual)) * (leve ? 1.5 : 1) : 0;
+      if (visaoGeral && est !== 'lido' && !o.reduz() && rodadasFeitas > 0 && rodadasFeitas <= 3) {
+        const p = (agora - rodadaInicio - ordem.indexOf(cl) * 700) / 600;
+        if (p >= 0 && p < 1) repouso = Math.max(repouso, 0.2 * Math.sin(Math.PI * (1 - (1 - p) ** 3)));
+        if (agora - rodadaInicio < ordem.length * 700 + 600) ativo = true;
       }
-      const op = lerp(base, 1, v);
-      (cl.contorno.material as MeshBasicMaterial).opacity = op;
+      const e = Math.max(lerp(repouso, 0.12, v), pulso);
+      for (const m of cl.materiais) m.emissive.set(P.brilho).multiplyScalar(e);
+      const op = 0.9 * v;
+      (cl.contorno.material as { opacity: number }).opacity = op;
       cl.contorno.visible = op > 0.01;
     }
 
@@ -558,6 +586,7 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
   };
   let toque: { x: number; y: number; t: number } | null = null;
   const aoBaixar = (e: PointerEvent) => {
+    pararGlint();
     toque = { x: e.clientX, y: e.clientY, t: performance.now() };
   };
   const aoLevantar = (e: PointerEvent) => {
@@ -640,6 +669,7 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
     destruida = true;
     cancelAnimationFrame(raf);
     clearTimeout(temporizadorContexto);
+    clearTimeout(glintTimer);
     obs.disconnect();
     obsTema.disconnect();
     sistemaEscuro.removeEventListener('change', mudouTema);
@@ -670,9 +700,11 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
     voltar,
     marcarEstados(e) {
       estados = e;
-      proxInicio = performance.now() + 1400;
+      if (rodada < 0) {
+        rodada = 0;
+        glintTimer = window.setTimeout(novaRodada, 1800);
+      }
       invalidar();
-      setTimeout(invalidar, 1400);
     },
     destacar(id) {
       if (emVista && id !== null) return;

@@ -11,7 +11,7 @@ import { P } from '../paleta';
 export interface Clicavel {
   id: IdObjeto;
   grupo: Group;
-  /** Materiais com luz do objeto: a emissão do destaque vai de 0 a 0,08 (dia) ou 0,12 (noite). */
+  /** Materiais com luz do objeto: emissive creme: repouso, glint e hover. */
   materiais: MeshLambertMaterial[];
   contorno: Mesh;
   /** Somem (visible = false) enquanto a vista "dentro" do objeto está aberta. */
@@ -70,15 +70,15 @@ export function montarClicavel(id: IdObjeto, caixa: Caixa, sombra: boolean, cons
     if (oculta) ocultaveis.push(obj);
   }
 
-  // Contorno: casco invertido da geometria permanente, escalado por eixo em (s + 0,024)/s em torno do centro da caixa.
+  // Contorno (só no hover/foco): casco invertido da geometria permanente, escalado por eixo em (s + 0,012)/s em torno do centro da caixa.
   const box = new Box3(new Vector3(...caixa.min), new Vector3(...caixa.max));
   const centro = box.getCenter(new Vector3());
   const tam = box.getSize(new Vector3());
   const geo: BufferGeometry = lote.geometriaUnica();
   geo.applyMatrix4(new Matrix4().makeTranslation(-centro.x, -centro.y, -centro.z));
-  const contorno = new Mesh(geo, new MeshBasicMaterial({ color: P.contornoDia, side: BackSide, toneMapped: false, transparent: true, opacity: 0, depthWrite: false }));
+  const contorno = new Mesh(geo, new MeshBasicMaterial({ color: P.contornoHover, side: BackSide, toneMapped: false, transparent: true, opacity: 0, depthWrite: false }));
   contorno.position.copy(centro);
-  contorno.scale.set(...(['x', 'y', 'z'] as const).map((k) => (Math.max(tam[k], 0.01) + 0.024) / Math.max(tam[k], 0.01)) as [number, number, number]);
+  contorno.scale.set(...(['x', 'y', 'z'] as const).map((k) => (Math.max(tam[k], 0.01) + 0.012) / Math.max(tam[k], 0.01)) as [number, number, number]);
   contorno.visible = false;
   grupo.add(contorno);
 
