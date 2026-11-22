@@ -249,25 +249,13 @@
   }
 
   [data-lido] > .p-check,
-  [data-lido] > .postit .p-check {
+  [data-lido] .nicho-cab .p-check {
     display: block;
   }
 
-  /* Próximo sugerido (nicho de texto): fita adesiva */
-  [data-proximo] > .postit::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: 50%;
-    width: 28px;
-    height: 10px;
-    margin-left: -14px;
-    background: var(--accent);
-    opacity: 0.92;
-  }
-
   /* O número fica só no nome acessível (leitor de tela) */
-  .objeto .p-num {
+  .objeto .p-num,
+  .nicho .p-num {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -555,33 +543,21 @@
     text-decoration: none;
   }
 
-  .nicho .postit {
-    position: relative;
+  .nicho-cab {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
-    justify-self: start;
-    min-width: 104px;
-    padding: 6px 10px 8px;
-    background: var(--postit);
-    box-shadow: var(--shadow-1);
-    color: #15171c;
-    rotate: -2deg;
-  }
-
-  .nichos li:nth-child(even) .nicho .postit {
-    rotate: 2deg;
+    align-items: center;
+    gap: var(--space-2);
   }
 
   .nicho .p-nome {
     -webkit-line-clamp: unset;
     line-clamp: unset;
-    font-size: 1.25rem;
+    font: 700 var(--fs-h3)/var(--lh-h3) var(--ff-display);
   }
 
   .nicho .p-check {
-    top: 4px;
-    right: 4px;
+    position: static;
+    color: var(--accent-strong);
   }
 
   .nicho-texto {
@@ -1160,7 +1136,7 @@
     display: grid;
     place-items: center;
     transition: opacity 120ms var(--ease-std);
-    animation: intro-fim 1ms linear 1250ms forwards;
+    animation: intro-fim 1ms linear 650ms forwards;
   }
 
   .intro.saindo {
@@ -1178,14 +1154,14 @@
     box-shadow: var(--shadow-2);
     color: var(--text);
     font: 500 15px/1.55 var(--ff-mono);
-    animation: intro-sai 250ms var(--ease-std) 1000ms forwards, intro-fim 1ms linear 1250ms forwards;
+    animation: intro-sai 150ms var(--ease-std) 500ms forwards, intro-fim 1ms linear 650ms forwards;
   }
 
   .intro-linha {
     margin: 0;
     overflow: hidden;
     white-space: nowrap;
-    animation: intro-linha 120ms var(--ease-out) calc(var(--n) * 120ms) backwards;
+    animation: intro-linha 120ms var(--ease-out) calc(var(--n) * 60ms) backwards;
   }
 
   .intro-comentario { color: var(--text-muted); }
@@ -1196,7 +1172,7 @@
     align-items: center;
     gap: var(--space-3);
     margin-top: var(--space-2);
-    animation: intro-aparece 120ms linear 480ms backwards;
+    animation: intro-aparece 120ms linear 240ms backwards;
   }
 
   .intro-trilho {
@@ -1214,7 +1190,7 @@
     height: 100%;
     background: var(--accent);
     transform-origin: left;
-    animation: intro-enche 360ms linear 480ms both;
+    animation: intro-enche 200ms linear 240ms both;
   }
 
   /* Cena ainda não pronta no fim da execução: a barra segue indeterminada e a linha de resultado espera */
@@ -1243,7 +1219,7 @@
   .intro-resultado {
     margin: var(--space-2) 0 0;
     color: var(--pine);
-    animation: intro-aparece 200ms linear 860ms backwards;
+    animation: intro-aparece 150ms linear 440ms backwards;
   }
 
   .intro-pular {
@@ -1257,7 +1233,7 @@
     color: var(--text);
     font: 700 0.9375rem/1 var(--ff-text);
     cursor: pointer;
-    animation: intro-fim 1ms linear 1250ms forwards;
+    animation: intro-fim 1ms linear 650ms forwards;
   }
 
   .intro-pular:hover { background: var(--surface-2); }
@@ -1309,7 +1285,6 @@ html[data-calibrar='og'] .palco {
 }
 
 @media (forced-colors: active) {
-  .postit,
   .postit-contato,
   .nicho { border: 2px solid CanvasText; }
 

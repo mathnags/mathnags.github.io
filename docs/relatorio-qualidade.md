@@ -304,7 +304,7 @@ Críticos: nenhum.
 
 | Id | Categoria | Onde | Problema | Correção sugerida | Severidade |
 |---|---|---|---|---|---|
-| T1 | Desempenho (TBT) | `cena.*.js`, teste WebGL2 em `BaseLayout.astro` | TBT 240 a 380 ms no mobile emulado com GPU; `/` fica em 91 (margem de 1 ponto, oscila de 91 a 96). Causas: avaliação e montagem do chunk (254 + 195 ms) e 1º contexto GL no head (~180 ms) | Fatiar a avaliação (`scheduler.yield`/`setTimeout` entre grupos de objetos e texturas; `compileAsync` depois da 1ª pintura); reduzir o chunk (imports mínimos de `three`, `unused-javascript` 59 KB); no head, trocar o teste por heurística barata ou adiar o teste real para o módulo da cena, mantendo o fallback pós-pintura | **Alta** (risco de cair abaixo de 90 em hardware mais lento) |
+| T1 | Desempenho (TBT) | `cena.*.js`, teste WebGL2 em `BaseLayout.astro` | TBT 240 a 380 ms no mobile emulado com GPU; `/` fica em 91 (margem de 1 ponto, oscila de 91 a 96). Causas: avaliação e montagem do chunk (254 + 195 ms) e 1º contexto GL no head (~180 ms) | Fatiar a avaliação (`scheduler.yield`/`setTimeout` entre grupos de objetos e texturas; `compileAsync` depois da 1ª pintura); reduzir o chunk (imports mínimos de `three`, `unused-javascript` 59 KB); no head, trocar o teste por heurística barata ou adiar o teste real para o módulo da cena, mantendo o fallback pós-pintura | **Alta** (risco de cair abaixo de 90 em hardware mais lento) | **Correção (dev-frontend):** mobile com GPU medido agora em 100 (TBT 40 a 80 ms) em 5 de 6 rodadas (uma `/en/` 92 por pico de TBT 360 ms); mesma causa e mesma correção de P1 |
 | T2 | Desempenho (CLS) | `.parede-bloco` (nome na parede), mobile | CLS 0,012 a 0,032: o bloco desloca quando a cena fica pronta (`data-cena="pronta"`) | Reservar altura e posição no estado pré-cena, ou aplicar a mudança com `transform` | Média |
 | F1 | A11y (forced-colors, WCAG 1.4.3) | `.parede-nome`, anotações "comece aqui" e "role para um tour", post-its | Em `forced-colors: active` o texto com contorno/sombra grossa fica **ilegível** (letras borradas e sobrepostas, fundo `Canvas`) | Em `@media (forced-colors: active)`: `text-shadow: none; -webkit-text-stroke: 0; paint-order: normal` e texto em `CanvasText` sobre `Canvas` | Média |
 | A6 | A11y / teclado | Ordem de Tab | 16 paradas para 8 destinos (objetos e post-its duplicados): dobra o custo para teclado e leitor de tela | Tirar o conjunto duplicado da ordem (`tabindex="-1"` e fora da árvore de acessibilidade) ou fundi-lo com `a.objeto` | Média |
@@ -317,3 +317,58 @@ Não verificado: leitor de tela (NVDA/VoiceOver), links externos (inalterados de
 ## Veredito: **APROVADO (com ressalvas)**
 
 Todas as 4 categorias ficam >= 90 em todas as rodadas (mobile emulado e desktop, com e sem GPU), axe sem violações em repouso, nas vistas e em 360 px, sem overflow horizontal e sem problema crítico. A aprovação é apertada: o desempenho mobile com 3D oscila entre 91 e 96 por causa do TBT (T1). Recomendo corrigir T1 antes de acrescentar mais à cena; T2, F1 e A6 entram no próximo ciclo; V1 precisa de confirmação visual.
+
+
+---
+
+# Reauditoria 6 (estado atual, com mudanças não commitadas)
+
+Build refeito (3 páginas, 8 objetos verificados por idioma) e `astro preview` na porta 4380 (encerrado ao final). Chrome 157 `--headless=new`, Lighthouse 13 (Node API), axe-core e Puppeteer. "Com GPU" = ANGLE D3D11 (RTX 4060); "sem GPU" = `--disable-gpu`. Nenhum código foi alterado. As mudanças não commitadas são pequenas: nichos de texto do tour sem o post-it (`.nicho-cab`), ouvintes da cena soltos na recarga (`AbortController`) e remoção do rótulo "fita adesiva".
+
+## 1. Notas Lighthouse
+
+Desempenho / A11y / Boas práticas / SEO. Com GPU: duas rodadas na 1ª bateria; no desktop, mais duas rodadas por página (4 no total).
+
+| Página | Dispositivo | GPU | Desempenho | A11y | BP | SEO | LCP | TBT | CLS |
+|---|---|---|---|---|---|---|---|---|---|
+| `/` | mobile | sim | 93 / 95 | 100 | 100 | 100 | 0,9 s | 310 / 250 ms | 0 |
+| `/en/` | mobile | sim | 91 / 99 | 100 | 100 | 100 | 0,9 s | 380 / 100 ms | 0 |
+| `/` | desktop | sim | **86 / 94 / 86 / 88** | 100 | 100 | 100 | 0,9 s | 110 a 250 ms | 0 |
+| `/en/` | desktop | sim | **90 / 87 / 89 / 87** | 100 | 100 | 100 | 0,9 s | 190 a 220 ms | 0 |
+| `/` | mobile | não | 95 | 100 | 100 | 100 | **2,8 s** | 70 ms | 0 |
+| `/en/` | mobile | não | 96 | 100 | 100 | 100 | **2,8 s** | 60 ms | 0 |
+| `/` | desktop | não | **83 / 82** | 100 | 100 | 100 | **2,8 s** | 80 a 110 ms | 0 |
+| `/en/` | desktop | não | **83 / 83** | 100 | 100 | 100 | **2,8 s** | 80 a 100 ms | 0 |
+
+Peso: 310 KiB em todos os casos (antes, sem GPU: 129 KiB). CLS agora 0 em todas as rodadas (T2 resolvido). Console do Lighthouse sem erros. SEO, a11y e boas práticas: 100 em tudo.
+
+## 2. Verificações funcionais
+
+- **axe (wcag2a/aa, 2.1, 2.2 AA, best-practice):** zero violações em 1280x800 e 360x740, pt e en, claro e escuro, em: quarto em repouso, as 8 vistas (abertas de fato, `#vista[open]`), tour (a 30% e 80% da rolagem) e modo recrutador. 144 combinações, todas "ok". No 360 o clique foi feito no nicho visível de cada objeto.
+- **Teclado (1280, pt):** ordem de Tab: Modo recrutador, Pular, PT, EN, interruptor, post-it "Fale comigo" (LinkedIn), 8 objetos (01 a 08), depois sai da página e recomeça. **Os 8 links duplicados saíram da ordem (A6 resolvido).** Anel de foco de 3 px em todos (laranja nos controles, escuro com halo nos objetos), `:focus-visible` verdadeiro. Enter abre a vista com foco no `h2`; Tab dentro vai para "Próximo capítulo"; Esc fecha e devolve o foco ao objeto de origem.
+- **forced-colors:** quarto, vista e modo recrutador legíveis; nome na parede, "Fale comigo!" e botões com texto contrastado (F1 resolvido).
+- **360 px:** `scrollWidth == clientWidth` (360) em repouso, no tour, com cada vista aberta e no modo recrutador. Em 1280, 1265 (barra de rolagem), sem overflow.
+- **Console:** limpo (sem erro, aviso ou exceção) em todas as combinações acima.
+- **Links externos:** 5 por página (LinkedIn x2, Vértice x2, GitHub), todos com `target="_blank"` e `rel="noopener noreferrer"`; o aviso "(abre em nova guia)" / "(opens in a new tab)" está no nome acessível dos links verificados. Respostas: Vértice 200, GitHub 200, site e `og.png` 200; LinkedIn devolve 999 a cliente automatizado (bloqueio de bot, não é link quebrado).
+- **SEO estático:** `lang` pt-BR/en, `title` e descrição por idioma, canonical, hreflang pt-BR/en/x-default, JSON-LD, `sitemap-index.xml`, `robots.txt` com sitemap.
+
+## 3. Problemas (categoria | onde | problema | correção sugerida | severidade)
+
+Críticos: nenhum de funcionalidade ou acessibilidade. Há regressão de desempenho que reprova o critério de nota >= 90.
+
+| Id | Categoria | Onde | Problema | Correção sugerida | Severidade |
+|---|---|---|---|---|---|
+| P1 | Desempenho | Desktop com GPU, `/` e `/en/` | Nota 86 a 94 (mediana 87) das rodadas (86, 88, 86, 94 em `/`; 90, 87, 89, 87 em `/en/`), abaixo de 90 em 6 de 8. Speed Index ~1,8 s (nota 0,68 a 0,73) e TBT 190 a 250 ms. Na reauditoria 5 o desktop ficava em 93 a 96. Causa provável: avaliação e montagem do chunk `cena.*.js` (619 KB, 59 KB sem uso) competindo com a 1ª pintura | Fatiar a montagem da cena (`scheduler.yield` entre objetos/texturas, `compileAsync` após a 1ª pintura), adiar o import até o idle depois da pintura do HTML, reduzir imports de `three`; remedir. Confirmar se houve regressão do código ou variação do ambiente (comparar com o commit da reauditoria 5) | **Alta** (reprova o critério) | **Correção (dev-frontend):** parcial. Sonda WebGL2 num Worker iniciada no `<head>` aquece o contexto fora da thread principal (o `getContext` de ~190 ms deixou de bloquear; era 152 ms de bloqueio no LoAF) e `Projecao.anotar` não força mais layout a cada quadro (medidas em cache por L/A). Desktop com GPU medido agora: 81 a 93 (ruído alto da máquina), sem chegar a 95: SI ~1,8 s é fixo pela intro de 2,5 s (design 11.2) e o 1º layout de 50 a 110 ms continua na tarefa do módulo. Pendente decisão: encurtar a intro ou aceitar 90 a 93 |
+| P2 | Desempenho | Sem GPU, `/` e `/en/` | Desktop 82 a 83; LCP 2,8 s em mobile e desktop; peso 310 KiB (antes 129 KiB, LCP 0,9 s). O `<head>` agora só checa `WebGL2RenderingContext` (existência), sem testar o contexto; sem GPU a página nasce no quarto, baixa o chunk da cena, o renderer falha (`failIfMajorPerformanceCaveat`) e só então cai no modo recrutador, atrasando o LCP | Manter a checagem barata, mas decidir o modo antes de pintar quando houver sinal sem custo (ex.: `sessionStorage.semWebgl` da visita anterior; `navigator.gpu`/`deviceMemory`), ou revelar o conteúdo do recrutador enquanto a cena carrega (o `h1` do quarto não pode esperar a cena). Em último caso, importar a cena só após `requestIdleCallback` | **Média-alta** (hardware sem GPU é raro, mas o critério é nota >= 90) | **Correção (dev-frontend):** a sonda do `<head>` grava `localStorage.semWebgl` quando o contexto falha (e apaga quando volta); com o sinal, as visitas seguintes nascem em modo recrutador (nota 96, LCP 1,0 s) e `?modo=quarto`/escolha salva vencem o sinal. A cena nem é baixada quando a sonda falha. 1ª visita sem GPU: desktop 87 a 91 (LCP 2,0 s no Lighthouse simulado, cai por a pintura do conteúdo vir depois da sonda; tentativas de segurar a 1ª pintura pioraram o caso com GPU e foram revertidas), mobile 99 a 100 |
+| T1 | Desempenho (TBT) | Mobile com GPU | TBT 100 a 380 ms; `/en/` caiu a 91 numa rodada (margem de 1 ponto). Mesma causa de P1 | Idem P1 | Média | **Correção (dev-frontend):** mobile com GPU medido agora em 100 (TBT 40 a 80 ms) em 5 de 6 rodadas (uma `/en/` 92 por pico de TBT 360 ms); mesma causa e mesma correção de P1 |
+| P3 | Desempenho | `cena.*.js` | 619 KB bruto, ~59 KB não usados | Idem P1 | Baixa |
+| A7 | A11y | Controles no mobile | Dois links de 40x44 px, abaixo da meta de 44 px de largura (passa WCAG 2.5.8 AA). Não reverificado nesta rodada | `min-width: 44px` | Baixa |
+| V1 | Visual / mobile | Vista do monitor a 360 px | Linha laranja atravessando os ícones do SO. Não reverificado nesta rodada (o axe não cobre) | Conferir captura; isolar o desenho do fundo do SO | Baixa-média, pendente |
+
+Resolvidos desde a reauditoria 5: T2 (CLS 0), F1 (forced-colors legível), A6 (um conjunto de links na ordem de Tab).
+
+Não verificado: leitor de tela (NVDA/VoiceOver), troca de idioma com a vista aberta, V1 e A7 visualmente, revisão do `og.png` pelo Matheus, e ao vivo o site publicado (só o preview local e as 3 URLs públicas de resposta HTTP).
+
+## Veredito: **REPROVADO**
+
+Não há problema crítico de funcionalidade, acessibilidade (axe zerado, teclado, forced-colors, 360 px, console limpo) ou SEO, e as outras 3 categorias estão em 100. O critério "todas as notas >= 90" falha no **desempenho desktop**: com GPU, 6 de 8 rodadas ficam entre 86 e 89 (as outras: 90 e 94), e sem GPU ficam em 82 a 83 (LCP 2,8 s, regressão do fallback). Prioridade: P1 (fatiar a montagem da cena e remedir, comparando com o commit da reauditoria 5), depois P2, depois T1/P3. Com P1 resolvido o veredito passa a APROVADO, se as notas mobile se mantiverem >= 90 (hoje 91 a 99).

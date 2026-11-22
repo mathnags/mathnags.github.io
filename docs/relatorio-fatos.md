@@ -1,23 +1,26 @@
-# Relatório de fatos (fase 6a, revisão 7: quarto 3D)
+# Relatório de fatos (fase 6a, revisão 8: estado atual, inclui mudanças não commitadas)
 
-Referência: `content/perfil.json` e `content/fonte/`. Verificados: `content/textos.pt.json`, `content/textos.en.json`, `src/` (busca por e-mail, telefone, GitHub, marcadores pendentes) e `dist/`.
+Referência: `content/perfil.json`. Verificados: `content/textos.pt.json`, `content/textos.en.json`, `src/components/**`, `src/cena/**` (texto em canvas), `scripts/gerar-og.mjs` (og.png) e busca por e-mail/telefone/marcadores em `src/` e `dist/`.
 
 | arquivo/página | trecho | problema | fonte esperada | severidade |
 |---|---|---|---|---|
-| textos pt/en, `alem.volei.texto` | "Apesar de não ser bom, me divirto..." / "I'm not great at it" | Autodepreciação, mas é citação literal do Matheus em `fonte/hobbies.md` (linha 24). Falta apenas constar em `perfil.json` (ali só "não competitivo") | `hobbies.md` | ajustar (baixo) |
-| textos pt/en, `intro.linhas` e `resultado` | "SELECT ... FROM trajetoria", "8 capítulos · 2019 ... → 2026 Vértice" | Elemento decorativo; datas 2019 (início da graduação) e 2026 conferem com `perfil.json`. Não afirma uso de SQL pelo Matheus além do que a fonte diz | `perfil.json` formação/projetos | ok |
-| `quarto.*`, `tour.*`, `so.*`, `postit.*`, `anotacoes.*`, `vista.*` | textos novos da revisão 7 | Todos são rótulos de interface ou resumos que repetem fatos já verificados (SQL na Cushman, protótipos Salesforce, auditoria de controles de TI na KPMG, Pós Tech em andamento, escotismo desde 2019). Nada novo sem lastro | `perfil.json` | ok |
-| `contato`, `hero.cta`, `postit.contato` | só LinkedIn (`linkedin.com/in/matheusnagano`) | Conforme. Sem e-mail, telefone ou `mailto:`/`tel:` em `src/`, textos e `dist/` | `perfil.json` identidade.links | ok |
-| `rodape.githubUrl` | GitHub `github.com/mathnags` | Só em `Rodape.astro` (e `sameAs` do JSON-LD, invisível). Aparece em `dist/index.html`, `dist/en/index.html` e `404.html` (rodapé) | `perfil.json` (publicável só no rodapé) | ok |
-| KPMG (`experiencia`, `sobre.p2`, tour) | ITGCs, 10+ clientes, Excel PROCV/SOMASE | Descrito como auditoria de controles de TI com ferramentas/ERPs do cliente; sem SQL nem análise de dados | `perfil.json` experiências[0] | ok |
-| Habilidades | Excel avançado; demais básico; noções para LangGraph/Hadoop/Spark | Níveis iguais aos declarados | `perfil.json` habilidades | ok |
-| Vértice | "49 arquivos de testes", Render/Neon/GitHub Actions, Riot API como próximo passo, "em desenvolvimento" | Conforme; sem "em produção" nem métricas de uso | `perfil.json` projetos[0] | ok |
-| pt x en | todas as seções | Mesmas chaves e mesmo conteúdo; "Tecnólogo" = "Associate degree" e "Castores/Filhotes" = "Beaver Scouts" são equivalências aceitáveis | - | ok |
-| `src/`, textos, `dist/` | `CONFIRMAR`, `TODO`, `lorem` | Nenhum marcador pendente (a regex em `schemas/conteudo.ts` é só validação) | - | ok |
-| `BaseLayout.astro` JSON-LD | `url` de deploy | Pendência herdada: URL pública não consta em `perfil.json` (não reverificada nesta rodada) | `perfil.json` / `site` do Astro | ajustar (baixo) |
+| `Resumo.astro` + `resumo.transicao`, `hero.frase`, `hero.dados` | "Em transição para IA." + frase; fichas Local, Idiomas, Estudando, Status | Tudo derivado de `perfil.json` (título "em transição para BI e IA", foco IA, São Paulo, Inglês avançado, Pós Tech IA em andamento). Componente sem texto fixo, só chaves do JSON | `identidade`, `formacao`, `idiomas` | ok |
+| `hero.dados[status]`, `hero.rotulo`, `contato.status`, `parede.direcao`, `scripts/gerar-og.mjs` (og.png) | "Aberto a oportunidades" / "Open to opportunities" | Confere com `identidade.disponibilidade`. og.png contém só nome e essa frase sobre captura do quarto | `identidade.disponibilidade` | ok |
+| `ui.linkExterno`, `Quarto.astro` | "(abre em nova guia)" / "(opens in a new tab)" | Texto de interface, sem afirmação factual; pt e en equivalentes | n/a | ok |
+| `quarto.objetos.*` (rótulos de hover/legendas), `tour.*`, `so.*`, `postit.*`, `anotacoes.*` | rótulos e resumos | Repetem fatos verificados (KPMG = auditoria de controles de TI; SQL na Cushman; protótipos Salesforce; Pós Tech em andamento; escotismo desde 2019). Nada novo | `perfil.json` | ok |
+| `src/cena/texturas.ts` | `NOMES_LOMBADAS`: VALORANT, Counter-Strike, Resident Evil 4, Call of Duty; canvas "2026" e "IA" | Jogos listados em `hobbies`; "2026"/"IA" na linha do tempo condiz com Vértice 2026 e foco IA. Só texto, sem logos. Homem-Aranha só como texto (`lombadaExtra`) | `hobbies` | ok |
+| `contato`, `hero.cta`, `postit.contato`, `vertice.ctaLinkedin` | só LinkedIn `linkedin.com/in/matheusnagano` | Conforme. Nenhum `mailto:`/`tel:` ou e-mail/telefone em `src/`, `content/textos.*`, `dist/` | `identidade.links` | ok |
+| `rodape.githubUrl` | `github.com/mathnags` | Só no rodapé (`Rodape.astro`); não aparece em contato/post-it | `identidade.links.github` | ok |
+| KPMG (`experiencia`, `sobre.p2`, `tour.experiencia`) | ITGCs, 10+ clientes, Excel PROCV/SOMASE | Auditoria de controles de TI com ferramentas/ERPs do cliente; sem SQL nem análise de dados | `experiencias[0]` | ok |
+| `habilidades.*`, `sobre.p3` | Excel avançado; restante básico; noções LangGraph/Hadoop/Spark | Níveis iguais ao declarado. Salesforce: "apoiei validação" suaviza o "determinantes" da fonte, sem exagero | `habilidades` | ok |
+| `vertice.*` | 49 arquivos de testes, Render/Neon/Actions, Riot API como próximo passo, "em desenvolvimento" | Conforme; sem "em produção" nem métricas de uso | `projetos[0]` | ok |
+| pt x en | todas as seções, mesmas chaves | Mesmo conteúdo; "Tecnólogo"="Associate degree", "Castores/Filhotes"="Beaver Scouts" aceitáveis | n/a | ok |
+| `src/`, textos, `dist/` | `CONFIRMAR`, `TODO`, `lorem` | Nenhum marcador (a regex em `schemas/conteudo.ts` é só validação) | n/a | ok |
+| textos pt/en, `alem.volei.texto` | "Apesar de não ser bom..." / "I'm not great at it" | Citação literal do Matheus em `fonte/hobbies.md`; em `perfil.json` consta em `texto_do_matheus` | `perfil.json` hobbies | ok |
+| `BaseLayout.astro` JSON-LD | `url` | Site agora consta em `perfil.json` (`identidade.site`, mathnags.github.io). Não reconferido o valor exato no código | `identidade.site` | ajustar (baixo) |
 
-Não verificado: textos embutidos no código de `src/cena/` (3D) e imagens raster, onde pode haver texto desenhado. Uma busca em `src/` por e-mail, telefone e marcadores não achou nada.
+Não verificado: pixels do og.png e das texturas raster (só o script/código-fonte do texto); o `src` renderizado em `dist/` não foi reconstruído nesta rodada.
 
-Totais: bloqueia 0, ajustar 2 (baixos).
+Totais: bloqueia 0, ajustar 1 (baixo).
 
 ## Veredito: APROVADO

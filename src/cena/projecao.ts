@@ -32,6 +32,8 @@ const LADO = 44;
 export class Projecao {
   /** Posição (px) do canto superior esquerdo de cada marcador, para a anotação relativa. */
   private cantos = new Map<string, [number, number]>();
+  /** Medidas das anotações por tamanho de tela: ler scrollWidth/offsetHeight a cada quadro, depois de escrever --tx, forçava um layout por quadro. */
+  private medidas = new Map<AnotacaoProj, { L: number; A: number; w: number; h: number; top: number }>();
 
   constructor(
     private marcadores: MarcadorProj[],
@@ -47,13 +49,17 @@ export class Projecao {
       p.el.style.setProperty('--ty', `${y.toFixed(1)}px`);
       this.cantos.set(p.el.dataset.objeto ?? '', [x, y]);
     }
-    this.anotar(L);
+    this.anotar(L, A);
   }
 
-  private anotar(L: number) {
+  private anotar(L: number, A: number) {
     for (const an of this.anotacoes) {
-      const w = Math.min(an.larguraMax, an.el.scrollWidth || an.larguraMax);
-      const h = an.el.offsetHeight;
+      let m = this.medidas.get(an);
+      if (!m || m.L !== L || m.A !== A) {
+        m = { L, A, w: Math.min(an.larguraMax, an.el.scrollWidth || an.larguraMax), h: an.el.offsetHeight, top: an.el.offsetTop };
+        if (m.h > 0) this.medidas.set(an, m); // escondida (altura 0): mede de novo no próximo quadro
+      }
+      const { w, h } = m;
       let x1: number;
       let y1: number;
       let x2: number;
@@ -73,7 +79,7 @@ export class Projecao {
         curva = 0.3;
       } else {
         x1 = L / 2;
-        y1 = an.el.offsetTop + h + 6;
+        y1 = m.top + h + 6;
         x2 = x1;
         y2 = y1 + 30;
       }

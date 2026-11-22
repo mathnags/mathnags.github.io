@@ -47,7 +47,10 @@ function anotacoesDoPalco() {
 type CenaCarregada = NonNullable<ReturnType<typeof cenaAtual>>;
 
 /** O destaque da cena segue o foco e o hover do link (e o hover na cena marca data-hover no link, em aoHover); lido/próximo viram variações da luz de repouso. */
+let soltarLinks = () => {};
 function ligarLinks(cena: CenaCarregada) {
+  soltarLinks(); // a recarga da cena não acumula ouvintes
+  const ac = new AbortController();
   const estados = () => {
     const e: Parameters<CenaCarregada['marcarEstados']>[0] = {};
     for (const a of marcadoresDoPalco()) {
@@ -58,15 +61,19 @@ function ligarLinks(cena: CenaCarregada) {
     cena.marcarEstados(e);
   };
   estados();
-  aoRenderizar(estados);
+  const soltarRender = aoRenderizar(estados);
+  soltarLinks = () => {
+    soltarRender();
+    ac.abort();
+  };
   for (const a of marcadoresDoPalco()) {
     const id = a.dataset.objeto as Parameters<CenaCarregada['destacar']>[0];
     const ligar = () => cena.destacar(id);
     const desligar = () => cena.destacar(null);
-    a.addEventListener('mouseenter', ligar);
-    a.addEventListener('mouseleave', desligar);
-    a.addEventListener('focus', ligar);
-    a.addEventListener('blur', desligar);
+    a.addEventListener('mouseenter', ligar, { signal: ac.signal });
+    a.addEventListener('mouseleave', desligar, { signal: ac.signal });
+    a.addEventListener('focus', ligar, { signal: ac.signal });
+    a.addEventListener('blur', desligar, { signal: ac.signal });
   }
 }
 
@@ -140,8 +147,14 @@ export async function carregarCena(): Promise<void> {
     // Se a intro ainda está na tela, a chegada espera o fim dela: o visitante vê o voo, não um quarto já parado atrás da intro.
     aposIntro(() => cena.mostrar(passoAtual() === 0 && !objAbertoAgora()));
   } catch (e) {
-    if (e instanceof Error && e.message === 'sem-webgl') cairNoRecrutador(document.getElementById('status-modo')?.dataset.semWebgl ?? '');
-    else falhar();
+    if (e instanceof Error && e.message === 'sem-webgl') {
+      try {
+        localStorage.setItem('semWebgl', '1');
+      } catch {
+        /* sem armazenamento */
+      }
+      cairNoRecrutador(document.getElementById('status-modo')?.dataset.semWebgl ?? '');
+    } else falhar();
   }
 }
 
@@ -165,9 +178,25 @@ export function iniciarCarga() {
   });
   palco.querySelector('[data-cena-recrutador]')?.addEventListener('click', () => alternarModo());
 
+  // Sonda do <head>: contexto WebGL2 criado num worker. Falhou = sem GPU: o recrutador entra já, sem baixar a cena, e o sinal vale nas próximas visitas.
+  const sonda = (window as unknown as { __gl?: Promise<boolean> }).__gl;
+  const gpuOk = sonda ? Promise.race([sonda, new Promise<boolean>((r) => setTimeout(() => r(true), 1500))]) : Promise.resolve(true);
+  if (sonda)
+    void gpuOk.then((ok) => {
+      try {
+        if (ok) localStorage.removeItem('semWebgl');
+        else localStorage.setItem('semWebgl', '1');
+      } catch {
+        /* armazenamento indisponível */
+      }
+      if (!ok) cairNoRecrutador(document.getElementById('status-modo')?.dataset.semWebgl ?? '');
+    });
+
   const agendar = () => {
     const iniciar = () => {
-      if (modoQuarto()) void carregarCena();
+      if (modoQuarto()) void gpuOk.then((ok) => {
+          if (ok) void carregarCena();
+        });
     };
     if ('requestIdleCallback' in window) requestIdleCallback(iniciar, { timeout: 2000 });
     else setTimeout(iniciar, 200);

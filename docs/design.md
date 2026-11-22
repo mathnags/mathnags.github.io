@@ -2092,7 +2092,6 @@ interface ConfigQuarto {
 |---|---|---|
 | `quarto.cenaDescricao` (parágrafo `sr-only` antes de `quarto.ajuda`; substitui `quarto.imagemAlt`) | "Quarto de trabalho em 3D, visto do alto, com mesa, monitor, mural de cortiça, estante e porta. Oito objetos abrem os capítulos do site." | "A 3D workroom seen from above, with a desk, monitor, corkboard, bookshelf and door. Eight objects open the site's chapters." |
 | `quarto.carregando` | "Montando o quarto em 3D…" | "Building the 3D room…" |
-| `quarto.entrar3d` | "Entrar no quarto em 3D" | "Enter the 3D room" |
 | `quarto.semWebgl` | "Este navegador não exibe o quarto em 3D. Mostrando o modo recrutador." | "This browser can't show the 3D room. Showing recruiter mode." |
 | `quarto.erroCena` / `quarto.tentarDeNovo` | "Não foi possível carregar o quarto em 3D." / "Tentar de novo" | "Couldn't load the 3D room." / "Try again" |
 
@@ -2138,3 +2137,16 @@ interface ConfigQuarto {
 - **Teste dos 30 segundos:** sem mudança em relação a 12.12. "Modo recrutador" continua sendo o 1º focável, e no celular a 1ª tela já tem nome, Dados → IA e LinkedIn em HTML.
 - **Acessibilidade do 3D:** todo caminho existe sem ponteiro e sem WebGL (links, cartões e modo recrutador). O `<canvas>` é decorativo.
 - **Calibração da luz:** as intensidades são o ponto de partida; o critério de 13.7 é o que vale.
+
+## 14. Estado atual (revisão 7+)
+
+Resumo do que vale hoje. Onde divergir das seções 11 a 13, esta seção prevalece.
+
+- **Sem post-its numerados nem marcadores circulares.** Os objetos são destacados por luz e movimento; o `<a class="objeto">` é invisível (alvo de toque, foco e nome acessível). O número do objeto existe só para leitor de tela (`.p-num` em `sr-only`), tanto no quarto quanto nos nichos e nas vistas.
+- **Objetos interativos:** em repouso, emissive creme; um *glint* guia o olhar; no hover, o objeto sobe, ganha contorno creme e um rótulo com fonte ≥ 15 px. No celular, o 1º toque mostra o rótulo e o toque duplo abre o capítulo.
+- **"Fale comigo!"** é o único post-it que resta (parede do fundo), com piso de legibilidade em px de tela: abaixo do piso, o cartão é ampliado.
+- **Sem subtítulo sob o nome.** "Aberto a oportunidades" aparece só na linha Status e no `og.png`.
+- **Celular:** pose de retrato da câmera; cartões do tour e nichos de texto (reserva sem 3D) são cartões limpos com tokens do tema (dia/noite), sem rotação, sem fita, sem barra lateral colorida e sem número visível.
+- **Vistas** sem *kickers* numerados.
+- **Links externos** abrem em nova guia (`target="_blank" rel="noopener noreferrer"`, com aviso `sr-only`).
+- **`og.png`** gerado do quarto 3D (`?calibrar=og`).

@@ -171,7 +171,7 @@ const [anotComece, anotRole] = quarto.anotacoes;
       itens.map(({ o, txt, num, resumo }) => (
         <li>
           <a class="nicho" href={`#${o.destino}`} data-objeto={o.id} data-cap={o.capitulo}>
-            <span class="postit">
+            <span class="nicho-cab">
               <span class="p-num">{num}</span>
               <span class="sr-only"> · {txt.tema}, </span>
               <span class="p-nome">{txt.comum}</span>

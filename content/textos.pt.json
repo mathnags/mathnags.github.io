@@ -71,7 +71,6 @@
     "titulo": "Quarto: escolha um objeto",
     "cenaDescricao": "Quarto de trabalho em 3D, visto do alto, com mesa, monitor, mural de cortiça, estante e porta. Oito objetos abrem os capítulos do site.",
     "carregando": "Montando o quarto em 3D…",
-    "entrar3d": "Entrar no quarto em 3D",
     "semWebgl": "Este navegador não exibe o quarto em 3D. Mostrando o modo recrutador.",
     "erroCena": "Não foi possível carregar o quarto em 3D.",
     "tentarDeNovo": "Tentar de novo",

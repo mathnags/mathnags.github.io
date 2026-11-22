@@ -7,7 +7,11 @@ import { links } from './ctx';
 const CHAVE = 'lidos';
 const lidos = new Set<number>();
 const ouvintes: (() => void)[] = [];
-export const aoRenderizar = (fn: () => void) => ouvintes.push(fn);
+/** Registra um ouvinte; devolve a função que o remove. */
+export const aoRenderizar = (fn: () => void) => {
+  ouvintes.push(fn);
+  return () => void ouvintes.splice(ouvintes.indexOf(fn) >>> 0, 1);
+};
 
 try {
   (JSON.parse(sessionStorage.getItem(CHAVE) ?? '[]') as number[]).forEach((n) => lidos.add(n));

@@ -190,7 +190,6 @@ export const textosSchema = z.strictObject({
     titulo: texto,
     cenaDescricao: texto,
     carregando: texto,
-    entrar3d: texto,
     semWebgl: texto,
     erroCena: texto,
     tentarDeNovo: texto,

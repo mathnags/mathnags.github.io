@@ -50,23 +50,32 @@ const pessoa = {
         d.classList.add('js');
         let tema = null;
         let modo = null;
+        let sem = false;
         try {
           tema = localStorage.getItem('tema');
           modo = localStorage.getItem('modo');
+          sem = !!localStorage.getItem('semWebgl');
         } catch {}
         if (tema === 'dark' || tema === 'light') d.dataset.theme = tema;
         const q = new URLSearchParams(location.search).get('modo');
         if (q === 'recrutador' || q === 'quarto') modo = q;
         if (modo !== 'recrutador') {
-          // Checagem barata (sem criar contexto GL antes da 1ª pintura): a falha real (sem GPU) cai na cena, que volta ao recrutador.
-          const ok = !!w.WebGL2RenderingContext;
-          if (ok) d.dataset.modo = 'quarto';
-          else {
-            d.dataset.semWebgl = '';
+          // Sem a API, ou com o sinal 'semWebgl' de uma visita anterior (gravado em carga.ts), nasce no recrutador; a escolha explícita
+          // pelo quarto vence o sinal. Senão, um worker já tenta o contexto (como o renderer): aquece a GPU fora da thread principal
+          // e carga.ts lê o resultado em window.__gl (false = sem GPU).
+          if (w.WebGL2RenderingContext && !(sem && modo !== 'quarto')) {
+            d.dataset.modo = 'quarto';
             try {
-              sessionStorage.setItem('semWebgl', '1');
+              const k = new Worker(URL.createObjectURL(new Blob(['postMessage(!!new OffscreenCanvas(1,1).getContext("webgl2",{failIfMajorPerformanceCaveat:true}))'])));
+              w.__gl = new Promise((r) => {
+                k.onmessage = (e) => {
+                  k.terminate();
+                  r(e.data);
+                };
+                k.onerror = () => r(true);
+              });
             } catch {}
-          }
+          } else d.dataset.semWebgl = '';
         }
         // Intro SQL (design 11.2): só no quarto, na 1ª visita, sem hash nem ?modo, sem movimento reduzido e em tela cheia.
         if (d.dataset.modo && !location.hash && !location.search.includes('modo=') && w.innerWidth > 767 && w.innerWidth / w.innerHeight >= 1.3 && !matchMedia('(prefers-reduced-motion:reduce)').matches && !navigator.connection?.saveData) {
