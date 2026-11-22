@@ -319,7 +319,7 @@ export function criarDecoracao(o: Opcoes): Decoracao {
   // Tamanho fixo na tela (sizeAttenuation off) para o rótulo continuar legível em janelas pequenas.
   const rotuloMat = new SpriteMaterial({ map: o.rotulo.textura, transparent: true, depthWrite: false, depthTest: false, sizeAttenuation: false });
   const rotulo = new Sprite(rotuloMat);
-  rotulo.scale.set(0.128, 0.032, 1);
+  rotulo.scale.set(0.088, 0.022, 1);
   rotulo.position.set(RELOGIO[0], 2.08, 0.06);
   rotulo.visible = false;
   rotulo.renderOrder = 10;
