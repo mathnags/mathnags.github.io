@@ -1,5 +1,5 @@
-// Orçamento da build (design 13.10): chunk da cena, módulo principal, script do <head>, HTML, CSS, fontes e imagens (0 bytes
-// de imagem da cena). Roda depois da build (npm run verify) e derruba o CI se algo passar do limite.
+// Orçamento da build (design 13.10): chunk da cena, módulo principal, script do <head>, HTML, CSS, fontes e imagens (uma só imagem da
+// cena: dist/img/kanagawa.jpg, o quadro da parede, ≤ 60 KB). Roda depois da build (npm run verify) e derruba o CI se algo passar do limite.
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { gzipSync } from 'node:zlib';
@@ -61,8 +61,9 @@ const kbLatin = [...latin].reduce((t, f) => t + statSync(join(dirFontes, f)).siz
 relatar(latin.size > 0 && kbLatin <= 130, `fontes na 1ª visita (subsets latin, ${latin.size} arquivos): ${kbLatin.toFixed(1)} KB (limite 130)`);
 console.log(`info  fontes: ${kbFontes.toFixed(1)} KB somando todos os subsets (latin-ext só baixa sob demanda)`);
 
-// Imagens da cena: 0 bytes. Só o favicon e o og.png (compartilhamento) existem como arquivos estáticos.
-relatar(!existsSync(join(dist, 'img')), 'sem imagens da cena (dist/img não existe)');
+// Imagens da cena: um único arquivo (quadro da Grande Onda de Kanagawa, domínio público), com orçamento de 60 KB.
+const imgsCena = existsSync(join(dist, 'img')) ? readdirSync(join(dist, 'img')) : [];
+relatar(imgsCena.length === 1 && imgsCena[0] === 'kanagawa.jpg' && statSync(join(dist, 'img', 'kanagawa.jpg')).size / KB <= 60, `imagens da cena: ${imgsCena.join(', ') || 'nenhuma'} (só kanagawa.jpg, ≤ 60 KB)`);
 const rasters = readdirSync(dist).filter((f) => /\.(png|jpe?g|webp|avif|gif)$/.test(f));
 relatar(rasters.every((f) => f === 'og.png'), `imagens estáticas: ${rasters.join(', ') || 'nenhuma'}`);
 if (existsSync(join(dist, 'og.png'))) relatar(statSync(join(dist, 'og.png')).size / KB <= 150, 'og.png ≤ 150 KB');

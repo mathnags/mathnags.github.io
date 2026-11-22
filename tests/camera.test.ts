@@ -83,6 +83,19 @@ describe('enquadrar()', () => {
     }
   });
 
+  it('retrato: a mesa inteira (com o monitor vertical, x 0,15 a 2,25) cabe no quadro', () => {
+    const mesa = caixaDe({ min: [0.15, 0, 0], max: [2.25, 1.45, 0.8] });
+    for (const [L, A] of [[390, 844], [375, 667], [360, 740]] as const) {
+      for (const c of cantos(mesa)) {
+        const r = projetar({ k: 'geral' }, L, A, c);
+        expect(r.x, `mesa ${L}x${A}`).toBeGreaterThanOrEqual(12);
+        expect(r.x, `mesa ${L}x${A}`).toBeLessThanOrEqual(L - 12);
+        expect(r.y, `mesa ${L}x${A}`).toBeGreaterThanOrEqual(0);
+        expect(r.y, `mesa ${L}x${A}`).toBeLessThanOrEqual(A);
+      }
+    }
+  });
+
   it('as vistas dentro projetam a janela como retângulo, sem distorção (de frente), e cabem na moldura', () => {
     for (const [L, A] of RESOLUCOES) {
       for (const o of cfg.objetos.filter((x) => x.janela)) {

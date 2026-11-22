@@ -9,6 +9,9 @@ import type { V3 } from '../config/tipos';
 /** Sol/lua: entra pela janela da parede esquerda e desenha a mancha no tapete. */
 export const SOL = { pos: [-3.6, 4.4, 2.6] as V3, alvo: [1.3, 0, 1.9] as V3 };
 
+/** Cabeça da luminária de mesa e o ponto que ela ilumina (canto direito da mesa; a esquerda é dos monitores). */
+export const LUMINARIA = { cabeca: [1.9, 1.34, 0.2] as V3, alvo: [1.3, 0.76, 0.5] as V3 };
+
 /** Intensidades de partida do design; o critério de calibração (13.7) é o que vale, e os ajustes ficam aqui. */
 const DIA = { ceu: 0xf4f1ea, chao: 0xc9b79a, hemi: 2.2, sol: 0xfff1d6, solI: 2.6, preench: 0.8, spot: 0, halo: 0, monitor: 0 };
 const NOITE = { ceu: 0x2b3560, chao: 0x14120f, hemi: 2.4, sol: 0x9fb3ff, solI: 1.0, preench: 0.5, spot: 6, halo: 1.2, monitor: 0.8 };
@@ -51,11 +54,11 @@ export function criarLuzes(cena: Scene, sombra: boolean): Luzes {
   preench.target.position.set(2.8, 1, 1.4);
 
   const spot = new SpotLight(0xffd27a, 0, 0, 0.75, 0.7, 2);
-  spot.position.set(0.6, 1.14, 0.44);
-  spot.target.position.set(1.15, 0.76, 0.52);
+  spot.position.set(...LUMINARIA.cabeca);
+  spot.target.position.set(...LUMINARIA.alvo);
 
   const halo = new PointLight(0xffd27a, 0, 2.6, 2);
-  halo.position.set(0.6, 1.14, 0.44);
+  halo.position.set(...LUMINARIA.cabeca);
 
   const monitor = new PointLight(0xbfe6da, 0, 2.0, 2);
   monitor.position.set(0.95, 1.2, 0.65);

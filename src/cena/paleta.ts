@@ -18,6 +18,16 @@ export const P = {
   coral: 0xff5f57,
   ervaVerde: 0x4f8a3c,
   ervaVermelha: 0xc2413a,
+  /** Mesa industrial, cadeira, headset e monstera. */
+  mel: 0xc58b48,
+  preto: 0x1b1d22,
+  telaCadeira: 0x2f333a,
+  cromo: 0xc4c9d1,
+  cinzaMetal: 0x7f858e,
+  almofada: 0xc9ccd0,
+  terracota: 0xb4553a,
+  folhaClara: 0x74ad4e,
+  haste: 0x3f6b2e,
   /** Emissivos. */
   lampadaApagada: 0xd6d2c6,
   lampadaAcesa: 0xffd27a,

@@ -74,7 +74,7 @@ export class Projecao {
         an.el.style.top = `${ty.toFixed(1)}px`;
         x1 = tx + w * 0.7;
         y1 = ty + h + 2;
-        x2 = c[0] - 4;
+        x2 = c[0] + 40; // desce pelo lado direito do monitor vertical e chega na tela do horizontal
         y2 = c[1] - 2;
         curva = 0.3;
       } else {

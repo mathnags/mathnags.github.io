@@ -28,7 +28,7 @@ import type { Clicavel } from './objetos/base';
 import { P } from './paleta';
 import { geralDe, poseDe as poseDeCtx, type Ctx } from './poses';
 import { Projecao, type AnotacaoProj, type MarcadorProj } from './projecao';
-import { carregarFontes, criarTelaMonitor, texturaCaderno, texturaCeu, texturaFumaca, texturaJanelasCidade, texturaLombadas, texturaPoster, texturaBola, texturaRotulo, texturaSombraContato } from './texturas';
+import { carregarFontes, carregarKanagawa, criarTelaMonitor, texturaFolha, texturaTelaVertical, texturaCaderno, texturaCeu, texturaFumaca, texturaJanelasCidade, texturaLombadas, texturaBola, texturaRotulo, texturaSombraContato } from './texturas';
 
 export type CfgCliente = ReturnType<typeof configCliente>;
 export type { Nivel } from './nivel';
@@ -128,6 +128,8 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
   renderer.setSize(L, A, false);
 
   /* ---------- Texturas e montagem fatiada: casca → móveis → clicáveis → texturas (nenhuma tarefa > 50 ms) ---------- */
+  // O único arquivo de imagem da cena (quadro da parede) começa a baixar já, junto das fontes.
+  const kanagawaPronta = carregarKanagawa();
   await carregarFontes();
   // Uma textura por tarefa: cada desenho em canvas 2D fica bem abaixo de 50 ms.
   const fatiar = async <T>(f: () => T): Promise<T> => {
@@ -138,7 +140,9 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
   const texCeuDia = await fatiar(() => texturaCeu(false));
   const texCeuNoite = await fatiar(() => texturaCeu(true));
   const tela = await fatiar(() => criarTelaMonitor(leve));
-  const poster = await fatiar(texturaPoster);
+  const telaVertical = await fatiar(texturaTelaVertical);
+  const folha = await fatiar(texturaFolha);
+  const kanagawa = await kanagawaPronta;
   const bola = await fatiar(texturaBola);
   const lombadas = await fatiar(texturaLombadas);
   const sombraContato = await fatiar(texturaSombraContato);
@@ -146,12 +150,12 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
   const janelasCidade = await fatiar(texturaJanelasCidade);
   const fumaca = await fatiar(texturaFumaca);
   const rotulo = texturaRotulo();
-  const texturas: Texture[] = [texCeuDia, texCeuNoite, poster, bola, lombadas, sombraContato, paginas, tela.textura];
+  const texturas: Texture[] = [texCeuDia, texCeuNoite, bola, lombadas, sombraContato, paginas, tela.textura];
 
   const cena = new Scene();
   cena.add(criarCasca(sombra));
   await ceder();
-  const dec = criarDecoracao({ sombra, leve, ceuDia: texCeuDia, poster, bola, lombadas, sombraContato, janelasCidade, fumaca, rotulo });
+  const dec = criarDecoracao({ sombra, leve, ceuDia: texCeuDia, kanagawa, telaVertical, folha, bola, lombadas, sombraContato, janelasCidade, fumaca, rotulo });
   texturas.push(...dec.texturasExtras);
   cena.add(dec.grupo);
   await ceder();

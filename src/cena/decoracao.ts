@@ -1,19 +1,19 @@
 /**
  * Decoração estática, não clicável (docs/design.md 13.3). Tudo é fundido por material (Lote) depois de posicionado.
  * Proibido na cena: logos, personagens, máscaras, rostos, armas, miras, símbolo da Umbrella, teia ou traje reconhecível,
- * padrões oficiais de bola. A teia do pôster é geométrica e original (texturas.ts).
+ * padrões oficiais de bola. O quadro é a Grande Onda de Kanagawa (Hokusai, domínio público).
  */
 import {
   AdditiveBlending, BoxGeometry, BufferAttribute, BufferGeometry, CatmullRomCurve3, Color, DoubleSide, Group, InstancedMesh, Matrix4, Mesh,
   MeshBasicMaterial, MeshLambertMaterial, PlaneGeometry, Quaternion, ShaderMaterial, Sphere, Sprite, SpriteMaterial, Vector3, type Ray, type Texture,
 } from 'three';
 import type { V3 } from '../config/tipos';
-import { Box, Circulo, Cone, Cyl, Esfera, Ico, Plane, RB, ROT_EIXO_X, ROT_EIXO_Z, Tor, Tube, entre, estoque, graus } from './geo';
+import { Box, Circulo, Cone, Cyl, Esfera, Plane, RB, ROT_EIXO_X, ROT_EIXO_Z, Tor, Tube, entre, estoque, graus, mat } from './geo';
 import { Lote } from './lote';
 import { P } from './paleta';
-import { SOL } from './luzes';
+import { LUMINARIA, SOL } from './luzes';
 import { horaSaoPaulo, rotuloHora } from './relogio';
-import type { texturaRotulo } from './texturas';
+import { RAZAO_KANAGAWA, type texturaRotulo } from './texturas';
 
 export interface Decoracao {
   grupo: Group;
@@ -46,7 +46,10 @@ interface Opcoes {
   sombra: boolean;
   leve: boolean;
   ceuDia: Texture;
-  poster: Texture;
+  /** Arte do quadro da parede esquerda; null se o arquivo não carregou (fica papel liso). */
+  kanagawa: Texture | null;
+  telaVertical: Texture;
+  folha: Texture;
   bola: Texture;
   lombadas: Texture;
   sombraContato: Texture;
@@ -137,12 +140,15 @@ export function criarDecoracao(o: Opcoes): Decoracao {
   lote.add(cortina, m.get(P.tecido, { side: DoubleSide }), [0.06, 1.5, 1.22], [0, Math.PI / 2, 0]);
   lote.add(Cyl(0.012, 0.012, 1.6, 8), metal, [0.06, 2.25, 1.9], ROT_EIXO_Z);
 
-  /* ---------- Pôster (aceno original, sem figura) ---------- */
-  lote.add(RB(0.01, 0.82, 0.6, 0.004), papel, [0.006, 1.58, 3.05]);
-  const poster = new Mesh(Plane(0.6, 0.82), new MeshLambertMaterial({ map: o.poster }));
-  poster.rotation.y = Math.PI / 2;
-  poster.position.set(0.0115, 1.58, 3.05);
-  g.add(poster);
+  /* ---------- Quadro: A Grande Onda de Kanagawa (Hokusai, 1831, domínio público), paisagem, moldura de madeira escura e passe-partout ---------- */
+  const QW = 0.7;
+  const QH = QW / RAZAO_KANAGAWA;
+  lote.add(RB(0.014, QH + 0.14, QW + 0.14, 0.004), m.get(P.madeiraEscura), [0.007, 1.58, 3.05]);
+  lote.add(Box(0.004, QH + 0.08, QW + 0.08), papel, [0.0145, 1.58, 3.05]);
+  const quadro = new Mesh(Plane(QW, QH), new MeshLambertMaterial({ map: o.kanagawa, color: o.kanagawa ? 0xffffff : P.superficie2 }));
+  quadro.rotation.y = Math.PI / 2;
+  quadro.position.set(0.0175, 1.58, 3.05);
+  g.add(quadro);
 
   /* ---------- Prateleira de estojos (aceno aos games) ---------- */
   lote.add(Box(0.22, 0.025, 0.6), madeira, [0.11, 1.55, 0.55]);
@@ -168,51 +174,94 @@ export function criarDecoracao(o: Opcoes): Decoracao {
   lote.add(Box(0.007, 0.004, 0.022), papel, [0.13, yc + 0.026, 0.655]);
   for (const [x, z, cor] of [[0.141, 0.745, P.coral], [0.119, 0.745, P.azul], [0.13, 0.756, P.tachinha], [0.13, 0.734, P.ervaVerde]] as const) lote.add(Esfera(0.006, 6, 4), m.get(cor), [x, yc + 0.027, z]);
 
-  /* ---------- Mesa, gaveteiro e o que fica sobre ela ---------- */
-  lote.add(RB(2.0, 0.04, 0.76, 0.012), madeira, [1.25, 0.74, 0.42]);
-  lote.add(Box(0.04, 0.72, 0.04), metal, [0.29, 0.36, 0.1]);
-  lote.add(Box(0.04, 0.72, 0.04), metal, [0.29, 0.36, 0.74]);
-  lote.add(RB(0.4, 0.7, 0.62, 0.01), madeira, [2.02, 0.35, 0.4]);
-  lote.add(Box(0.36, 0.004, 0.005), m.get(P.madeiraEscura), [2.02, 0.36, 0.712]);
-  lote.add(Box(0.36, 0.004, 0.005), m.get(P.madeiraEscura), [2.02, 0.03, 0.712]);
-  lote.add(Box(0.1, 0.015, 0.015), metal, [2.02, 0.55, 0.72]);
-  lote.add(Box(0.1, 0.015, 0.015), metal, [2.02, 0.2, 0.72]);
+  /* ---------- Mesa industrial (tampo mel espesso, estrutura de aço preto em "U", sem gaveteiro) e o que fica sobre ela ---------- */
+  const preto = m.get(P.preto);
+  lote.add(RB(2.1, 0.05, 0.76, 0.012), m.get(P.mel), [1.2, 0.735, 0.42]);
+  for (const x of [0.21, 2.19]) {
+    for (const z of [0.09, 0.75]) lote.add(Box(0.04, 0.71, 0.04), preto, [x, 0.355, z]);
+    lote.add(Box(0.04, 0.04, 0.72), preto, [x, 0.02, 0.42]);
+    lote.add(Box(0.04, 0.05, 0.72), preto, [x, 0.685, 0.42]);
+  }
+  for (const z of [0.09, 0.75]) lote.add(Box(1.98, 0.06, 0.03), preto, [1.2, 0.68, z]);
   lote.add(RB(0.46, 0.022, 0.15, 0.006), m.get(P.superficie2), [0.95, 0.771, 0.58]);
   lote.add(Box(0.32, 0.004, 0.24), m.get(P.coral), [1.46, 0.762, 0.56]);
   lote.add(Esfera(0.03, 10, 8), metal, [1.48, 0.775, 0.56], [0, 0, 0], [1, 0.5, 1.5]);
   lote.add(Cyl(0.04, 0.04, 0.09, 12), papel, [1.5, 0.805, 0.24]);
   lote.add(Tor(0.025, 0.007, 6, 12, Math.PI), papel, [1.54, 0.805, 0.24], [0, 0, -Math.PI / 2]);
 
-  // Headset no suporte (genérico, sem marca)
-  lote.add(Cyl(0.06, 0.06, 0.012, 12), metal, [2.08, 0.766, 0.22]);
-  lote.add(Cyl(0.008, 0.008, 0.26, 6), metal, [2.08, 0.89, 0.22]);
-  lote.add(Tor(0.085, 0.012, 6, 16, Math.PI), metal, [2.08, 0.97, 0.22]);
-  lote.add(Cyl(0.04, 0.04, 0.03, 12), metal, [2.165, 0.97, 0.22], ROT_EIXO_X);
-  lote.add(Cyl(0.04, 0.04, 0.03, 12), metal, [1.995, 0.97, 0.22], ROT_EIXO_X);
+  // Monitor vertical (decoração) no suporte compartilhado com o horizontal: base comprida, haste e fixação atrás do painel.
+  lote.add(RB(0.7, 0.015, 0.16, 0.005), preto, [0.6, 0.768, 0.3]);
+  lote.add(Box(0.05, 0.12, 0.035), preto, [0.36, 0.83, 0.27]);
+  const GIRO_V = 0.12;
+  const vert = new Lote(new Matrix4().compose(new Vector3(0.36, 1.14, 0.3), new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), GIRO_V), new Vector3(1, 1, 1)));
+  vert.add(RB(0.3, 0.54, 0.03, 0.01), preto, [0, 0, 0]);
+  vert.add(Box(0.06, 0.06, 0.03), preto, [0, -0.05, -0.028]);
+  g.add(...vert.malhas(o.sombra));
+  const telaV = new Mesh(Plane(0.28, 0.5), new MeshBasicMaterial({ map: o.telaVertical, toneMapped: false }));
+  telaV.position.set(0.36 + Math.sin(GIRO_V) * 0.0175, 1.14, 0.3 + Math.cos(GIRO_V) * 0.0175);
+  telaV.rotation.y = GIRO_V;
+  g.add(telaV);
 
-  // Luminária (fonte de luz da noite)
-  lote.add(Cyl(0.07, 0.07, 0.02, 16), metal, [0.42, 0.77, 0.24]);
-  const bracos: [V3, V3][] = [[[0.42, 0.78, 0.24], [0.4, 1.1, 0.26]], [[0.4, 1.1, 0.26], [0.58, 1.18, 0.42]]];
+  // Headset branco no suporte (genérico, sem marca): base retangular, duas hastes, topo em sela; conchas, aros de metal, almofadas e microfone.
+  const HX = 2.08, HZ = 0.22, branco = papel, aro = m.get(P.cinzaMetal), almofada = m.get(P.almofada);
+  lote.add(RB(0.16, 0.014, 0.12, 0.004), preto, [HX, 0.767, HZ]);
+  for (const dz of [-0.025, 0.025]) lote.add(Box(0.012, 0.22, 0.012), preto, [HX, 0.874, HZ + dz]);
+  lote.add(RB(0.1, 0.022, 0.07, 0.008), preto, [HX, 0.99, HZ]);
+  lote.add(Tor(0.085, 0.016, 8, 20, Math.PI), branco, [HX, 0.919, HZ]);
+  for (const lado of [-1, 1]) {
+    const cx = HX + lado * 0.1;
+    lote.add(Cyl(0.05, 0.05, 0.034, 20), branco, [cx, 0.885, HZ], ROT_EIXO_X);
+    lote.add(Cyl(0.046, 0.046, 0.016, 20), almofada, [HX + lado * 0.073, 0.885, HZ], ROT_EIXO_X);
+    lote.add(Tor(0.054, 0.005, 6, 20), aro, [cx + lado * 0.019, 0.885, HZ], [0, Math.PI / 2, 0]);
+    lote.add(Box(0.012, 0.045, 0.03), aro, [HX + lado * 0.088, 0.925, HZ]);
+  }
+  const mic = entre([HX - 0.1, 0.86, HZ + 0.01], [HX - 0.07, 0.835, HZ + 0.1]);
+  lote.add(Cyl(0.004, 0.004, mic.comprimento, 6), branco, mic.centro, mic.q);
+  lote.add(Cyl(0.007, 0.007, 0.02, 8), aro, [HX - 0.07, 0.835, HZ + 0.105], ROT_EIXO_Z);
+
+  // Luminária (fonte de luz da noite): no canto direito do tampo, braço em dois segmentos
+  const [lx, ly, lz] = LUMINARIA.cabeca;
+  lote.add(Cyl(0.07, 0.07, 0.02, 16), metal, [2.18, 0.77, 0.12]);
+  const bracos: [V3, V3][] = [[[2.18, 0.78, 0.12], [2.18, 1.24, 0.12]], [[2.18, 1.24, 0.12], [lx, ly, lz]]];
   for (const [a, b] of bracos) {
     const s = entre(a, b);
     lote.add(Cyl(0.012, 0.012, s.comprimento, 8), metal, s.centro, s.q);
   }
-  const cupula = new Vector3(1.15, 0.76, 0.52).sub(new Vector3(0.6, 1.14, 0.44)).normalize();
-  lote.add(Cone(0.075, 0.12, 12, true), metal, [0.6, 1.14, 0.44], new Quaternion().setFromUnitVectors(new Vector3(0, -1, 0), cupula));
+  const cupula = new Vector3(...LUMINARIA.alvo).sub(new Vector3(lx, ly, lz)).normalize();
+  lote.add(Cone(0.075, 0.12, 12, true), metal, [lx, ly, lz], new Quaternion().setFromUnitVectors(new Vector3(0, -1, 0), cupula));
   const bulbo = new Mesh(Esfera(0.025, 8, 6), lampada);
-  bulbo.position.set(0.6, 1.14, 0.44).addScaledVector(cupula, -0.02);
+  bulbo.position.set(lx, ly, lz).addScaledVector(cupula, -0.02);
   g.add(bulbo);
 
-  // Cadeira (grupo em (1.05, 0, 1.30), rotation.y = −0.35)
+  // Cadeira ergonômica (grupo em (1.05, 0, 1.30), rotation.y = −0.35; a frente é −z): encosto e assento de tela, apoio de cabeça, braços em T e base estrela cromada.
   const baseCadeira = new Matrix4().compose(new Vector3(1.05, 0, 1.3), new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -0.35), new Vector3(1, 1, 1));
   const cad = new Lote(baseCadeira);
-  cad.add(RB(0.46, 0.07, 0.44, 0.02), metal, [0, 0.46, 0]);
-  cad.add(RB(0.44, 0.48, 0.06, 0.02), metal, [0, 0.75, 0.19]);
-  cad.add(Cyl(0.025, 0.025, 0.36, 8), metal, [0, 0.28, 0]);
+  const cromo = m.get(P.cromo), tela = m.get(P.telaCadeira);
+  cad.add(RB(0.5, 0.05, 0.48, 0.02), preto, [0, 0.44, 0]);
+  cad.add(RB(0.44, 0.03, 0.42, 0.014), tela, [0, 0.47, -0.01]);
+  cad.add(Box(0.2, 0.05, 0.2), preto, [0, 0.4, 0.02]);
+  cad.add(Cyl(0.025, 0.025, 0.3, 10), cromo, [0, 0.25, 0]);
+  cad.add(Cyl(0.04, 0.05, 0.04, 10), cromo, [0, 0.1, 0]);
   for (let i = 0; i < 5; i++) {
     const a = (i * 2 * Math.PI) / 5;
-    cad.add(Box(0.28, 0.025, 0.04), metal, [Math.cos(a) * 0.12, 0.08, -Math.sin(a) * 0.12], [0, a, 0]);
-    cad.add(Esfera(0.022, 6, 4), metal, [Math.cos(a) * 0.26, 0.03, -Math.sin(a) * 0.26]);
+    cad.add(Box(0.28, 0.022, 0.045), cromo, [Math.cos(a) * 0.14, 0.08, -Math.sin(a) * 0.14], [0, a, 0]);
+    const rx = Math.cos(a) * 0.27, rz = -Math.sin(a) * 0.27;
+    cad.add(Cyl(0.008, 0.008, 0.04, 6), cromo, [rx, 0.055, rz]);
+    cad.add(Esfera(0.022, 8, 6), preto, [rx, 0.025, rz]);
+  }
+  // Encosto alto, levemente inclinado para trás, preso na traseira do assento.
+  const enc = cad.filho(new Matrix4().multiplyMatrices(baseCadeira, new Matrix4().compose(new Vector3(0, 0.49, 0.22), new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), 0.12), new Vector3(1, 1, 1))));
+  enc.add(RB(0.46, 0.62, 0.03, 0.02), preto, [0, 0.37, 0]);
+  enc.add(RB(0.4, 0.54, 0.012, 0.01), tela, [0, 0.37, -0.018]);
+  enc.add(Box(0.04, 0.12, 0.03), preto, [0, 0.03, 0.01]);
+  enc.add(Box(0.025, 0.12, 0.025), preto, [0, 0.74, 0.01]);
+  enc.add(RB(0.26, 0.13, 0.045, 0.018), preto, [0, 0.86, 0.01]);
+  enc.add(RB(0.22, 0.095, 0.012, 0.01), tela, [0, 0.86, -0.016]);
+  // Braços ajustáveis em T: haste vertical + apoio horizontal por cima.
+  for (const lado of [-1, 1]) {
+    cad.add(Box(0.03, 0.03, 0.16), preto, [lado * 0.24, 0.5, 0.1]);
+    cad.add(Box(0.03, 0.2, 0.03), preto, [lado * 0.27, 0.59, 0.1]);
+    cad.add(RB(0.07, 0.03, 0.28, 0.012), preto, [lado * 0.27, 0.7, 0.04]);
   }
   g.add(...cad.malhas(o.sombra));
 
@@ -254,13 +303,25 @@ export function criarDecoracao(o: Opcoes): Decoracao {
   lote.add(Cyl(0.0335, 0.0335, 0.05, 12), papel, [5.42, 0.09, 0.5]);
   lote.add(Cyl(0.02, 0.02, 0.035, 10), papel, [5.42, 0.2175, 0.5]);
 
-  lote.add(Cyl(0.14, 0.11, 0.3, 12), m.get(P.paredeSombra), [0.3, 0.15, 3.25]);
+  // Vaso cerâmico terracota e monstera: folhas recortadas (textura com alfa) em dois tons, hastes finas.
+  lote.add(Cyl(0.14, 0.11, 0.3, 14), m.get(P.terracota), [0.3, 0.15, 3.25]);
+  lote.add(Cyl(0.15, 0.14, 0.04, 14), m.get(P.terracota), [0.3, 0.3, 3.25]);
+  lote.add(Cyl(0.125, 0.125, 0.01, 14), m.get(P.madeiraEscura), [0.3, 0.315, 3.25]);
   // Folhas e hastes ficam num grupo à parte (pivô na borda do vaso) para balançar com o ponteiro.
   const lotePlanta = new Lote(new Matrix4().makeTranslation(-0.3, -0.3, -3.25));
-  const folhas: V3[] = [[0.08, 0.55, 0.05], [-0.07, 0.65, 0.07], [0.02, 0.75, -0.09], [-0.05, 0.85, -0.04]];
-  for (const [dx, y, dz] of folhas) lotePlanta.add(Ico(0.16, 0), m.get(P.ervaVerde), [0.3 + dx, y, 3.25 + dz]);
-  const hastes: [number, number, number, number][] = [[0.03, 0.02, 0.25, -0.2], [-0.04, 0.03, -0.2, 0.25], [0.0, -0.05, 0.2, 0.1]];
-  for (const [dx, dz, rx, rz] of hastes) lotePlanta.add(Cone(0.06, 0.45, 5), m.get(P.ervaVerde), [0.3 + dx, 0.7, 3.25 + dz], [rx, 0, rz]);
+  const folhaEscura = mat(P.ervaVerde, { map: o.folha, alphaTest: 0.5, side: DoubleSide });
+  const folhaClara = mat(P.folhaClara, { map: o.folha, alphaTest: 0.5, side: DoubleSide });
+  // [x, z do fim da haste, altura, giro da face (0 = para +z, π/2 = para +x), inclinação, largura, tom claro]
+  const folhas: [number, number, number, number, number, number, boolean][] = [
+    [0.1, 3.14, 0.74, 0.5, -0.55, 0.3, false], [0.2, 3.42, 0.62, 0.2, -0.75, 0.26, true], [0.46, 3.3, 0.7, 1.1, -0.6, 0.28, false],
+    [0.34, 3.12, 0.9, 0.6, -0.4, 0.26, true], [0.22, 3.24, 1.0, 0.8, -0.25, 0.22, false],
+  ];
+  for (const [fx, fz, fy, giro, incl, larg, clara] of folhas) {
+    const h = entre([0.3, 0.3, 3.25], [fx, fy, fz]);
+    lotePlanta.add(Cyl(0.006, 0.008, h.comprimento, 5), m.get(P.haste), h.centro, h.q);
+    const alt = larg * 0.95;
+    lotePlanta.add(Plane(larg, alt).translate(0, alt * 0.375, 0), clara ? folhaClara : folhaEscura, [fx, fy, fz], [incl, giro, 0]);
+  }
 
   g.add(...lote.malhas(o.sombra));
   const planta = new Group();
@@ -367,7 +428,7 @@ export function criarDecoracao(o: Opcoes): Decoracao {
     cursor.visible = true;
   };
   aplicarDesligado();
-  const PLANTA = new Vector3(0.3, 0.7, 3.25);
+  const PLANTA = new Vector3(0.3, 0.75, 3.25);
   let balanco = { t0: 0, amp: 0 };
   let pertoPlanta = false;
 
@@ -414,7 +475,7 @@ export function criarDecoracao(o: Opcoes): Decoracao {
     feixe,
     leveGrupo,
     decalqueMat,
-    texturasExtras: [o.janelasCidade, o.fumaca, o.rotulo.textura],
+    texturasExtras: [o.janelasCidade, o.fumaca, o.rotulo.textura, o.telaVertical, o.folha, ...(o.kanagawa ? [o.kanagawa] : [])],
     atualizarRelogio,
     balancar,
     modoLeve() {

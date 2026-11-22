@@ -2150,3 +2150,11 @@ Resumo do que vale hoje. Onde divergir das seções 11 a 13, esta seção preval
 - **Vistas** sem *kickers* numerados.
 - **Links externos** abrem em nova guia (`target="_blank" rel="noopener noreferrer"`, com aviso `sr-only`).
 - **`og.png`** gerado do quarto 3D (`?calibrar=og`).
+
+### 14.1 Quarto 3D, revisão 9 (prevalece sobre 13.3 e 13.8.5 no que divergir)
+
+- **Mesa industrial:** tampo mel de 5 cm (`P.mel`) e estrutura de aço preto (`P.preto`) com laterais em "U" fechado; sem gaveteiro. A superfície continua em y = 0,76.
+- **Dois monitores:** o horizontal (objeto 01, inalterado) e um vertical decorativo à esquerda, com base comprida compartilhada e haste; a tela dele é um canvas de linhas de código abstratas (`texturaTelaVertical`).
+- **Luminária** passou para o canto direito do tampo (`LUMINARIA` em `luzes.ts`; spot e halo seguem a cabeça).
+- **Headset branco** (base retangular, duas hastes, sela, conchas, aros cinza-metal, almofadas, microfone), **cadeira ergonômica** (encosto e assento de tela, apoio de cabeça, braços em T, base estrela cromada) e **monstera** (folhas recortadas por textura com alfa, dois tons, vaso terracota), tudo com primitivas próprias, sem marcas.
+- **Quadro da parede esquerda:** "A Grande Onda de Kanagawa", Hokusai, c. 1831, **domínio público** (Wikimedia Commons, arquivo `Great_Wave_off_Kanagawa2.jpg`). Salvo reduzido em `public/img/kanagawa.jpg` (512 × 350, ~35 KB) e carregado com `TextureLoader` quando a cena monta; se falhar ou passar de 4 s, o quadro fica em papel liso. É a **única imagem da cena** (orçamento: 60 KB, conferido por `scripts/medir-cena.mjs`). O pôster vermelho e azul com teia foi removido.

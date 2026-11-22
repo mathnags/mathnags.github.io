@@ -2,7 +2,8 @@
  * Texturas de canvas (docs/design.md 13.8.5). Todas decorativas: repetem algo que já está no HTML e nunca são a única
  * fonte de um texto. Desenhadas depois de document.fonts.load() das fontes usadas, com colorSpace sRGB.
  */
-import { CanvasTexture, LinearFilter, NoColorSpace, SRGBColorSpace } from 'three';
+import { CanvasTexture, LinearFilter, NoColorSpace, SRGBColorSpace, TextureLoader, type Texture } from 'three';
+import { comBase } from '../lib/url';
 import { mulberry32 } from './geo';
 import { P, css } from './paleta';
 
@@ -200,48 +201,99 @@ export function criarTelaMonitor(leve: boolean): TelaMonitor {
   return { textura: t, desenhar };
 }
 
-/* ---------- Pôster (aceno original, sem figura, máscara, logo ou texto) ---------- */
-export function texturaPoster() {
-  const { ctx, t } = nova(256, 352);
-  ctx.fillStyle = css(P.vermelho);
+/* ---------- Quadro: "A Grande Onda de Kanagawa", Hokusai, 1831 (domínio público, Wikimedia Commons; docs/design.md 14) ---------- */
+/** Proporção do arquivo public/img/kanagawa.jpg (512 × 350). */
+export const RAZAO_KANAGAWA = 512 / 350;
+
+/** Único arquivo de imagem da cena. Falhou ou demorou (4 s): devolve null e o quadro fica em papel liso. */
+export function carregarKanagawa(): Promise<Texture | null> {
+  return new Promise((resolve) => {
+    const fim = setTimeout(() => resolve(null), 4000);
+    new TextureLoader().load(
+      comBase('img/kanagawa.jpg'),
+      (t) => {
+        clearTimeout(fim);
+        t.colorSpace = SRGBColorSpace;
+        t.anisotropy = 4;
+        resolve(t);
+      },
+      undefined,
+      () => {
+        clearTimeout(fim);
+        resolve(null);
+      },
+    );
+  });
+}
+
+/* ---------- Tela do monitor vertical: linhas de código abstratas (sem texto legível) ---------- */
+export function texturaTelaVertical() {
+  const { ctx, t } = nova(224, 400);
+  ctx.fillStyle = '#12171d';
+  ctx.fillRect(0, 0, 224, 400);
+  const rnd = mulberry32(21);
+  const cores = ['#6fb7a5', '#e08a4c', '#8e96a3', '#c9ccd0', '#7aa2d6'];
+  ctx.fillStyle = '#1b222b';
+  ctx.fillRect(0, 0, 22, 400);
+  let recuo = 0;
+  for (let y = 14; y < 392; y += 15) {
+    recuo = Math.max(0, Math.min(3, recuo + Math.floor(rnd() * 3) - 1));
+    let x = 32 + recuo * 14;
+    const n = 1 + Math.floor(rnd() * 3);
+    for (let k = 0; k < n; k++) {
+      const w = 14 + rnd() * 52;
+      ctx.fillStyle = cores[Math.floor(rnd() * cores.length)];
+      ctx.globalAlpha = 0.85;
+      ctx.fillRect(x, y, Math.min(w, 214 - x), 6);
+      x += w + 6;
+      if (x > 200) break;
+    }
+  }
+  ctx.globalAlpha = 1;
+  return t;
+}
+
+/* ---------- Folha de monstera: recortes com alpha; o tom verde vem da cor do material (aqui só luz e sombra) ---------- */
+export function texturaFolha() {
+  const { ctx, t } = nova(128, 128);
+  const g = ctx.createLinearGradient(0, 0, 0, 128);
+  g.addColorStop(0, '#ffffff');
+  g.addColorStop(1, '#cfcfcf');
+  ctx.fillStyle = g;
   ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(256, 0);
-  ctx.lineTo(0, 352);
+  ctx.moveTo(64, 112);
+  ctx.bezierCurveTo(40, 128, 2, 104, 6, 64);
+  ctx.bezierCurveTo(10, 26, 40, 6, 64, 4);
+  ctx.bezierCurveTo(88, 6, 118, 26, 122, 64);
+  ctx.bezierCurveTo(126, 104, 88, 128, 64, 112);
   ctx.fill();
-  ctx.fillStyle = css(P.azul);
-  ctx.beginPath();
-  ctx.moveTo(256, 0);
-  ctx.lineTo(256, 352);
-  ctx.lineTo(0, 352);
-  ctx.fill();
-  // Teia geométrica original: 7 raios retos a partir do canto inferior esquerdo + 4 anéis poligonais concêntricos.
-  ctx.strokeStyle = 'rgba(255,253,247,0.55)';
+  // Nervuras (só no que existe) e depois as fendas e os furos, que apagam o alfa.
+  ctx.globalCompositeOperation = 'source-atop';
+  ctx.strokeStyle = '#8f8f8f';
   ctx.lineWidth = 2;
-  const raios = Array.from({ length: 7 }, (_, i) => (-Math.PI / 2) * (i / 6));
-  for (const a of raios) {
-    ctx.beginPath();
-    ctx.moveTo(0, 352);
-    ctx.lineTo(Math.cos(a) * 420, 352 + Math.sin(a) * 420);
-    ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(64, 112);
+  ctx.lineTo(64, 8);
+  for (const y of [34, 56, 80]) for (const lado of [-1, 1]) {
+    ctx.moveTo(64, y + 14);
+    ctx.lineTo(64 + lado * 52, y - 6);
   }
-  for (let k = 1; k <= 4; k++) {
-    const r = k * 75;
-    ctx.beginPath();
-    raios.forEach((a, i) => ctx[i ? 'lineTo' : 'moveTo'](Math.cos(a) * r, 352 + Math.sin(a) * r));
-    ctx.stroke();
-  }
-  // Nós nos cruzamentos e moldura fina, para o pôster parecer impresso.
-  ctx.fillStyle = 'rgba(255,253,247,0.85)';
-  for (let k = 1; k <= 4; k++)
-    for (const a of raios) {
+  ctx.stroke();
+  ctx.globalCompositeOperation = 'destination-out';
+  for (const lado of [-1, 1])
+    for (const y of [26, 48, 72, 96]) {
       ctx.beginPath();
-      ctx.arc(Math.cos(a) * k * 75, 352 + Math.sin(a) * k * 75, 3, 0, Math.PI * 2);
+      ctx.moveTo(64 + lado * 70, y - 3);
+      ctx.lineTo(64 + lado * 22, y + 9);
+      ctx.lineTo(64 + lado * 70, y + 6);
       ctx.fill();
     }
-  ctx.strokeStyle = 'rgba(255,253,247,0.9)';
-  ctx.lineWidth = 6;
-  ctx.strokeRect(3, 3, 250, 346);
+  for (const [x, y] of [[44, 66], [84, 66], [48, 40], [80, 40]]) {
+    ctx.beginPath();
+    ctx.ellipse(x, y, 3.5, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalCompositeOperation = 'source-over';
   return t;
 }
 
