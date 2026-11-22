@@ -5,7 +5,7 @@
  * Renderização sob demanda: não há laço contínuo. invalidar() pede um requestAnimationFrame só enquanto houver voo,
  * paralaxe amortecendo, transição de luz, desenho da linha do monitor ou mudança de destaque. Parado = 0 quadros por segundo.
  */
-import { NeutralToneMapping, PCFShadowMap, PerspectiveCamera, SRGBColorSpace, Scene, Vector3, WebGLRenderer, Color, Mesh } from 'three';
+import { NeutralToneMapping, PCFShadowMap, PerspectiveCamera, SRGBColorSpace, Raycaster, Scene, Vector2, Vector3, WebGLRenderer, Color, Mesh, type Texture } from 'three';
 import { CSS3DObject, CSS3DRenderer } from 'three/addons/renderers/CSS3DRenderer.js';
 import type { IdObjeto, V3 } from '../config/tipos';
 import type { configCliente } from '../config/quarto';
@@ -28,7 +28,7 @@ import type { Clicavel } from './objetos/base';
 import { P } from './paleta';
 import { geralDe, poseDe as poseDeCtx, type Ctx } from './poses';
 import { Projecao, type AnotacaoProj, type MarcadorProj } from './projecao';
-import { carregarFontes, criarTelaMonitor, texturaCaderno, texturaCeu, texturaLombadas, texturaPoster, texturaSombraContato } from './texturas';
+import { carregarFontes, criarTelaMonitor, texturaCaderno, texturaCeu, texturaFumaca, texturaJanelasCidade, texturaLombadas, texturaPoster, texturaBola, texturaRotulo, texturaSombraContato } from './texturas';
 
 export type CfgCliente = ReturnType<typeof configCliente>;
 export type { Nivel } from './nivel';
@@ -139,15 +139,20 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
   const texCeuNoite = await fatiar(() => texturaCeu(true));
   const tela = await fatiar(() => criarTelaMonitor(leve));
   const poster = await fatiar(texturaPoster);
+  const bola = await fatiar(texturaBola);
   const lombadas = await fatiar(texturaLombadas);
   const sombraContato = await fatiar(texturaSombraContato);
   const paginas = await fatiar(texturaCaderno);
-  const texturas = [texCeuDia, texCeuNoite, poster, lombadas, sombraContato, paginas, tela.textura];
+  const janelasCidade = await fatiar(texturaJanelasCidade);
+  const fumaca = await fatiar(texturaFumaca);
+  const rotulo = texturaRotulo();
+  const texturas: Texture[] = [texCeuDia, texCeuNoite, poster, bola, lombadas, sombraContato, paginas, tela.textura];
 
   const cena = new Scene();
   cena.add(criarCasca(sombra));
   await ceder();
-  const dec = criarDecoracao({ sombra, leve, ceuDia: texCeuDia, poster, lombadas, sombraContato });
+  const dec = criarDecoracao({ sombra, leve, ceuDia: texCeuDia, poster, bola, lombadas, sombraContato, janelasCidade, fumaca, rotulo });
+  texturas.push(...dec.texturasExtras);
   cena.add(dec.grupo);
   await ceder();
 
@@ -262,6 +267,7 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
     if (escuroMapa !== noite) {
       escuroMapa = noite;
       dec.ceu.map = noite ? texCeuNoite : texCeuDia;
+      dec.definirNoite(noite, pronto && !o.reduz());
       tela.desenhar(noite, linhaProgresso());
     }
   };
@@ -321,6 +327,7 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
   /* ---------- Laço sob demanda ---------- */
   let raf = 0;
   let ultimo = 0;
+  let ultimoAmb = 0;
   let pausado = false;
   let destruida = false;
   let pronto = false;
@@ -433,8 +440,17 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
       if (longe) ativo = true;
     }
 
+    // Ambiente (vapor, cursor, chuva, janelas): só na visão geral e com a aba visível, a ~20 quadros/s; o balanço da planta é fluido.
+    if (dec.balancar(agora)) ativo = true;
+    const amb = dec.animar(agora, visaoGeral && !o.reduz() && !document.hidden);
+    if (amb && !ativo && agora - ultimoAmb < 45) {
+      raf = requestAnimationFrame(quadro);
+      return;
+    }
+    if (amb) ultimoAmb = agora;
+
     renderizar();
-    if (ativo) raf = requestAnimationFrame(quadro);
+    if (ativo || amb) raf = requestAnimationFrame(quadro);
     else ultimo = 0;
   }
 
@@ -530,6 +546,7 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
     } else if (q === 'sombra' && sombra) {
       sombra = false;
       leve = true;
+      dec.modoLeve();
       renderer.shadowMap.enabled = false;
       luzes.sol.castShadow = false;
       dec.leveGrupo.visible = true;
@@ -565,6 +582,8 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
 
   /* ---------- Ponteiro: hover e clique no objeto 3D ---------- */
   let pendenteRaio = false;
+  const raioPonteiro = new Raycaster();
+  const ndc = new Vector2();
   let ultimoPonteiro = { x: 0, y: 0 };
   const podeDestacar = () => !emVista && !piloto.voando;
   const aoMover = (e: PointerEvent) => {
@@ -582,6 +601,9 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
     requestAnimationFrame(() => {
       pendenteRaio = false;
       const id = escolha.em(camera, ultimoPonteiro.x, ultimoPonteiro.y, L, A);
+      // Rótulo do relógio (hover) e balanço da planta (ponteiro perto).
+      raioPonteiro.setFromCamera(ndc.set((ultimoPonteiro.x / L) * 2 - 1, -(ultimoPonteiro.y / A) * 2 + 1), camera);
+      if (dec.ponteiro(raioPonteiro.ray, performance.now(), o.reduz())) invalidar();
       if (id === hoverRaio) return;
       hoverRaio = id;
       canvas.style.cursor = id ? 'pointer' : '';
@@ -590,6 +612,7 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
     });
   };
   const aoSair = () => {
+    if (dec.ponteiro(null, 0, true)) invalidar();
     parMeta = { az: 0, el: 0 };
     if (paralaxeAtiva()) invalidar();
     if (hoverRaio) {
@@ -644,9 +667,20 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
       if (raf) cancelAnimationFrame(raf);
       raf = 0;
       ultimo = 0;
-    } else invalidar();
+    } else {
+      dec.atualizarRelogio();
+      invalidar();
+    }
   };
   document.addEventListener('visibilitychange', aoVisibilidade);
+  // Relógio de parede: os ponteiros andam uma vez por minuto (1 quadro), na virada do minuto.
+  let temporizadorRelogio = 0;
+  const tiquetaque = () => {
+    dec.atualizarRelogio();
+    invalidar();
+    temporizadorRelogio = window.setTimeout(tiquetaque, 60000 - (Date.now() % 60000) + 50);
+  };
+  temporizadorRelogio = window.setTimeout(tiquetaque, 60000 - (Date.now() % 60000) + 50);
   let temporizadorContexto = 0;
   canvas.addEventListener('webglcontextlost', (e) => {
     e.preventDefault();
@@ -685,6 +719,7 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
     cancelAnimationFrame(raf);
     clearTimeout(temporizadorContexto);
     clearTimeout(glintTimer);
+    clearTimeout(temporizadorRelogio);
     obs.disconnect();
     obsTema.disconnect();
     sistemaEscuro.removeEventListener('change', mudouTema);

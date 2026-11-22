@@ -56,7 +56,9 @@ const pessoa = {
           modo = localStorage.getItem('modo');
           sem = !!localStorage.getItem('semWebgl');
         } catch {}
-        if (tema === 'dark' || tema === 'light') d.dataset.theme = tema;
+        // Sem escolha salva: noite entre 19h e 6h no relógio do visitante (a escolha salva e o interruptor mandam).
+        const h = new Date().getHours();
+        d.dataset.theme = tema === 'dark' || tema === 'light' ? tema : h >= 19 || h < 6 ? 'dark' : 'light';
         const q = new URLSearchParams(location.search).get('modo');
         if (q === 'recrutador' || q === 'quarto') modo = q;
         if (modo !== 'recrutador') {

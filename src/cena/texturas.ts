@@ -2,7 +2,8 @@
  * Texturas de canvas (docs/design.md 13.8.5). Todas decorativas: repetem algo que já está no HTML e nunca são a única
  * fonte de um texto. Desenhadas depois de document.fonts.load() das fontes usadas, com colorSpace sRGB.
  */
-import { CanvasTexture, SRGBColorSpace } from 'three';
+import { CanvasTexture, LinearFilter, NoColorSpace, SRGBColorSpace } from 'three';
+import { mulberry32 } from './geo';
 import { P, css } from './paleta';
 
 const nova = (l: number, a: number) => {
@@ -26,29 +27,123 @@ export async function carregarFontes() {
   await Promise.race([espera, new Promise((r) => setTimeout(r, 1500))]);
 }
 
-/* ---------- Céu e cidade (512×384, dia e noite) ---------- */
-const PREDIOS: [number, number, number][] = [
-  [0, 210, 46], [44, 160, 52], [94, 230, 40], [132, 180, 60], [190, 140, 48], [236, 250, 56], [290, 190, 44], [332, 150, 70], [400, 220, 112],
-];
-const JANELAS_NOITE: [number, number][] = [
-  [12, 240], [24, 270], [60, 200], [76, 250], [108, 270], [150, 230], [168, 280], [208, 190], [250, 290], [304, 240], [350, 200], [372, 270], [430, 260], [470, 300],
-];
+/* ---------- Céu e cidade: silhueta original de prédios (768×576, desenhada em 512×384 lógicos), dia e noite ---------- */
+const K = 1.5;
+interface Predio { x: number; w: number; h: number; perto: boolean }
+interface JanelaCidade { x: number; y: number; limiar: number; perto: boolean }
+let cidadeCache: { predios: Predio[]; janelas: JanelaCidade[] } | null = null;
+
+/** Mesma cidade nas duas texturas (semente fixa): camada de longe, camada de perto, uma torre com antena e as janelas. */
+function cidade() {
+  if (cidadeCache) return cidadeCache;
+  const rnd = mulberry32(11);
+  const predios: Predio[] = [];
+  for (const [perto, hMin, hMax, wMin, wMax] of [[false, 90, 220, 26, 48], [true, 110, 250, 34, 62]] as const) {
+    for (let x = -8; x < 512; ) {
+      const w = wMin + rnd() * (wMax - wMin);
+      predios.push({ x, w, h: hMin + rnd() * (hMax - hMin), perto });
+      x += w + (perto ? 2 : -4);
+    }
+  }
+  predios.push({ x: 318, w: 24, h: 290, perto: true });
+  const janelas: JanelaCidade[] = [];
+  for (const p of predios)
+    for (let y = 384 - p.h + 10; y < 378; y += 14)
+      for (let x = p.x + 5; x + 6 < p.x + p.w; x += 10) if (rnd() < (p.perto ? 0.5 : 0.35)) janelas.push({ x, y, limiar: 0.05 + rnd() * 0.95, perto: p.perto });
+  cidadeCache = { predios, janelas };
+  return cidadeCache;
+}
 
 export function texturaCeu(escuro: boolean) {
-  const { ctx, t } = nova(512, 384);
-  ctx.fillStyle = escuro ? '#0B1430' : '#BFDDE8';
+  const { ctx, t } = nova(768, 576);
+  ctx.scale(K, K);
+  const g = ctx.createLinearGradient(0, 0, 0, 384);
+  g.addColorStop(0, escuro ? '#070D24' : '#9CCBE0');
+  g.addColorStop(1, escuro ? '#1B2A57' : '#DCEEF2');
+  ctx.fillStyle = g;
   ctx.fillRect(0, 0, 512, 384);
-  ctx.fillStyle = escuro ? '#1A2440' : '#9FB3BF';
-  for (const [x, a, l] of PREDIOS) ctx.fillRect(x, 384 - a, l, a);
+  const rnd = mulberry32(5);
   if (escuro) {
-    ctx.fillStyle = '#FFD27A';
-    for (const [x, y] of JANELAS_NOITE) ctx.fillRect(x, y, 6, 8);
+    ctx.fillStyle = 'rgba(255,253,247,0.8)';
+    for (let i = 0; i < 40; i++) ctx.fillRect(rnd() * 512, rnd() * 190, 1.4, 1.4);
     ctx.fillStyle = '#F2E8C9';
     ctx.beginPath();
-    ctx.arc(400, 70, 13, 0, Math.PI * 2);
+    ctx.arc(250, 90, 13, 0, Math.PI * 2);
     ctx.fill();
+  } else {
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    for (const [x, y, r] of [[170, 90, 26], [200, 98, 20], [330, 140, 24], [358, 148, 18]]) {
+      ctx.beginPath();
+      ctx.ellipse(x, y, r * 1.6, r * 0.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  const { predios, janelas } = cidade();
+  for (const perto of [false, true]) {
+    ctx.fillStyle = escuro ? (perto ? '#1A2440' : '#141D38') : perto ? '#9FB3BF' : '#B7C8D1';
+    for (const p of predios) if (p.perto === perto) ctx.fillRect(p.x, 384 - p.h, p.w, p.h);
+  }
+  // Topos: antena da torre e caixas d'água; no dia, as janelas aparecem como vidros mais escuros.
+  ctx.fillStyle = escuro ? '#1A2440' : '#9FB3BF';
+  ctx.fillRect(329, 384 - 290 - 46, 2, 46);
+  ctx.fillRect(322, 384 - 290 - 8, 16, 8);
+  predios.filter((p, i) => p.perto && i % 4 === 1).forEach((p) => ctx.fillRect(p.x + p.w / 2 - 5, 384 - p.h - 7, 10, 7));
+  if (!escuro) {
+    ctx.fillStyle = 'rgba(70,100,120,0.35)';
+    for (const j of janelas) if (j.perto) ctx.fillRect(j.x, j.y, 6, 8);
   }
   return t;
+}
+
+/** Janelas acesas da noite: o canal vermelho guarda o instante (0..1) em que cada uma acende (shader em decoracao.ts). */
+export function texturaJanelasCidade() {
+  const { ctx, t } = nova(768, 576);
+  ctx.scale(K, K);
+  for (const j of cidade().janelas) {
+    const v = Math.round(j.limiar * 255);
+    ctx.fillStyle = `rgb(${v},${v},${v})`;
+    ctx.fillRect(j.x, j.y, 6, 8);
+  }
+  t.colorSpace = NoColorSpace;
+  t.generateMipmaps = false;
+  t.minFilter = LinearFilter;
+  return t;
+}
+
+/** Vapor da caneca: mancha branca suave (o sprite pinta a cor). */
+export function texturaFumaca() {
+  const { ctx, t } = nova(64, 64);
+  const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, 'rgba(255,255,255,1)');
+  g.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 64, 64);
+  return t;
+}
+
+/** Rótulo do relógio (hover): pílula escura com o texto em fonte comum. */
+export function texturaRotulo() {
+  const { c, ctx, t } = nova(256, 64);
+  const mono = fonteMono();
+  let atual = '';
+  return {
+    textura: t,
+    desenhar(texto: string) {
+      if (texto === atual) return;
+      atual = texto;
+      ctx.clearRect(0, 0, 256, 64);
+      ctx.fillStyle = 'rgba(43,47,56,0.92)';
+      ctx.beginPath();
+      ctx.roundRect(2, 8, c.width - 4, 48, 24);
+      ctx.fill();
+      ctx.fillStyle = css(P.papel);
+      ctx.font = `500 22px ${mono}`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(texto, 128, 33);
+      t.needsUpdate = true;
+    },
+  };
 }
 
 /* ---------- Tela do monitor: a linha da carreira que dobra em 2026 (assinatura, design 6) ---------- */
@@ -136,6 +231,17 @@ export function texturaPoster() {
     raios.forEach((a, i) => ctx[i ? 'lineTo' : 'moveTo'](Math.cos(a) * r, 352 + Math.sin(a) * r));
     ctx.stroke();
   }
+  // Nós nos cruzamentos e moldura fina, para o pôster parecer impresso.
+  ctx.fillStyle = 'rgba(255,253,247,0.85)';
+  for (let k = 1; k <= 4; k++)
+    for (const a of raios) {
+      ctx.beginPath();
+      ctx.arc(Math.cos(a) * k * 75, 352 + Math.sin(a) * k * 75, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  ctx.strokeStyle = 'rgba(255,253,247,0.9)';
+  ctx.lineWidth = 6;
+  ctx.strokeRect(3, 3, 250, 346);
   return t;
 }
 
@@ -152,23 +258,25 @@ export function texturaCaderno() {
   return t;
 }
 
-/* ---------- Lombadas dos estojos (atlas 512×128, 5 faixas; texto em fonte comum, sem logo) ---------- */
-export const NOMES_LOMBADAS = ['VALORANT', 'Counter-Strike', 'Resident Evil 4', 'Call of Duty', ''];
+/* ---------- Lombadas dos estojos (atlas 1024×128, 8 faixas; nomes em fonte comum, sem logo; faixas sem nome são lisas) ---------- */
+export const NOMES_LOMBADAS = ['VALORANT', 'Counter-Strike', 'Resident Evil 4', 'Call of Duty', 'Spider-Man', '', '', ''];
+const FUNDOS_LOMBADAS = [P.papel, P.metal, P.papel, P.azul, P.vermelho, P.tecido, P.papel, P.metal];
 
 export function texturaLombadas() {
-  const { ctx, t } = nova(512, 128);
-  const larg = 512 / 5;
+  const { ctx, t } = nova(1024, 128);
+  const larg = 1024 / NOMES_LOMBADAS.length;
   const mono = fonteMono();
   NOMES_LOMBADAS.forEach((nome, i) => {
-    const claro = i % 2 === 0;
-    ctx.fillStyle = claro ? css(P.papel) : css(P.metal);
+    const claro = FUNDOS_LOMBADAS[i] === P.papel;
+    ctx.fillStyle = css(FUNDOS_LOMBADAS[i]);
     ctx.fillRect(i * larg, 0, larg, 128);
     if (!nome) return;
     ctx.save();
     ctx.translate(i * larg + larg / 2, 64);
     ctx.rotate(-Math.PI / 2);
-    ctx.scale(1, 10.8);
-    ctx.font = `500 8px ${mono}`;
+    // Estojo de 14 mm × 190 mm: o texto é esticado em y para voltar à proporção na lombada.
+    ctx.scale(1, 13.5);
+    ctx.font = `500 7px ${mono}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = claro ? '#15171C' : '#FFFDF7';
@@ -186,5 +294,33 @@ export function texturaSombraContato() {
   g.addColorStop(1, 'rgba(21,23,28,0)');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 64, 64);
+  return t;
+}
+
+/* ---------- Bola de vôlei: 6 grupos de 3 gomos (azul, branco, amarelo), mapa equirretangular ---------- */
+export function texturaBola() {
+  const L = 512, A = 256;
+  const { ctx, t } = nova(L, A);
+  const img = ctx.createImageData(L, A);
+  const cores = [[31, 95, 191], [255, 253, 247], [242, 194, 48]];
+  for (let j = 0; j < A; j++)
+    for (let i = 0; i < L; i++) {
+      const lon = (i / L) * Math.PI * 2, lat = (j / A) * Math.PI;
+      const v = [Math.sin(lat) * Math.cos(lon), Math.cos(lat), Math.sin(lat) * Math.sin(lon)];
+      const ab = v.map(Math.abs);
+      const f = ab.indexOf(Math.max(...ab));
+      // Gomos de faces vizinhas ficam perpendiculares (x usa y, y usa z, z usa x), como numa bola real.
+      const s = v[(f + 1) % 3] / ab[f];
+      const pos = ((s + 1) / 2) * 3;
+      const faixa = Math.min(2, Math.floor(pos));
+      const cor = cores[(faixa + f + (v[f] < 0 ? 1 : 0)) % 3];
+      const costura = Math.abs(pos - Math.round(pos)) < 0.05 && pos > 0.1 && pos < 2.9 ? 0.55 : 1;
+      const k = (j * L + i) * 4;
+      img.data[k] = cor[0] * costura;
+      img.data[k + 1] = cor[1] * costura;
+      img.data[k + 2] = cor[2] * costura;
+      img.data[k + 3] = 255;
+    }
+  ctx.putImageData(img, 0, 0);
   return t;
 }
