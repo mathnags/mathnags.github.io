@@ -283,7 +283,7 @@ export function criarDecoracao(o: Opcoes): Decoracao {
 
   // Gabinete gamer branco sob o tampo (lado direito, entre as pernas em U): vidro temperado na frente (+z) e na lateral (+x), 3 ventoinhas
   // com anel RGB (2 na lateral, 1 na frente), fonte escura embaixo e pés cromados. Cabe sob o tampo (y 0,71) e longe da cadeira (z ≥ 1,0).
-  const [gx, gz, gW, gH, gD, gy] = [1.85, 0.42, 0.38, 0.46, 0.44, 0.03];
+  const [gx, gz, gW, gH, gD, gy] = [0.55, 0.42, 0.38, 0.46, 0.44, 0.03];
   const bx = gx + gW / 2, bz = gz + gD / 2;
   lote.add(Box(gW, 0.02, gD), papel, [gx, gy + 0.01, gz]);
   lote.add(Box(gW, 0.02, gD), papel, [gx, gy + gH - 0.01, gz]);
