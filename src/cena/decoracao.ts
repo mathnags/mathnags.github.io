@@ -8,7 +8,7 @@ import {
   MeshBasicMaterial, MeshLambertMaterial, PlaneGeometry, Quaternion, ShaderMaterial, Sphere, Sprite, SpriteMaterial, Vector3, type Ray, type Texture,
 } from 'three';
 import type { V3 } from '../config/tipos';
-import { Box, Circulo, Cone, Cyl, Esfera, Plane, RB, ROT_EIXO_X, ROT_EIXO_Z, Tor, Tube, entre, estoque, graus, mat } from './geo';
+import { Box, Circulo, Cone, Cyl, Esfera, ceder, Plane, RB, ROT_EIXO_X, ROT_EIXO_Z, Tor, Tube, entre, estoque, graus, mat } from './geo';
 import { Lote } from './lote';
 import { P } from './paleta';
 import { LUMINARIA, SOL } from './luzes';
@@ -95,7 +95,7 @@ function projetarNoPlano(p: V3, y: number): V3 {
 /** Topo do tapete (0,013): a mancha de sol cai sobre ele. */
 const Y_TAPETE = 0.0145;
 
-export function criarDecoracao(o: Opcoes): Decoracao {
+export async function criarDecoracao(o: Opcoes): Promise<Decoracao> {
   const m = estoque();
   const lote = new Lote();
   const lampada = new MeshBasicMaterial({ color: P.lampadaApagada, toneMapped: false });
@@ -190,6 +190,7 @@ export function criarDecoracao(o: Opcoes): Decoracao {
   lote.add(Box(0.008, 0.004, 0.023), pretoC, [cx0 + 0.018, yt + 0.001, cz0 + 0.02]);
   for (const [dx, dz] of [[-0.026, -0.045], [0.002, -0.045], [-0.012, -0.059], [-0.012, -0.031]]) lote.add(Cyl(0.0055, 0.0055, 0.003, 10), cromoC, [cx0 + dx, yt + 0.0005, cz0 + dz]);
 
+  await ceder();
   /* ---------- Mesa industrial (tampo mel espesso, estrutura de aço preto em "U", sem gaveteiro) e o que fica sobre ela ---------- */
   const preto = m.get(P.preto);
   lote.add(RB(2.1, 0.05, 0.76, 0.012), m.get(P.mel), [1.2, 0.735, 0.42]);
@@ -281,6 +282,7 @@ export function criarDecoracao(o: Opcoes): Decoracao {
   }
   g.add(...cad.malhas(o.sombra));
 
+  await ceder();
   // Gabinete gamer branco sob o tampo (lado direito, entre as pernas em U): vidro temperado na frente (+z) e na lateral (+x), 3 ventoinhas
   // com anel RGB (2 na lateral, 1 na frente), fonte escura embaixo e pés cromados. Cabe sob o tampo (y 0,71) e longe da cadeira (z ≥ 1,0).
   const [gx, gz, gW, gH, gD, gy] = [0.55, 0.42, 0.38, 0.46, 0.44, 0.03];
@@ -315,6 +317,7 @@ export function criarDecoracao(o: Opcoes): Decoracao {
     g.add(v);
   }
 
+  await ceder();
   /* ---------- Tapete, mesinha, vaso ---------- */
   lote.add(RB(2.0, 0.012, 1.3, 0.004), m.get(P.tecido), [1.75, 0.006, 1.65]);
   lote.add(Box(1.8, 0.013, 1.1), m.get(P.paredeSombra), [1.75, 0.0065, 1.65]);
@@ -379,6 +382,7 @@ export function criarDecoracao(o: Opcoes): Decoracao {
   planta.add(...lotePlanta.malhas(o.sombra));
   g.add(planta);
 
+  await ceder();
   /* ---------- Varal de luzinhas: fio + 24 lâmpadas em InstancedMesh, por comprimento de arco ---------- */
   const pontos: V3[] = [[0.15, 2.7, 0.03], [1.0, 2.62, 0.05], [1.9, 2.7, 0.03], [2.8, 2.62, 0.05], [3.7, 2.7, 0.03], [4.6, 2.62, 0.05], [5.5, 2.7, 0.03]];
   const curva = new CatmullRomCurve3(pontos.map((p) => new Vector3(...p)));

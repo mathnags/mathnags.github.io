@@ -372,3 +372,69 @@ Não verificado: leitor de tela (NVDA/VoiceOver), troca de idioma com a vista ab
 ## Veredito: **REPROVADO**
 
 Não há problema crítico de funcionalidade, acessibilidade (axe zerado, teclado, forced-colors, 360 px, console limpo) ou SEO, e as outras 3 categorias estão em 100. O critério "todas as notas >= 90" falha no **desempenho desktop**: com GPU, 6 de 8 rodadas ficam entre 86 e 89 (as outras: 90 e 94), e sem GPU ficam em 82 a 83 (LCP 2,8 s, regressão do fallback). Prioridade: P1 (fatiar a montagem da cena e remedir, comparando com o commit da reauditoria 5), depois P2, depois T1/P3. Com P1 resolvido o veredito passa a APROVADO, se as notas mobile se mantiverem >= 90 (hoje 91 a 99).
+
+
+# Reauditoria 7 (estado atual, sem alterar código)
+
+Build refeito (3 páginas) e dist servido por servidor estático próprio com gzip na porta 4391 (encerrado ao final; o `astro preview` aceita uma instância só e a 4321 estava em uso por outra sessão, que não foi tocada). Chrome `--headless=new`, Lighthouse 13, mesma configuração da Reauditoria 6 (simulado, estrangulamento padrão também no desktop). Com GPU: ANGLE D3D11, 3 rodadas por página/dispositivo; sem GPU: `--disable-gpu`, 1 rodada em `/`. A11y, boas práticas e SEO: 100 em todas as 14 execuções; CLS 0 em todas.
+
+| Página | Dispositivo | GPU | Desempenho | LCP | TBT | Peso | Reaud. 6 (desempenho / LCP / TBT) |
+|---|---|---|---|---|---|---|---|
+| `/` | mobile | sim | 92 / 97 / 99 | 0,9 s | 114 a 353 ms | 351 KiB | 93 / 95; 0,9 s; 250 a 310 ms |
+| `/en/` | mobile | sim | 99 / 96 / **89** | 1,1 s | 125 a 436 ms | 351 KiB | 91 / 99; 0,9 s; 100 a 380 ms |
+| `/` | desktop | sim | 91 / 92 / 91 | 0,9 s | 176 a 188 ms | 351 KiB | 86 / 94 / 86 / 88; 0,9 s; 110 a 250 ms |
+| `/en/` | desktop | sim | **76** / 91 / **76** | 1,05 s | 152 / 406 / 414 ms | 351 KiB | 90 / 87 / 89 / 87; 0,9 s; 190 a 220 ms |
+| `/` | mobile | não | 99 | 2,0 s | 31 ms | 152 KiB | 95; 2,8 s; 70 ms |
+| `/` | desktop | não | 90 | 2,0 s | 57 ms | 152 KiB | 83 / 82; 2,8 s; 80 a 110 ms |
+
+Peso: 351 KiB com GPU (310 na Reaud. 6, +41 KiB, coerente com o Kanagawa em jpg e novos objetos) e 152 KiB sem GPU (a cena não é baixada).
+
+## Veredito: **REPROVADO**
+
+Critério (mínimo 90 em todas): falha em 3 de 12 rodadas com GPU, todas por desempenho (TBT): `/en/` desktop 76 e 76, `/en/` mobile 89. As demais categorias passam. Sem GPU melhorou (desktop 90, mobile 99; LCP 2,0 s, antes 2,8 s). Em `/` com GPU, desktop subiu para 91 a 92 e mobile fica em 92 a 99: melhor que a Reaud. 6.
+
+Tendência: melhor em `/`, sem GPU e no LCP; pior em `/en/` desktop (mediana 76 contra 87), com TBT de 400 ms em 2 de 3 rodadas, enquanto `/` com o mesmo código fica em 180 ms. A variância entre rodadas é alta (TBT 152 a 414 ms na mesma página), o que aponta para tarefas longas na montagem da cena que disputam a CPU, e não para um recurso novo isolado.
+
+Causa provável (sem profiling nesta rodada; hipóteses, em ordem): (1) montagem/compilação de shader e texturas da cena, que ficou mais pesada com as personalizações recentes (gabinete RGB, monstera, monitores, chuva/vapor da janela, relógio), cuja animação e materiais extras aumentam o trabalho na thread principal logo após a pintura; (2) Kanagawa em jpg (decodificação + upload de textura maior, também explica +41 KiB); (3) janela de SP com chuva/vapor (sistemas de partículas e atualização por quadro). `/en/` ter TBT pior que `/` não tem causa identificada (mesmo chunk); confirmar com trace antes de agir. Ação sugerida: dev-frontend fatiar a montagem (`scheduler.yield`, `compileAsync` após a 1ª pintura) e adiar objetos decorativos (chuva, vapor, relógio) para o idle; remedir `/en/` desktop.
+
+---
+
+# Reauditoria 8 (otimização da montagem da cena)
+
+Alterações (todas em `src/cena/index.ts`; visual e comportamento inalterados): (1) as animações de ambiente (vapor, cursor, chuva, RGB do gabinete) só começam em `requestIdleCallback` (timeout 3 s; sem suporte, `setTimeout` 1,5 s) depois do 1º render, via `ambienteLigado`; (2) aquecimento fatiado do 1º render: a cena é desenhada uma parte por tarefa (casca, cada filho da decoração, cada clicável; canvas ainda oculto, sem sombra), com `ceder()` entre as partes, para o envio das geometrias à GPU não cair numa tarefa única de ~200 ms. Já existiam antes: texturas uma por tarefa com `scheduler.yield`/`setTimeout 0`, `compileAsync` e `initTexture` fatiado; a montagem de kanagawa, monstera, gabinete e monitores já estava fatiada em `criarDecoracao` (uma só chamada síncrona, ~45 ms reais, 180 ms a 4x). `npm run verify`: ok (lint 0 erros, 32 testes, orçamentos).
+
+Servidor estático com gzip na porta 4393 (encerrado), Chrome `--headless=new` com ANGLE D3D11, Lighthouse 13, mesma configuração da Reaud. 7, 3 rodadas com GPU. A11y, boas práticas e SEO: 100 em todas; CLS 0; LCP 0,9 a 1,07 s; peso 351 KiB (inalterado).
+
+| Página | Dispositivo | Reaud. 7 (desemp. / TBT) | Só ocioso (A) | Ocioso + aquecimento (B, final) |
+|---|---|---|---|---|
+| `/` | mobile | 92, 97, 99 / 114 a 353 ms | 99, 97, 99 / 109 a 208 ms | 97, 97, 97 / 183 a 191 ms |
+| `/en/` | mobile | 99, 96, **89** / 125 a 436 ms | **89**, 96, 96 / 211 a 454 ms | **89**, 96, 97 / 186 a 433 ms |
+| `/` | desktop | 91, 92, 91 / 176 a 188 ms | 89, 83, 86 / 217 a 300 ms | 81, 87, 86 / 243 a 342 ms |
+| `/en/` | desktop | **76**, 91, **76** / 152 a 414 ms | 80, 68, 77 / 331 a 687 ms | 81, 83, 83 / 278 a 321 ms |
+
+## Veredito: **REPROVADO** (melhora parcial)
+
+- Melhorou: `/en/` desktop (mediana 76 para 83, pior caso 76 para 81; TBT sempre 278 a 321 ms, sem os picos de 410 ms) e `/` mobile (97 em todas, TBT estável em ~185 ms). `/en/` mobile: 2 de 3 rodadas passam (96, 97), a 1ª rodada de cada variante cai para 89 (pico de TBT 430 a 450 ms, provavelmente a rodada fria).
+- Não melhorou: `/` desktop ficou em 81 a 87, abaixo das 91 a 92 da Reaud. 7. Na mesma sessão a variante A deu 83 a 89, então parte da queda é deriva da máquina entre sessões, não do código. Desktop continua abaixo de 90 nas duas línguas.
+- Causa restante (trace com CPU 4x, `/en/`): o 1º render completo deixou de ser uma tarefa de ~200 ms (some da lista de tarefas longas do Lighthouse), mas sobram tarefas de 100 a 270 ms fora da cena: (a) avaliação do módulo principal da página com Layout de ~160 a 185 ms (a 4x) na 1ª pintura, em `/` e `/en/`; (b) `PaginaInicial` (módulo inline) ~110 a 150 ms em ~1,4 s; (c) 3 tarefas de microtasks de 100 a 170 ms durante a criação de texturas/decoração (`criarDecoracao` é um bloco síncrono de ~180 ms a 4x); (d) compileAsync com ~100 ms síncronos. O desktop do Lighthouse usa CPU 4x, por isso 45 ms reais viram tarefa longa.
+- Por que `/en/` tem TBT maior que `/`: não há diferença de código (mesmo chunk). No trace, `/en/` tem a avaliação do módulo principal ~20% mais longa (435 contra 356 ms a 4x) e mais Layout (textos em inglês são mais longos e quebram em mais linhas), o que empurra mais tarefas acima de 50 ms; somado à variância alta, explica 50 a 100 ms de TBT a mais. Não é a cena.
+- Próximos passos sugeridos (fora do escopo desta tarefa, mudariam estrutura): quebrar `criarDecoracao` em 3 a 4 etapas assíncronas; reduzir o Layout inicial da 1ª pintura (conteúdo abaixo da dobra com `content-visibility: auto`); remedir em máquina sem carga.
+
+## Reauditoria 8, rodada 2 (decoração fatiada, content-visibility)
+
+Alterações: (1) `criarDecoracao` (`src/cena/decoracao.ts`) virou assíncrona, com `await ceder()` entre 5 etapas (janela/quadro/prateleira/controle; mesa, monitor vertical, headset, luminária, cadeira; gabinete; tapete/mesinha/vaso/porta/bola/planta e a fusão do lote; varal, feixe, relógio e vapor). O helper `ceder` saiu de `index.ts` para `src/cena/geo.ts` e é compartilhado; cena idêntica (mesma ordem de criação). A fusão do lote principal (`lote.malhas`) continua uma etapa única. (2) `src/styles/layout.css`: `content-visibility: auto` com `contain-intrinsic-size: auto 900px` nas `main > .secao` do modo recrutador (em tela). No quarto as seções são `display: none` (movidas para a vista), então não há ganho no Lighthouse padrão, só no recrutador (e no fallback sem GPU). (3) Script de `PaginaInicial`: medido com CPU 4x, as 13 funções de inicialização somam ~7 ms (teclado 1,8 ms, o resto < 1 ms); não há trabalho síncrono relevante a tirar do caminho crítico. A tarefa "PaginaInicial.astro_astro_type" de ~110 ms em ~1,4 s do Lighthouse é continuação do `iniciar()` da cena (atribuída ao script que a chama), não código da página. `npm run verify`: ok (exit 0).
+
+| Página | Dispositivo | Reaud. 7 | Rodada 1 (B) | Rodada 2 (desemp. / TBT) |
+|---|---|---|---|---|
+| `/` | mobile | 92, 97, 99 | 97, 97, 97 | 93 (312 ms), 100 (92), 100 (68) |
+| `/en/` | mobile | 99, 96, 89 | 89, 96, 97 | 99 (110), 97 (196), 100 (32) |
+| `/` | desktop | 91, 92, 91 | 81, 87, 86 | 89 (223), 84 (293), 87 (240) |
+| `/en/` | desktop | 76, 91, 76 | 81, 83, 83 | 92 (144), 79 (348), 91 (146) |
+| `/` | mobile, sem GPU | 99 (31 ms) | | 99 (16 ms), LCP 1,96 s |
+| `/` | desktop, sem GPU | 90 (57 ms) | | 90 (59 ms), LCP 1,95 s |
+
+A11y, boas práticas e SEO: 100 em todas as 14 execuções; CLS 0; peso 351 KiB (153 sem GPU).
+
+Veredito: **ainda REPROVADO**, mas perto. Mobile passa em 5 de 6 rodadas (93 na 1ª de `/`, de aquecimento frio; `/en/` 97 a 100). `/en/` desktop passa em 2 de 3 (92, 91; a de 79 tem TBT 348 ms, outlier). `/` desktop não passa (84 a 89; TBT 223 a 293 ms). Sem GPU ok (99 e 90).
+
+Sobra em `/` desktop (trace com CPU 4x): Layout de ~200 ms da 1ª pintura (HTML do quarto, ~50 ms reais; não é script), 3 tarefas de microtasks de 100 a 130 ms nas texturas/montagem (`fatiar` já uma por tarefa; os desenhos em canvas 2D de céu e telas são os maiores) e a fusão do lote da decoração. Próximos passos possíveis: dividir o `lote` da decoração em dois (custo: mais draw calls, risco visual, por isso não feito), reduzir a resolução das texturas de céu/tela no desktop, ou reduzir o HTML/CSS do 1º layout.

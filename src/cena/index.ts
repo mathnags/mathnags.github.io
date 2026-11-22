@@ -13,6 +13,7 @@ import { compacto, type Rect } from './areas';
 import { EASE_CHEGADA, EASE_VOO, Piloto, aplicarPose, bezier, direcao, type Pose } from './camera';
 import { criarCasca } from './casca';
 import { criarDecoracao } from './decoracao';
+import { ceder } from './geo';
 import { Escolha } from './escolha';
 import { criarLuzes } from './luzes';
 import { MonitorQuadros, pixelRatioDe, type Nivel } from './nivel';
@@ -80,10 +81,6 @@ export interface Cena {
   readonly nivel: Nivel;
 }
 
-const ceder = (): Promise<void> => {
-  const s = (globalThis as { scheduler?: { yield?: () => Promise<void> } }).scheduler;
-  return s?.yield ? s.yield() : new Promise((r) => setTimeout(r, 0));
-};
 
 /** Post-it da parede: tamanhos de fonte em px de parede (quarto.css) e piso de legibilidade em px de tela. */
 const CTA_PX = 23;
@@ -156,7 +153,7 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
   const cena = new Scene();
   cena.add(criarCasca(sombra));
   await ceder();
-  const dec = criarDecoracao({ sombra, leve, ceuDia: texCeuDia, kanagawa, telaVertical, folha, bola, lombadas, sombraContato, janelasCidade, fumaca, anelRgb, rotulo });
+  const dec = await criarDecoracao({ sombra, leve, ceuDia: texCeuDia, kanagawa, telaVertical, folha, bola, lombadas, sombraContato, janelasCidade, fumaca, anelRgb, rotulo });
   texturas.push(...dec.texturasExtras);
   cena.add(dec.grupo);
   await ceder();
@@ -336,6 +333,8 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
   let pausado = false;
   let destruida = false;
   let pronto = false;
+  // Animações de ambiente (vapor, cursor, chuva, RGB) só começam no tempo ocioso depois da 1ª pintura, para não somar ao TBT.
+  let ambienteLigado = false;
   const monitor = new MonitorQuadros();
 
   function invalidar() {
@@ -447,7 +446,7 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
 
     // Ambiente (vapor, cursor, chuva, janelas): só na visão geral e com a aba visível, a ~20 quadros/s; o balanço da planta é fluido.
     if (dec.balancar(agora)) ativo = true;
-    const amb = dec.animar(agora, visaoGeral && !o.reduz() && !document.hidden);
+    const amb = dec.animar(agora, ambienteLigado && visaoGeral && !o.reduz() && !document.hidden);
     if (amb && !ativo && agora - ultimoAmb < 45) {
       raf = requestAnimationFrame(quadro);
       return;
@@ -713,10 +712,27 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
     renderer.initTexture(t);
     await ceder();
   }
+  // Aquecimento: o envio das geometrias à GPU acontece no 1º desenho de cada malha; desenha-se uma parte por tarefa
+  // (canvas ainda oculto, sem sombra) para o 1º render completo não ser uma tarefa longa.
+  const partes = cena.children.flatMap((x) => (x === dec.grupo ? x.children : [x])).filter((x) => !(x as { isLight?: boolean }).isLight);
+  const visiveis = partes.map((x) => x.visible);
+  for (const x of partes) x.visible = false;
+  for (const [i, x] of partes.entries()) {
+    x.visible = visiveis[i];
+    renderer.render(cena, camera);
+    x.visible = false;
+    await ceder();
+  }
+  partes.forEach((x, i) => (x.visible = visiveis[i]));
   if (sombra) renderer.shadowMap.needsUpdate = true;
   pronto = true;
   refazerBase();
   renderizar();
+  const ocioso = (f: () => void) => (typeof requestIdleCallback === 'function' ? requestIdleCallback(f, { timeout: 3000 }) : setTimeout(f, 1500));
+  ocioso(() => {
+    ambienteLigado = true;
+    invalidar();
+  });
 
   function destruir() {
     if (destruida) return;

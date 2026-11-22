@@ -68,3 +68,9 @@ export function estoque() {
     todos: () => [...mapa.values()],
   };
 }
+
+/** Devolve o controle à thread principal (scheduler.yield se existir, senão setTimeout 0): separa tarefas longas. */
+export const ceder = (): Promise<void> => {
+  const s = (globalThis as { scheduler?: { yield?: () => Promise<void> } }).scheduler;
+  return s?.yield ? s.yield() : new Promise((r) => setTimeout(r, 0));
+};

@@ -1503,3 +1503,11 @@ main:focus {
     font-size: 0.9375rem;
   }
 }
+
+/* Modo recrutador: seções abaixo da dobra só são renderizadas ao se aproximar (menos Layout na 1ª pintura). No quarto elas ficam display:none. */
+@media screen {
+  html:not([data-modo='quarto']) main > .secao {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 900px;
+  }
+}
