@@ -189,8 +189,8 @@ export function criarDecoracao(o: Opcoes): Decoracao {
   lote.add(Cyl(0.04, 0.04, 0.09, 12), papel, [1.5, 0.805, 0.24]);
   lote.add(Tor(0.025, 0.007, 6, 12, Math.PI), papel, [1.54, 0.805, 0.24], [0, 0, -Math.PI / 2]);
 
-  // Monitor vertical (decoração) no suporte compartilhado com o horizontal: base comprida, haste e fixação atrás do painel.
-  lote.add(RB(0.7, 0.015, 0.16, 0.005), preto, [0.6, 0.768, 0.3]);
+  // Monitor vertical (decoração) com pé próprio, separado do horizontal: base, haste e fixação atrás do painel.
+  lote.add(RB(0.2, 0.015, 0.16, 0.005), preto, [0.36, 0.768, 0.3]);
   lote.add(Box(0.05, 0.12, 0.035), preto, [0.36, 0.83, 0.27]);
   const GIRO_V = 0.12;
   const vert = new Lote(new Matrix4().compose(new Vector3(0.36, 1.14, 0.3), new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), GIRO_V), new Vector3(1, 1, 1)));
