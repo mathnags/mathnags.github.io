@@ -215,7 +215,7 @@
     display: none;
   }
 
-  /* ---------- Marcador numerado (13.8.2): o <a class="objeto"> tem 44 × 44 px de toque; o círculo de 30 px fica no centro, sobre a âncora ---------- */
+  /* ---------- Objeto interativo: o contorno é desenhado na cena 3D; o <a class="objeto"> (44 × 44 px, invisível) é o alvo de toque, de foco e o nome acessível, centrado na âncora ---------- */
   .objeto {
     position: absolute;
     left: 0;
@@ -276,19 +276,14 @@
     opacity: 0.92;
   }
 
+  /* O número fica só no nome acessível (leitor de tela) */
   .objeto .p-num {
-    display: grid;
-    place-items: center;
-    box-sizing: border-box;
-    width: 30px;
-    height: 30px;
-    background: var(--surface);
-    border: 2px solid var(--text);
-    border-radius: 50%;
-    box-shadow: var(--shadow-1);
-    color: var(--text);
-    font-weight: 600;
-    transition: transform var(--dur-2) var(--ease-out), border-color var(--dur-1) var(--ease-std);
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   /* Rótulo curto: só no hover/foco. Fica no DOM (opacity) para compor o nome acessível do link. */
@@ -313,25 +308,7 @@
     transition: opacity var(--dur-1) var(--ease-std);
   }
 
-  .objeto .p-check {
-    top: 2px;
-    right: 2px;
-    box-sizing: border-box;
-    width: 14px;
-    height: 14px;
-    padding: 1px;
-    background: var(--surface);
-    border-radius: 50%;
-    color: var(--pine);
-  }
-
-  /* Próximo sugerido: anel de destaque */
-  .objeto[data-proximo] .p-num {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-tint), var(--shadow-1);
-  }
-
-  /* Visitante vê o marcador só com a cena pronta e a intro encerrada (sem links invisíveis no Tab) */
+  /* O link só entra no Tab com a cena pronta e a intro encerrada (sem links invisíveis no Tab) */
   html[data-cena='pronta']:not([data-intro]) .objeto {
     visibility: visible;
   }
@@ -340,26 +317,18 @@
     z-index: 5;
   }
 
-  .objeto:is(:hover, :focus-visible, [data-hover]) .p-num {
-    border-color: var(--accent);
-    transform: scale(1.12);
-  }
-
   .objeto:is(:hover, :focus-visible, [data-hover]) .p-nome {
     opacity: 1;
   }
 
   .objeto:focus-visible {
-    outline: none;
-  }
-
-  .objeto:focus-visible .p-num {
+    border-radius: 50%;
     outline: 3px solid var(--ring-out);
     outline-offset: 2px;
     box-shadow: 0 0 0 5px var(--ring-in);
   }
 
-  /* Na visão geral, nas vistas e no tour (passo ≥ 1) o cartão ou a vista nomeia o objeto: os marcadores somem (voltam no foco por teclado) */
+  /* Nas vistas e no tour (passo ≥ 1) o cartão ou a vista nomeia o objeto: o rótulo some (volta no foco por teclado) */
   .palco:not([data-passo='0']) .objeto,
   .palco:not([data-estado='repouso']) .objeto {
     opacity: 0;
@@ -428,6 +397,7 @@
 
   .pc-titulo {
     font: 400 1.5rem/1.05 var(--font-hand);
+    white-space: nowrap;
   }
 
   .pc-cta {
@@ -435,6 +405,7 @@
     align-items: center;
     gap: 4px;
     font: 500 14px/1.25 var(--ff-text);
+    white-space: nowrap;
     text-decoration: underline;
     text-underline-offset: 3px;
   }
@@ -818,10 +789,10 @@
   }
 
   .postit-contato {
-    width: clamp(104px, 8vw, 128px);
-    aspect-ratio: 1;
+    width: max-content;
     align-content: center;
     gap: 6px;
+    padding: 14px 18px;
     transition: translate var(--dur-2) var(--ease-out), rotate var(--dur-2) var(--ease-out);
   }
 
@@ -842,7 +813,7 @@
     left: 0;
     top: 0;
     display: block;
-    width: 640px;
+    width: 680px;
     height: 120px;
     animation: bloco-entra 240ms var(--ease-std) backwards;
   }
@@ -868,14 +839,16 @@
     font-size: 20px;
   }
 
-  /* Post-it "Fale comigo!" na parede: centro em (3,10; 2,24) m = 96 × 80 px de parede maiores para caber o texto (128 × 104) */
+  /* Post-it "Fale comigo!" na parede: centro em (3,10; 2,24) m; largura para o texto caber em uma linha em pt e en */
   .em-3d .postit-contato {
     position: absolute;
-    left: 510px;
+    left: 512px;
     top: 0;
-    width: 128px;
-    height: 104px;
-    aspect-ratio: auto;
+    width: 196px;
+    height: 92px;
+    padding: 0 12px;
+    box-sizing: border-box;
+    justify-items: center;
     rotate: -5deg;
   }
 
@@ -1276,28 +1249,6 @@
   }
 }
 
-/* A entrada escalonada dos marcadores (160 ms cada, 40 ms de intervalo, depois da chegada de 1200 ms) */
-@media screen and (min-width: 768px) and (min-aspect-ratio: 13/10) and (prefers-reduced-motion: no-preference) {
-  html[data-cena='pronta']:not([data-intro]) .objeto {
-    animation: marcador-entra 160ms var(--ease-out) backwards;
-    animation-delay: calc(var(--dur-chegada) + var(--i, 0) * 200ms);
-  }
-
-  @keyframes marcador-entra {
-    from { opacity: 0; }
-  }
-
-  /* Próximo sugerido: pulso de 1,6 s × 3 (≤ 5 s); estático em movimento reduzido */
-  .palco[data-estado='repouso'][data-passo='0'] .objeto[data-proximo] .p-num {
-    animation: pulsa 1.6s ease-in-out calc(var(--dur-chegada) + 1.6s) 3;
-  }
-
-  @keyframes pulsa {
-    0%, 100% { scale: 1; }
-    50% { scale: 1.18; }
-  }
-}
-
 /* Calibração (só no dev, com ?calibrar=1): alvos de clique, focos, janelas e âncoras (desenhados pela própria cena) */
 html[data-calibrar='og'] .topo,
 html[data-calibrar='og'] .tour,
@@ -1323,11 +1274,6 @@ html[data-calibrar='og'] .palco {
   html[data-modo='quarto'] {
     scroll-snap-type: none;
   }
-
-  .objeto,
-  .objeto .p-num {
-    animation: none !important;
-  }
 }
 
 @media print {
@@ -1341,11 +1287,9 @@ html[data-calibrar='og'] .palco {
   .postit-contato,
   .nicho { border: 2px solid CanvasText; }
 
-  .objeto .p-num,
-  .objeto .p-nome,
-  .objeto .p-check { background: Canvas; border: 2px solid CanvasText; color: CanvasText; }
+  .objeto .p-nome { background: Canvas; border: 2px solid CanvasText; color: CanvasText; }
 
-  .objeto:focus-visible .p-num { outline: 3px solid Highlight; }
+  .objeto:focus-visible { outline: 3px solid Highlight; }
 }
 
 /* Texto sobre a cena em cores forçadas: sem contorno nem sombra (ficariam borrados), em CanvasText sobre Canvas. */

@@ -1,7 +1,7 @@
 ---
 /**
  * O quarto 3D (design 13). O palco leva um <canvas> decorativo (aria-hidden) onde a cena Three.js aparece depois do load; o texto é
- * sempre HTML real: o nome na parede (bloco que vira um CSS3DObject), os marcadores numerados (<a class="objeto">, projetados de frente para a
+ * sempre HTML real: o nome na parede (bloco que vira um CSS3DObject), os links dos objetos (<a class="objeto">, invisíveis, projetados de frente para a
  * tela), as anotações, a intro, o tour pela rolagem (cartões no fluxo) e, no mobile sem 3D, os nichos só de texto. Tudo sai de
  * src/config/quarto.ts e de textos.<lang>.json; nada de texto ou coordenada fixa aqui. Visível só com data-modo="quarto".
  */
@@ -60,7 +60,7 @@ const [anotComece, anotRole] = quarto.anotacoes;
       <p class="parede" aria-hidden="true">
         <span class="parede-nome">{t.hero.nome}</span>
       </p>
-      <a class="postit-contato" href={t.contato.linkedinUrl}>
+      <a class="postit-contato" href={t.contato.linkedinUrl} target="_blank" rel="noopener noreferrer">
         <span class="pc-titulo">{t.postit.contato.titulo}</span>
         <span class="pc-cta">{t.postit.contato.cta}<Icone nome="externo" tamanho={12} /><span class="sr-only">{ui.linkExterno}</span></span>
       </a>
@@ -69,13 +69,12 @@ const [anotComece, anotRole] = quarto.anotacoes;
 
     <ol class="objetos">
       {
-        itens.map(({ o, txt, num }, i) => (
+        itens.map(({ o, txt, num }) => (
           <li>
-            <a class="objeto" href={`#${o.destino}`} data-objeto={o.id} data-cap={o.capitulo} style={`--i:${i}`}>
+            <a class="objeto" href={`#${o.destino}`} data-objeto={o.id} data-cap={o.capitulo}>
               <span class="p-num">{num}</span>
               <span class="sr-only"> · {txt.tema}, </span>
               <span class="p-nome">{txt.comum}</span><span class="sr-only estado" data-lido={t.quarto.estado.lido} data-proximo={t.quarto.estado.proximo}></span>
-              <Icone nome="check" tamanho={14} class="p-check" />
             </a>
           </li>
         ))

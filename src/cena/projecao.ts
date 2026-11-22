@@ -1,6 +1,6 @@
 /**
- * Marcadores numerados e anotações à mão (docs/design.md 13.8.2 e 13.8.3): HTML de frente para a tela, centrado na projeção de
- * uma âncora 3D. O <a class="objeto"> (44 × 44 px) continua sendo o elemento acessível; aqui só muda a posição, em --tx/--ty, e só
+ * Âncoras dos links dos objetos e anotações à mão (docs/design.md 13.8.2 e 13.8.3): HTML de frente para a tela, centrado na projeção de
+ * uma âncora 3D. O <a class="objeto"> (44 × 44 px, invisível) é o elemento acessível; aqui só muda a posição, em --tx/--ty, e só
  * nos quadros em que a câmera se move.
  */
 import { Vector3, type PerspectiveCamera } from 'three';
@@ -26,7 +26,7 @@ export interface AnotacaoProj {
 
 const _v = new Vector3();
 
-/** Lado (px) da área de toque do marcador. */
+/** Lado (px) da área de toque do link. */
 const LADO = 44;
 
 export class Projecao {

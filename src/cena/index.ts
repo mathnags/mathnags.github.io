@@ -66,6 +66,8 @@ export interface Cena {
   /** Volta da vista à pose de origem (visão geral ou passo do tour), recalculada para a tela atual. */
   voltar(o?: { animar?: boolean }): Promise<boolean>;
   destacar(id: IdObjeto | null): void;
+  /** Estado de leitura de cada objeto, que muda a força do contorno: 'lido' (apagado) e 'proximo' (pulso breve). */
+  marcarEstados(e: Partial<Record<IdObjeto, 'lido' | 'proximo'>>): void;
   /** Retângulo (px, no palco) da janela de uma vista "dentro", já na pose final do voo. */
   retanguloJanela(id: IdObjeto): Rect | null;
   /** Mostra o canvas: com chegada (voo de 1200 ms a partir de longe) ou direto na pose atual. */
@@ -264,6 +266,9 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
   let destaqueId: IdObjeto | null = null;
   let hoverRaio: IdObjeto | null = null;
   let emVista = false;
+  let estados: Partial<Record<IdObjeto, 'lido' | 'proximo'>> = {};
+  /** O pulso do "próximo" começa depois da chegada da câmera; 3 ciclos de 1,6 s (≤ 5 s). */
+  let proxInicio = 0;
   let pulsoId: IdObjeto | null = null;
   let pulsoInicio = 0;
   let linhaInicio = -1;
@@ -349,7 +354,18 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
       }
       const e = Math.max(v * k, pulso);
       for (const m of cl.materiais) m.emissive.setScalar(e);
-      cl.contorno.visible = v > 0;
+      // Contorno sempre visível na visão geral (sutil; lido mais apagado); no hover/foco vai a 1. Nas vistas e no tour só no hover.
+      let base = atual.k === 'geral' && !emVista ? (estados[cl.id] === 'lido' ? 0.25 : 0.7) : 0;
+      if (base && estados[cl.id] === 'proximo' && !o.reduz()) {
+        const c = (agora - proxInicio) / 1600;
+        if (c >= 0 && c < 3) {
+          base += 0.4 * (0.5 - 0.5 * Math.cos(2 * Math.PI * c));
+          ativo = true;
+        }
+      }
+      const op = lerp(base, 1, v);
+      (cl.contorno.material as MeshBasicMaterial).opacity = op;
+      cl.contorno.visible = op > 0.01;
     }
 
     // Desenho da linha do monitor (700 ms)
@@ -652,6 +668,12 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
     nivel: o.nivel,
     irPara,
     voltar,
+    marcarEstados(e) {
+      estados = e;
+      proxInicio = performance.now() + 1400;
+      invalidar();
+      setTimeout(invalidar, 1400);
+    },
     destacar(id) {
       if (emVista && id !== null) return;
       if (!podeDestacar() && id !== null) return;

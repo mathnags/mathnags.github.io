@@ -7,6 +7,7 @@
 import { canvas, cfg, html, mobile, modoQuarto, palco, reduz } from './ctx';
 import { retomarIntro, terminarIntro, vigiarEspera } from './intro';
 import { alternarModo, cairNoRecrutador } from './modo';
+import { aoRenderizar } from './lidos';
 import { cenaAtual, definirCena } from './ponte';
 import { passoAtual } from './tour';
 import { objAbertoAgora } from './vista';
@@ -45,8 +46,19 @@ function anotacoesDoPalco() {
 
 type CenaCarregada = NonNullable<ReturnType<typeof cenaAtual>>;
 
-/** O destaque da cena segue o foco e o hover do marcador (e o hover na cena marca data-hover no link, em aoHover). */
+/** O destaque da cena segue o foco e o hover do link (e o hover na cena marca data-hover no link, em aoHover); lido/próximo viram variações do contorno. */
 function ligarLinks(cena: CenaCarregada) {
+  const estados = () => {
+    const e: Parameters<CenaCarregada['marcarEstados']>[0] = {};
+    for (const a of marcadoresDoPalco()) {
+      const id = a.dataset.objeto as keyof typeof e;
+      if (a.hasAttribute('data-proximo')) e[id] = 'proximo';
+      else if (a.hasAttribute('data-lido')) e[id] = 'lido';
+    }
+    cena.marcarEstados(e);
+  };
+  estados();
+  aoRenderizar(estados);
   for (const a of marcadoresDoPalco()) {
     const id = a.dataset.objeto as Parameters<CenaCarregada['destacar']>[0];
     const ligar = () => cena.destacar(id);

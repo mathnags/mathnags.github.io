@@ -17,7 +17,7 @@ const ui = getUi(lang);
 <footer class="rodape">
   <div class="rodape-in">
     <p>{t.rodape.copyright}</p>
-    <a href={t.rodape.githubUrl}>{t.rodape.githubLabel}<Icone nome="externo" /><span class="sr-only">{ui.linkExterno}</span></a>
+    <a href={t.rodape.githubUrl} target="_blank" rel="noopener noreferrer">{t.rodape.githubLabel}<Icone nome="externo" /><span class="sr-only">{ui.linkExterno}</span></a>
     <div class="idioma" role="group" aria-label={t.topo.idioma.rotulo}>
       {
         IDIOMAS.map((l) => (

@@ -439,7 +439,7 @@
   },
   "ui": {
     "setaPara": "para",
-    "linkExterno": "(abre site externo)",
+    "linkExterno": "(abre em nova guia)",
     "selosStatus": "Status",
     "erro404": {
       "titulo": "Página não encontrada",

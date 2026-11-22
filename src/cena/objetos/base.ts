@@ -76,7 +76,7 @@ export function montarClicavel(id: IdObjeto, caixa: Caixa, sombra: boolean, cons
   const tam = box.getSize(new Vector3());
   const geo: BufferGeometry = lote.geometriaUnica();
   geo.applyMatrix4(new Matrix4().makeTranslation(-centro.x, -centro.y, -centro.z));
-  const contorno = new Mesh(geo, new MeshBasicMaterial({ color: P.contornoDia, side: BackSide, toneMapped: false }));
+  const contorno = new Mesh(geo, new MeshBasicMaterial({ color: P.contornoDia, side: BackSide, toneMapped: false, transparent: true, opacity: 0, depthWrite: false }));
   contorno.position.copy(centro);
   contorno.scale.set(...(['x', 'y', 'z'] as const).map((k) => (Math.max(tam[k], 0.01) + 0.024) / Math.max(tam[k], 0.01)) as [number, number, number]);
   contorno.visible = false;
