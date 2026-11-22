@@ -57,9 +57,8 @@ export function errosDoQuarto(q: ConfigQuarto): string[] {
       if (!dentroDe(o.janela, q.limites)) erros.push(`${nome}: janela fora dos limites do quarto`);
     }
 
-    // Post-it
-    if (distancia(o.postit.ancora, o.caixa) > 0.4) erros.push(`${nome}: âncora do post-it a mais de 0,4 m da caixa`);
-    if (o.postit.rot < -6 || o.postit.rot > 6) erros.push(`${nome}: rot do post-it fora de -6 a 6`);
+    // Marcador
+    if (distancia(o.marcador, o.caixa) > 0.4) erros.push(`${nome}: âncora do marcador a mais de 0,4 m da caixa`);
   }
 
   q.objetos.forEach((a, i) => {

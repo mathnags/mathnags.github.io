@@ -5,13 +5,13 @@
 import { links, palco } from './ctx';
 
 /**
- * Uma parada de Tab por destino: com os post-its à vista, os botões "Abrir capítulo" do tour (mesmos destinos) saem da ordem de
- * Tab e da árvore de acessibilidade, mas continuam clicáveis. Sem post-its (mobile), os botões são o caminho do teclado.
+ * Uma parada de Tab por destino: com os marcadores à vista, os botões "Abrir capítulo" do tour (mesmos destinos) saem da ordem de
+ * Tab e da árvore de acessibilidade, mas continuam clicáveis. Sem marcadores (mobile), os botões são o caminho do teclado.
  */
 function unificarParadas() {
-  const postits = document.querySelector('a.objeto');
+  const marcadores = document.querySelector('a.objeto');
   const repetidos = () => {
-    const ocultar = (postits?.getClientRects().length ?? 0) > 0;
+    const ocultar = (marcadores?.getClientRects().length ?? 0) > 0;
     for (const a of document.querySelectorAll<HTMLAnchorElement>('.tour-abrir')) {
       if (ocultar) {
         a.tabIndex = -1;

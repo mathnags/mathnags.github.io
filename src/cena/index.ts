@@ -27,7 +27,7 @@ import { criarPortaRetrato } from './objetos/porta-retrato';
 import type { Clicavel } from './objetos/base';
 import { P } from './paleta';
 import { poseDe as poseDeCtx, type Ctx } from './poses';
-import { Projecao, type AnotacaoProj, type PostitProj } from './projecao';
+import { Projecao, type AnotacaoProj, type MarcadorProj } from './projecao';
 import { carregarFontes, criarTelaMonitor, texturaCaderno, texturaCeu, texturaLombadas, texturaPoster, texturaSombraContato } from './texturas';
 
 export type CfgCliente = ReturnType<typeof configCliente>;
@@ -41,8 +41,8 @@ export interface OpcoesCena {
   canvas: HTMLCanvasElement;
   /** .parede-bloco: nome, "Dados → IA" e o post-it "Fale comigo!". Vira um único CSS3DObject na parede do fundo. */
   bloco: HTMLElement | null;
-  /** <a class="objeto"> (post-its), com data-objeto. */
-  postits: HTMLElement[];
+  /** <a class="objeto"> (marcadores numerados), com data-objeto. */
+  marcadores: HTMLElement[];
   anotacoes: AnotacaoProj[];
   nivel: Nivel;
   reduz: () => boolean;
@@ -163,18 +163,18 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
   const luzes = criarLuzes(cena, sombra);
 
   // Calibração (só no dev): alvos, focos, janelas e âncoras; não entra na build de produção.
-  if (import.meta.env.DEV && html.dataset.calibrar && html.dataset.calibrar !== 'og') void import('./calibrar').then((m) => m.aplicarCalibracao(cena, cfg, o.postits));
+  if (import.meta.env.DEV && html.dataset.calibrar && html.dataset.calibrar !== 'og') void import('./calibrar').then((m) => m.aplicarCalibracao(cena, cfg));
 
   const camera = new PerspectiveCamera(cfg.geral.fov, L / A, 0.05, 40);
   const objs = cfg.objetos;
   const porId = new Map(objs.map((x) => [x.id, x]));
   const escolha = new Escolha(objs.map((x) => ({ id: x.id, caixa: x.caixa })));
 
-  /* ---------- Texto na cena: bloco do nome (CSS3D) e post-its/anotações (projeção) ---------- */
+  /* ---------- Texto na cena: bloco do nome (CSS3D) e marcadores/anotações (projeção) ---------- */
   const projecao = new Projecao(
-    o.postits.flatMap((el) => {
+    o.marcadores.flatMap((el) => {
       const cfgObj = porId.get(el.dataset.objeto as IdObjeto);
-      return cfgObj ? [{ el, ancora: cfgObj.postit.ancora, pivo: cfgObj.postit.pivo, rot: cfgObj.postit.rot } satisfies PostitProj] : [];
+      return cfgObj ? [{ el, ancora: cfgObj.marcador } satisfies MarcadorProj] : [];
     }),
     o.anotacoes,
   );
@@ -496,7 +496,6 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
     css3d?.setSize(L, A);
     piloto.vp = { L, A };
     blocoEm3d(!compacto(L, A));
-    projecao.medir();
     piloto.cortar(poseDe(atual));
     refazerBase();
     invalidar();
@@ -558,7 +557,7 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
   canvas.addEventListener('pointerleave', aoSair);
   canvas.addEventListener('pointerdown', aoBaixar);
   canvas.addEventListener('pointerup', aoLevantar);
-  // O ponteiro fora do canvas (sobre um post-it, por exemplo) também leva a paralaxe de volta ao centro.
+  // O ponteiro fora do canvas (sobre um marcador, por exemplo) também leva a paralaxe de volta ao centro.
   document.addEventListener('mouseleave', aoSair);
 
   /* ---------- Tema pelo <html data-theme> e pelo sistema ---------- */
@@ -605,7 +604,6 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
 
   /* ---------- Primeira montagem ---------- */
   aplicarTema(tAtual);
-  projecao.medir();
   await ceder();
   blocoEm3d(!compacto(L, A));
   piloto.cortar(poseChegada());

@@ -1,5 +1,5 @@
 /**
- * "Lido" (sessionStorage, por capítulo) e "próximo sugerido" nos post-its (design 12.13.4).
+ * "Lido" (sessionStorage, por capítulo) e "próximo sugerido" nos marcadores (design 12.13.4).
  * Sem contador, pontuação ou recompensa. Os textos dos estados vêm de data-* escritos pelo HTML.
  */
 import { links } from './ctx';

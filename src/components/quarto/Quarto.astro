@@ -1,7 +1,7 @@
 ---
 /**
  * O quarto 3D (design 13). O palco leva um <canvas> decorativo (aria-hidden) onde a cena Three.js aparece depois do load; o texto é
- * sempre HTML real: o nome na parede (bloco que vira um CSS3DObject), os post-its (<a class="objeto">, projetados de frente para a
+ * sempre HTML real: o nome na parede (bloco que vira um CSS3DObject), os marcadores numerados (<a class="objeto">, projetados de frente para a
  * tela), as anotações, a intro, o tour pela rolagem (cartões no fluxo) e, no mobile sem 3D, os nichos só de texto. Tudo sai de
  * src/config/quarto.ts e de textos.<lang>.json; nada de texto ou coordenada fixa aqui. Visível só com data-modo="quarto".
  */
@@ -71,11 +71,10 @@ const [anotComece, anotRole] = quarto.anotacoes;
       {
         itens.map(({ o, txt, num }, i) => (
           <li>
-            <a class="objeto" href={`#${o.destino}`} data-objeto={o.id} data-cap={o.capitulo} style={`--i:${i};--rot:${o.postit.rot}deg`}>
+            <a class="objeto" href={`#${o.destino}`} data-objeto={o.id} data-cap={o.capitulo} style={`--i:${i}`}>
               <span class="p-num">{num}</span>
               <span class="sr-only"> · {txt.tema}, </span>
               <span class="p-nome">{txt.comum}</span><span class="sr-only estado" data-lido={t.quarto.estado.lido} data-proximo={t.quarto.estado.proximo}></span>
-              <span class="p-tema" aria-hidden="true">{txt.tema}</span>
               <Icone nome="check" tamanho={14} class="p-check" />
             </a>
           </li>

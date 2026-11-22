@@ -167,12 +167,12 @@ describe('src/config/quarto.ts', () => {
     const copia = structuredClone(quarto);
     copia.objetos[1].janela = structuredClone(copia.objetos[0].janela);
     copia.objetos[0].foco = { ...copia.objetos[0].foco, az: 10 };
-    copia.objetos[3].postit = { ...copia.objetos[3].postit, ancora: [0, 2.5, 3], rot: 9 };
+    copia.objetos[3].marcador = [0, 2.5, 3];
     const erros = errosDoQuarto(copia).join(String.fromCharCode(10));
     expect(erros).toMatch(/não usa janela/);
     expect(erros).toMatch(/az = el = 0/);
     expect(erros).toMatch(/mais de 0,4 m/);
-    expect(erros).toMatch(/rot do post-it/);
+    expect(erros).toMatch(/âncora do marcador/);
   });
 
   it('a config serializada para o cliente cabe em 6 KB', () => {

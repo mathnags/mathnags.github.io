@@ -17,9 +17,6 @@ export type IdObjeto = (typeof IDS_OBJETOS)[number];
 
 export type Capitulo = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
-/** Ponto do post-it que fica sobre a âncora 3D. */
-export type Pivo = 'topo-esq' | 'topo-centro' | 'topo-dir' | 'esq-centro' | 'dir-centro' | 'base-centro';
-
 export interface ObjetoQuarto {
   id: IdObjeto;
   capitulo: Capitulo;
@@ -38,8 +35,8 @@ export interface ObjetoQuarto {
   vista: { tipo: TipoVista; lado?: 'esquerda' | 'direita' };
   /** Passo do tour pela rolagem: lado do cartão (o objeto fica no lado oposto). */
   tour: { lado: 'esquerda' | 'direita' };
-  /** Post-it: âncora 3D (m), pivô e rotação em graus. É o rótulo visível do link. */
-  postit: { ancora: V3; pivo: Pivo; rot: number };
+  /** Marcador numerado: âncora 3D (m) onde fica o centro do círculo. É o link visível do objeto. */
+  marcador: V3;
 }
 
 export type AnotacaoQuarto =

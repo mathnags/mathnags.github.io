@@ -1,5 +1,5 @@
 /**
- * ÚNICA fonte de caixa, foco, janela, destino, vista e âncora de post-it dos objetos do quarto 3D
+ * ÚNICA fonte de caixa, foco, janela, destino, vista e âncora do marcador numerado dos objetos do quarto 3D
  * (docs/design.md 13.4, 13.8.2, 13.12). Mover, trocar ou remover um objeto é uma edição aqui.
  *
  * - Unidades: metros no espaço da cena (eixo y para cima; origem no canto interno do piso entre a parede do fundo e a esquerda).
@@ -25,7 +25,7 @@ export const quarto: ConfigQuarto = validarQuarto({
       preencher: { lVw: 0.92, lMax: 1100, aVh: 0.86, aMenos: 56, aMax: 700 },
       vista: { tipo: 'tela' },
       tour: { lado: 'direita' },
-      postit: { ancora: [0.62, 1.41, 0.34], pivo: 'topo-esq', rot: 4 },
+      marcador: [0.95, 1.105, 0.41],
     },
     {
       id: 'porta-retrato', capitulo: 2, destino: 'sobre', secoes: ['ficha', 'sobre'],
@@ -33,7 +33,7 @@ export const quarto: ConfigQuarto = validarQuarto({
       foco: { alvo: [1.78, 0.89, 0.32], az: 17, el: 14 },
       vista: { tipo: 'porta-retrato', lado: 'esquerda' },
       tour: { lado: 'direita' },
-      postit: { ancora: [1.93, 0.86, 0.3], pivo: 'topo-esq', rot: -3 },
+      marcador: [1.78, 0.895, 0.44],
     },
     {
       id: 'mural', capitulo: 3, destino: 'experiencia', secoes: ['experiencia'],
@@ -43,7 +43,7 @@ export const quarto: ConfigQuarto = validarQuarto({
       preencher: { lVw: 0.86, lMax: 1040, aVh: 0.8, aMenos: 56, aMax: 680 },
       vista: { tipo: 'cortica' },
       tour: { lado: 'direita' },
-      postit: { ancora: [3.3, 1.83, 0.05], pivo: 'topo-dir', rot: 3 },
+      marcador: [2.95, 1.45, 0.08],
     },
     {
       id: 'caderno', capitulo: 4, destino: 'projetos', secoes: ['projetos'],
@@ -51,7 +51,7 @@ export const quarto: ConfigQuarto = validarQuarto({
       foco: { alvo: [2.76, 0.55, 0.33], az: 20, el: 50 },
       vista: { tipo: 'caderno', lado: 'esquerda' },
       tour: { lado: 'direita' },
-      postit: { ancora: [2.76, 0.5, 0.54], pivo: 'topo-centro', rot: -2 },
+      marcador: [2.76, 0.55, 0.51],
     },
     {
       id: 'caixa', capitulo: 5, destino: 'habilidades', secoes: ['habilidades'],
@@ -59,7 +59,7 @@ export const quarto: ConfigQuarto = validarQuarto({
       foco: { alvo: [3.42, 0.15, 0.7], az: 12, el: 30 },
       vista: { tipo: 'caixa', lado: 'direita' },
       tour: { lado: 'esquerda' },
-      postit: { ancora: [3.42, 0.0, 0.88], pivo: 'topo-centro', rot: 2 },
+      marcador: [3.42, 0.155, 0.87],
     },
     {
       id: 'estante', capitulo: 6, destino: 'formacao', secoes: ['formacao'],
@@ -69,7 +69,7 @@ export const quarto: ConfigQuarto = validarQuarto({
       preencher: { lVw: 0.92, lMax: 99999, aVh: 1, aMenos: 88, aMax: 99999 },
       vista: { tipo: 'estante' },
       tour: { lado: 'esquerda' },
-      postit: { ancora: [4.34, 1.95, 0.3], pivo: 'topo-centro', rot: -3 },
+      marcador: [4.1, 0.975, 0.36],
     },
     {
       id: 'lenco', capitulo: 7, destino: 'alem', secoes: ['alem'],
@@ -77,7 +77,7 @@ export const quarto: ConfigQuarto = validarQuarto({
       foco: { alvo: [5.33, 1.585, 0.06], az: -22, el: 6 },
       vista: { tipo: 'tecido', lado: 'esquerda' },
       tour: { lado: 'esquerda' },
-      postit: { ancora: [5.44, 1.34, 0.08], pivo: 'topo-centro', rot: -4 },
+      marcador: [5.33, 1.585, 0.11],
     },
     {
       id: 'envelope', capitulo: 8, destino: 'contato', secoes: ['contato'],
@@ -85,7 +85,7 @@ export const quarto: ConfigQuarto = validarQuarto({
       foco: { alvo: [4.95, 1.155, 0.065], az: -18, el: 6 },
       vista: { tipo: 'carta', lado: 'esquerda' },
       tour: { lado: 'esquerda' },
-      postit: { ancora: [4.95, 0.64, 0.08], pivo: 'topo-centro', rot: 3 },
+      marcador: [4.95, 1.155, 0.11],
     },
   ],
   anotacoes: [
@@ -115,7 +115,7 @@ export function configCliente() {
       preencher: o.preencher,
       vista: o.vista,
       tour: o.tour,
-      postit: o.postit,
+      marcador: o.marcador,
     })),
   };
 }

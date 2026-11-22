@@ -1,13 +1,12 @@
 /**
  * Calibração (só em desenvolvimento, docs/design.md 13.12): ?calibrar=1 mostra os alvos de clique em wireframe, os `alvo`s como
- * esferas de 2 cm, as `janela`s em contorno vermelho e as âncoras dos post-its; registra no console as colisões de post-its na
- * tela atual. ?calibrar=og renderiza a visão geral em 1200×630, sem HUD (CSS), para capturar o og.png.
+ * esferas de 2 cm, as `janela`s em contorno vermelho e as âncoras dos marcadores. ?calibrar=og renderiza a visão geral em 1200×630, sem HUD (CSS), para capturar o og.png.
  * Este módulo só é importado sob `import.meta.env.DEV`: não entra na build de produção.
  */
 import { BoxGeometry, EdgesGeometry, Group, LineBasicMaterial, LineSegments, Mesh, MeshBasicMaterial, SphereGeometry, type Scene } from 'three';
 import type { CfgCliente } from './index';
 
-export function aplicarCalibracao(cena: Scene, cfg: CfgCliente, postits: HTMLElement[]) {
+export function aplicarCalibracao(cena: Scene, cfg: CfgCliente) {
   const g = new Group();
   g.name = 'calibracao';
   const alvoMat = new LineBasicMaterial({ color: 0xff00c8, depthTest: false });
@@ -22,7 +21,7 @@ export function aplicarCalibracao(cena: Scene, cfg: CfgCliente, postits: HTMLEle
     foco.position.set(...o.foco.alvo);
     g.add(foco);
     const ancora = new Mesh(esfera, new MeshBasicMaterial({ color: 0x00aa44, depthTest: false }));
-    ancora.position.set(...o.postit.ancora);
+    ancora.position.set(...o.marcador);
     g.add(ancora);
     if (o.janela) {
       const { min, max } = o.janela;
@@ -33,17 +32,4 @@ export function aplicarCalibracao(cena: Scene, cfg: CfgCliente, postits: HTMLEle
   }
   cena.add(g);
 
-  // Colisões de post-its na tela atual (folga mínima de 8 px entre post-its).
-  const avisar = () => {
-    const r = postits.map((el) => ({ id: el.dataset.objeto, ...el.getBoundingClientRect().toJSON() }));
-    for (let i = 0; i < r.length; i++) {
-      for (let j = i + 1; j < r.length; j++) {
-        const dx = Math.max(0, r[j].left - r[i].right, r[i].left - r[j].right);
-        const dy = Math.max(0, r[j].top - r[i].bottom, r[i].top - r[j].bottom);
-        if (Math.hypot(dx, dy) < 8) console.warn(`[calibrar] post-its "${r[i].id}" e "${r[j].id}" a ${Math.hypot(dx, dy).toFixed(1)} px (mínimo 8)`);
-      }
-    }
-  };
-  setTimeout(avisar, 4000);
-  addEventListener('resize', () => setTimeout(avisar, 500));
 }

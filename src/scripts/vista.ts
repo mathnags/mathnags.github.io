@@ -228,7 +228,7 @@ function irPara(obj: ObjCfg, alvoId: string) {
 }
 
 export function iniciarVista() {
-  // Post-its, nichos e botões "Abrir capítulo": abrem a vista (ou ignoram durante o zoom).
+  // Marcadores, nichos e botões "Abrir capítulo": abrem a vista (ou ignoram durante o zoom).
   document.addEventListener('click', (e) => {
     const a = (e.target as Element).closest<HTMLAnchorElement>('a[data-objeto]');
     if (!a || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;

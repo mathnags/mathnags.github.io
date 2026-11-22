@@ -30,7 +30,7 @@ function definir(e: Estado) {
   if (c) c.hidden = e !== 'erro';
 }
 
-const postitsDoPalco = () => [...palco.querySelectorAll<HTMLAnchorElement>('a.objeto')];
+const marcadoresDoPalco = () => [...palco.querySelectorAll<HTMLAnchorElement>('a.objeto')];
 
 /** Anotações: o texto, os traços da seta e o que a config diz (deslocamento, largura máxima). */
 function anotacoesDoPalco() {
@@ -45,9 +45,9 @@ function anotacoesDoPalco() {
 
 type CenaCarregada = NonNullable<ReturnType<typeof cenaAtual>>;
 
-/** O destaque da cena segue o foco e o hover do post-it (e o hover na cena marca data-hover no link, em aoHover). */
+/** O destaque da cena segue o foco e o hover do marcador (e o hover na cena marca data-hover no link, em aoHover). */
 function ligarLinks(cena: CenaCarregada) {
-  for (const a of postitsDoPalco()) {
+  for (const a of marcadoresDoPalco()) {
     const id = a.dataset.objeto as Parameters<CenaCarregada['destacar']>[0];
     const ligar = () => cena.destacar(id);
     const desligar = () => cena.destacar(null);
@@ -96,14 +96,14 @@ export async function carregarCena(): Promise<void> {
       palco,
       canvas: canvasAtual,
       bloco: palco.querySelector<HTMLElement>('.parede-bloco'),
-      postits: postitsDoPalco(),
+      marcadores: marcadoresDoPalco(),
       anotacoes: anotacoesDoPalco(),
       nivel,
       reduz: () => reduz.matches,
       aoHover: (id) => {
-        for (const a of postitsDoPalco()) a.toggleAttribute('data-hover', a.dataset.objeto === id);
+        for (const a of marcadoresDoPalco()) a.toggleAttribute('data-hover', a.dataset.objeto === id);
       },
-      aoClicar: (id) => postitsDoPalco().find((a) => a.dataset.objeto === id)?.click(),
+      aoClicar: (id) => marcadoresDoPalco().find((a) => a.dataset.objeto === id)?.click(),
       aoFalha: (motivo) => {
         if (motivo === 'lento') cairNoRecrutador(document.getElementById('status-modo')?.dataset.semWebgl ?? '');
         else {

@@ -15,7 +15,7 @@ export const mobile = matchMedia('not all and (min-width: 768px) and (min-aspect
 export const palco = document.querySelector<HTMLElement>('.palco')!;
 export const canvas = palco.querySelector<HTMLCanvasElement>('canvas.cena')!;
 export const dialog = document.getElementById('vista') as HTMLDialogElement;
-/** Links dos objetos: os post-its do palco e os nichos de texto (mobile sem 3D). Só um dos dois grupos aparece por vez. */
+/** Links dos objetos: os marcadores do palco e os nichos de texto (mobile sem 3D). Só um dos dois grupos aparece por vez. */
 export const links = [...document.querySelectorAll<HTMLAnchorElement>('#quarto a.objeto, #quarto a.nicho')];
 export const porId = new Map(cfg.objetos.map((o) => [o.id, o]));
 export const modoQuarto = () => html.dataset.modo === 'quarto';

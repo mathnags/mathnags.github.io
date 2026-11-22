@@ -1,17 +1,14 @@
 /**
- * Post-its e anotações à mão (docs/design.md 13.8.2 e 13.8.3): HTML de frente para a tela, posicionado pela projeção de uma
- * âncora 3D. O <a class="objeto"> continua sendo o elemento acessível; aqui só muda a posição (transform), e só nos
- * quadros em que a câmera se move. As posições são escritas em custom properties (--tx, --ty, --rot) para o CSS poder
- * animar a rotação no hover sem tocar no translate.
+ * Marcadores numerados e anotações à mão (docs/design.md 13.8.2 e 13.8.3): HTML de frente para a tela, centrado na projeção de
+ * uma âncora 3D. O <a class="objeto"> (44 × 44 px) continua sendo o elemento acessível; aqui só muda a posição, em --tx/--ty, e só
+ * nos quadros em que a câmera se move.
  */
 import { Vector3, type PerspectiveCamera } from 'three';
-import type { Pivo, V3 } from '../config/tipos';
+import type { V3 } from '../config/tipos';
 
-export interface PostitProj {
+export interface MarcadorProj {
   el: HTMLElement;
   ancora: V3;
-  pivo: Pivo;
-  rot: number;
 }
 
 export interface AnotacaoProj {
@@ -20,7 +17,7 @@ export interface AnotacaoProj {
   /** Traço da seta: o halo e o traço escuro (mesmo `d`). */
   tracos: SVGPathElement[];
   tipo: 'comece' | 'role';
-  /** 'comece': deslocamento (px) do canto superior esquerdo do post-it. */
+  /** 'comece': deslocamento (px) do canto superior esquerdo do marcador. */
   dx?: number;
   dy?: number;
   larguraMax: number;
@@ -29,48 +26,26 @@ export interface AnotacaoProj {
 
 const _v = new Vector3();
 
-/** Onde, dentro da caixa do post-it, fica o pivô (fração de largura e altura). */
-const PIVO: Record<Pivo, [number, number]> = {
-  'topo-esq': [0, 0],
-  'topo-centro': [0.5, 0],
-  'topo-dir': [1, 0],
-  'esq-centro': [0, 0.5],
-  'dir-centro': [1, 0.5],
-  'base-centro': [0.5, 1],
-};
+/** Lado (px) da área de toque do marcador. */
+const LADO = 44;
 
 export class Projecao {
-  private tam = new Map<HTMLElement, [number, number]>();
-  /** Posição (px) do canto superior esquerdo de cada post-it, para a anotação relativa. */
+  /** Posição (px) do canto superior esquerdo de cada marcador, para a anotação relativa. */
   private cantos = new Map<string, [number, number]>();
 
   constructor(
-    private postits: PostitProj[],
+    private marcadores: MarcadorProj[],
     private anotacoes: AnotacaoProj[],
   ) {}
 
-  /** Mede os elementos (fontes carregadas, mudança de idioma ou de tamanho). */
-  medir() {
-    for (const p of this.postits) {
-      const w = p.el.offsetWidth;
-      const h = p.el.offsetHeight;
-      this.tam.set(p.el, [w, h]);
-      const [fx, fy] = PIVO[p.pivo];
-      p.el.style.transformOrigin = `${fx * w}px ${fy * h}px`;
-      p.el.style.setProperty('--rot', `${p.rot}deg`);
-    }
-  }
-
   atualizar(cam: PerspectiveCamera, L: number, A: number) {
-    for (const p of this.postits) {
+    for (const p of this.marcadores) {
       _v.set(...p.ancora).project(cam);
-      const x = (_v.x * 0.5 + 0.5) * L;
-      const y = (-_v.y * 0.5 + 0.5) * A;
-      const [w, h] = this.tam.get(p.el) ?? [0, 0];
-      const [fx, fy] = PIVO[p.pivo];
-      p.el.style.setProperty('--tx', `${(x - fx * w).toFixed(1)}px`);
-      p.el.style.setProperty('--ty', `${(y - fy * h).toFixed(1)}px`);
-      this.cantos.set(p.el.dataset.objeto ?? '', [x - fx * w, y - fy * h]);
+      const x = (_v.x * 0.5 + 0.5) * L - LADO / 2;
+      const y = (-_v.y * 0.5 + 0.5) * A - LADO / 2;
+      p.el.style.setProperty('--tx', `${x.toFixed(1)}px`);
+      p.el.style.setProperty('--ty', `${y.toFixed(1)}px`);
+      this.cantos.set(p.el.dataset.objeto ?? '', [x, y]);
     }
     this.anotar(L);
   }
