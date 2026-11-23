@@ -341,6 +341,23 @@ export function texturaCrachas(nomes: string[]) {
   return t;
 }
 
+/* ---------- Etiquetas da mochila (atlas 256×192, 3 faixas; só texto, nomes de content/textos.pt.json > habilidades) ---------- */
+export const NOMES_ETIQUETAS = ['Excel', 'SQL', 'Power BI'];
+
+export function texturaEtiquetasMochila() {
+  const { ctx, t } = nova(256, 64 * NOMES_ETIQUETAS.length);
+  ctx.font = `700 34px ${familia('--font-display', 'sans-serif')}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  NOMES_ETIQUETAS.forEach((nome, i) => {
+    ctx.fillStyle = css(i === 1 ? P.laranja : P.papel);
+    ctx.fillRect(0, i * 64, 256, 64);
+    ctx.fillStyle = css(P.preto);
+    ctx.fillText(nome, 128, i * 64 + 34);
+  });
+  return t;
+}
+
 /* ---------- Lombadas dos estojos (atlas 1024×128, 8 faixas; nomes em fonte comum, sem logo; faixas sem nome são lisas) ---------- */
 export const NOMES_LOMBADAS = ['VALORANT', 'Counter-Strike', 'Resident Evil 4', 'Call of Duty', 'Spider-Man', '', '', ''];
 const FUNDOS_LOMBADAS = [P.papel, P.metal, P.papel, P.azul, P.vermelho, P.tecido, P.papel, P.metal];

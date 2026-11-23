@@ -29,7 +29,7 @@ import type { Clicavel } from './objetos/base';
 import { P } from './paleta';
 import { geralDe, poseDe as poseDeCtx, type Ctx } from './poses';
 import { Projecao, type AnotacaoProj, type MarcadorProj } from './projecao';
-import { carregarFontes, carregarKanagawa, criarTelaMonitor, texturaFolha, texturaTelaVertical, texturaCaderno, texturaCrachas, texturaCeu, texturaAnelRgb, texturaFumaca, texturaJanelasCidade, texturaLombadas, texturaBola, texturaRotulo, texturaSombraContato } from './texturas';
+import { carregarFontes, carregarKanagawa, criarTelaMonitor, texturaFolha, texturaTelaVertical, texturaCaderno, texturaCrachas, texturaEtiquetasMochila, texturaCeu, texturaAnelRgb, texturaFumaca, texturaJanelasCidade, texturaLombadas, texturaBola, texturaRotulo, texturaSombraContato } from './texturas';
 
 /** crachas: nomes das empresas (de textos.*.json, serializados pela página) para os crachás do mural. */
 export type CfgCliente = ReturnType<typeof configCliente> & { crachas?: string[] };
@@ -146,11 +146,12 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
   const sombraContato = await fatiar(texturaSombraContato);
   const paginas = await fatiar(texturaCaderno);
   const crachas = await fatiar(() => texturaCrachas(cfg.crachas ?? []));
+  const etiquetas = await fatiar(texturaEtiquetasMochila);
   const janelasCidade = await fatiar(texturaJanelasCidade);
   const fumaca = await fatiar(texturaFumaca);
   const anelRgb = await fatiar(texturaAnelRgb);
   const rotulo = texturaRotulo();
-  const texturas: Texture[] = [texCeuDia, texCeuNoite, bola, lombadas, sombraContato, paginas, crachas, tela.textura];
+  const texturas: Texture[] = [texCeuDia, texCeuNoite, bola, lombadas, sombraContato, paginas, crachas, etiquetas, tela.textura];
 
   const cena = new Scene();
   cena.add(criarCasca(sombra));
@@ -167,7 +168,7 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
     () => criarPortaRetrato(c('porta-retrato'), sombra),
     () => criarMural(c('mural'), sombra, crachas, cfg.crachas?.length ?? 0),
     () => criarCaderno(c('caderno'), sombra, paginas),
-    () => criarCaixa(c('caixa'), sombra),
+    () => criarCaixa(c('caixa'), sombra, etiquetas),
     () => criarEstante(c('estante'), sombra),
     () => criarLenco(c('lenco'), sombra),
     () => criarEnvelope(c('envelope'), sombra),

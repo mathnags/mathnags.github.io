@@ -58,11 +58,11 @@ export const quarto: ConfigQuarto = validarQuarto({
     },
     {
       id: 'caixa', capitulo: 5, destino: 'habilidades', secoes: ['habilidades'],
-      caixa: { min: [3.18, 0.0, 0.55], max: [3.66, 0.31, 0.85] },
-      foco: { alvo: [3.42, 0.15, 0.7], az: 12, el: 30 },
+      caixa: { min: [3.0, 0.0, 0.0], max: [3.4, 0.56, 0.34] },
+      foco: { alvo: [3.2, 0.27, 0.18], az: 12, el: 20 },
       vista: { tipo: 'caixa', lado: 'direita' },
       tour: { lado: 'esquerda' },
-      marcador: [3.42, 0.155, 0.87],
+      marcador: [3.2, 0.3, 0.3],
     },
     {
       id: 'estante', capitulo: 6, destino: 'formacao', secoes: ['formacao'],

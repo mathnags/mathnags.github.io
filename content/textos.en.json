@@ -89,7 +89,7 @@
       "porta-retrato": { "tema": "The photo frame", "comum": "About me", "legenda": "Who I am and where I come from." },
       "mural": { "tema": "The corkboard", "comum": "Experience", "legenda": "Where I've worked: KPMG, Salesforce and Cushman & Wakefield." },
       "caderno": { "tema": "The notebook", "comum": "Other projects", "legenda": "Academic projects from FIAP." },
-      "caixa": { "tema": "The toolbox", "comum": "Skills", "legenda": "What I use, and how well." },
+      "caixa": { "tema": "The backpack", "comum": "Skills", "legenda": "What I use, and how well." },
       "estante": { "tema": "The bookshelf", "comum": "Education & certifications", "legenda": "What I've studied and what I'm studying now." },
       "lenco": { "tema": "The neckerchief", "comum": "Beyond work", "legenda": "Scouting, volleyball and gaming." },
       "envelope": { "tema": "The mail", "comum": "Contact", "legenda": "How to reach me." }

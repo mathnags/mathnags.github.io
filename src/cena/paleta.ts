@@ -40,6 +40,9 @@ export const P = {
   canelado: 0x2a2d34,
   laranja: 0xd9692b,
   azulMetal: 0x3b6ea8,
+  /** Mochila de notebook: corpo cinza-chumbo e bolsos azul-petróleo escuro. */
+  chumbo: 0x3d464f,
+  petroleo: 0x1f4852,
   /** Gabinete: vidro temperado. */
   vidro: 0xcfe6f5,
   /** Emissivos. */

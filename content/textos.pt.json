@@ -89,7 +89,7 @@
       "porta-retrato": { "tema": "O porta-retrato", "comum": "Sobre mim", "legenda": "Quem eu sou e de onde vim." },
       "mural": { "tema": "O mural", "comum": "Experiência", "legenda": "Onde trabalhei: KPMG, Salesforce e Cushman & Wakefield." },
       "caderno": { "tema": "O caderno", "comum": "Outros projetos", "legenda": "Projetos acadêmicos feitos na FIAP." },
-      "caixa": { "tema": "A caixa de ferramentas", "comum": "Habilidades", "legenda": "O que eu uso, com o nível de cada coisa." },
+      "caixa": { "tema": "A mochila", "comum": "Habilidades", "legenda": "O que eu uso, com o nível de cada coisa." },
       "estante": { "tema": "A estante", "comum": "Formação e certificações", "legenda": "O que estudei e o que estou estudando agora." },
       "lenco": { "tema": "O lenço", "comum": "Além do trabalho", "legenda": "Escotismo, vôlei e games." },
       "envelope": { "tema": "A correspondência", "comum": "Contato", "legenda": "Como falar comigo." }
