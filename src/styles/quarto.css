@@ -837,29 +837,26 @@
     font-size: 20px;
   }
 
-  /* Post-it "Fale comigo!" na parede: centro em (3,10; 2,24) m; largura para o texto caber em uma linha em pt e en */
-  .em-3d .postit-contato {
+  /* Post-it "Fale comigo!" fixo no canto inferior esquerdo do palco (fora da cena 3D; o JS o tira do bloco). Esconde nas vistas e no tour: os cartões ocupam a esquerda. */
+  .postit-contato.fixo {
     position: absolute;
-    left: 515px;
-    top: 0;
-    width: 300px;
-    height: 104px;
-    padding: 0 12px;
-    box-sizing: border-box;
-    justify-items: center;
-    rotate: -5deg;
-    /* --pf: fator inverso à escala projetada (cena/index.ts), para o texto nunca ficar menor que 13/16 px; cresce para a direita, longe do nome. */
-    scale: var(--pf, 1);
-    transform-origin: left center;
+    left: max(24px, env(safe-area-inset-left));
+    bottom: max(24px, env(safe-area-inset-bottom));
+    z-index: 4;
+    rotate: -3deg;
+    transition: translate var(--dur-2) var(--ease-out), rotate var(--dur-2) var(--ease-out), opacity var(--dur-1) var(--ease-std);
   }
 
-  /* A parede reduz o texto (~0,6 ×): os tamanhos abaixo dão cerca de 12 px efetivos no CTA em 1440 px de largura. */
-  .em-3d .pc-titulo {
-    font-size: 34px;
+  .palco:not([data-passo='0']) .postit-contato.fixo,
+  .palco:not([data-estado='repouso']) .postit-contato.fixo,
+  html:has(#vista[open]) .postit-contato.fixo {
+    opacity: 0;
+    pointer-events: none;
   }
 
-  .em-3d .pc-cta {
-    font-size: 23px;
+  .palco:not([data-passo='0']) .postit-contato.fixo:focus-visible,
+  .palco:not([data-estado='repouso']) .postit-contato.fixo:focus-visible {
+    opacity: 1;
   }
 
   /* ---------- Anotações à mão (13.8.3): só ≥ 1024 px, no passo 0, e somem após a 1ª interação ---------- */

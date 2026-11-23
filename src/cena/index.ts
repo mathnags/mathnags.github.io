@@ -41,7 +41,7 @@ export interface OpcoesCena {
   cfg: CfgCliente;
   palco: HTMLElement;
   canvas: HTMLCanvasElement;
-  /** .parede-bloco: nome, "Dados → IA" e o post-it "Fale comigo!". Vira um único CSS3DObject na parede do fundo. */
+  /** .parede-bloco: nome e "Dados → IA" (vira um CSS3DObject na parede do fundo); o post-it "Fale comigo!" sai dele e fica fixo no canto do palco. */
   bloco: HTMLElement | null;
   /** <a class="objeto"> (marcadores numerados), com data-objeto. */
   marcadores: HTMLElement[];
@@ -83,11 +83,6 @@ export interface Cena {
 }
 
 
-/** Post-it da parede: tamanhos de fonte em px de parede (quarto.css) e piso de legibilidade em px de tela. */
-const CTA_PX = 23;
-const TITULO_PX = 34;
-const PISO_CTA = 13.6; // 13 + folga: a parede em perspectiva encurta o texto na horizontal
-const PISO_TITULO = 16.6;
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const EASE_STD = bezier(0.4, 0, 0.2, 1);
@@ -215,6 +210,10 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
       lugarBloco.marca.after(css3d.domElement);
       // Anexado ao host (e não solto) para poder medir; o renderizador o move para dentro da câmera CSS no 1º quadro.
       css3d.domElement.appendChild(b);
+      // O post-it sai da parede: fica fixo no canto do palco (irmão do host CSS3D, fora da transformação 3D).
+      const postit = b.querySelector('.postit-contato');
+      postit?.classList.add('fixo');
+      if (postit) css3d.domElement.after(postit);
       b.classList.add('em-3d');
       b.style.pointerEvents = 'none';
       objBloco = new CSS3DObject(b);
@@ -230,6 +229,9 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
     } else if (!ligar && objBloco && lugarBloco) {
       cena3d.remove(objBloco);
       objBloco = null;
+      const postit = document.querySelector('.postit-contato.fixo');
+      postit?.classList.remove('fixo');
+      if (postit) b.insertBefore(postit, b.querySelector('.explorar'));
       b.classList.remove('em-3d');
       b.style.transform = '';
       b.style.pointerEvents = '';
@@ -350,12 +352,6 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
     renderer.render(cena, camera);
     if (objBloco && css3d) {
       // Piso de legibilidade do post-it: px de tela por px de parede = px/m na profundidade do bloco ÷ pxPorMetro. Abaixo do piso, amplia-se o post-it.
-      const s = (A / (2 * Math.tan((camera.fov * Math.PI) / 360) * camera.position.distanceTo(objBloco.position))) / cfg.paredeNome.pxPorMetro;
-      const f = Math.min(2.2, Math.max(1, PISO_CTA / (CTA_PX * s), PISO_TITULO / (TITULO_PX * s))).toFixed(2);
-      if (objBloco.element.dataset.pf !== f) {
-        objBloco.element.dataset.pf = f;
-        objBloco.element.style.setProperty('--pf', f);
-      }
       css3d.render(cena3d, camera);
     }
     projecao.atualizar(camera, L, A);
