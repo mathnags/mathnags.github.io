@@ -8,6 +8,8 @@ export const P = {
   piso: 0xc9b79a,
   madeira: 0xa9774e,
   madeiraEscura: 0x7c5536,
+  /** Lenço escoteiro amarelo (debruns em madeiraEscura). */
+  amarelo: 0xe8b830,
   metal: 0x2b2f38,
   cortica: 0xc89b63,
   papel: 0xfffdf7,
