@@ -1,4 +1,4 @@
-/** 06 · Estante alta de grafite com nichos irregulares, livros em InstancedMesh, bonecos genéricos, 2 tubos de diploma e 2 certificados (docs/design.md 13.4). O conteúdo some com a vista aberta. */
+/** 06 · Estante alta de madeira com nichos irregulares, livros em InstancedMesh, bonecos genéricos, 2 tubos de diploma e 2 certificados (docs/design.md 13.4). O conteúdo some com a vista aberta. */
 import { Color, InstancedMesh, MeshLambertMaterial, Euler, Matrix4, Quaternion, Vector3 } from 'three';
 import type { Caixa } from '../../config/tipos';
 import { Box, Cyl, Esfera, Plane, RB, graus, mulberry32 } from '../geo';
@@ -16,7 +16,7 @@ interface Livro { x: number; y: number; l: number; h: number; p: number; rz: num
 
 export function criarEstante(caixa: Caixa, sombra: boolean) {
   return montarClicavel('estante', caixa, sombra, ({ lote, oculto, m, avulso, proprio }) => {
-    const grafite = m(P.grafite);
+    const grafite = m(P.madeiraEscura);
     lote.add(RB(0.03, 1.95, 0.34, 0.006), grafite, [3.665, 0.975, 0.17]);
     lote.add(RB(0.03, 1.95, 0.34, 0.006), grafite, [4.535, 0.975, 0.17]);
     lote.add(Box(0.84, 0.03, 0.34), grafite, [4.1, 0.035, 0.17]);
@@ -27,7 +27,7 @@ export function criarEstante(caixa: Caixa, sombra: boolean) {
       const topo = f < PRATELEIRAS.length ? PRATELEIRAS[f] - 0.0125 : 1.935;
       lote.add(Box(0.02, topo - CHAO[f], 0.32), grafite, [x, (topo + CHAO[f]) / 2, 0.17]);
     });
-    lote.add(Box(0.84, 1.95, 0.01), m(P.metal), [4.1, 0.975, 0.005]);
+    lote.add(Box(0.84, 1.95, 0.01), m(P.madeira), [4.1, 0.975, 0.005]);
 
     const rnd = mulberry32(7);
     const livros: Livro[] = [];
