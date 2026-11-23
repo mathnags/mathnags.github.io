@@ -36,6 +36,10 @@ export const P = {
   grafite: 0x3b3f47,
   ledDia: 0x4f86b8,
   ledNoite: 0x6fd0ff,
+  /** Jaqueta e joelheiras de vôlei (tecido canelado), detalhe laranja, garrafa térmica azul metálica. */
+  canelado: 0x2a2d34,
+  laranja: 0xd9692b,
+  azulMetal: 0x3b6ea8,
   /** Gabinete: vidro temperado. */
   vidro: 0xcfe6f5,
   /** Emissivos. */

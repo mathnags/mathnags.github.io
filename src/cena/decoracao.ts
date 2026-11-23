@@ -13,7 +13,7 @@ import { Lote } from './lote';
 import { P } from './paleta';
 import { LUMINARIA, SOL } from './luzes';
 import { horaSaoPaulo, rotuloHora } from './relogio';
-import { RAZAO_KANAGAWA, type texturaRotulo } from './texturas';
+import { RAZAO_KANAGAWA, texturaDisplay, type texturaRotulo } from './texturas';
 
 export interface Decoracao {
   grupo: Group;
@@ -346,21 +346,54 @@ export async function criarDecoracao(o: Opcoes): Promise<Decoracao> {
   lote.add(Box(0.02, 0.08, 0.01), metal, [5.52, 0.35, 0.045]);
   lote.add(Box(0.02, 0.08, 0.01), metal, [5.52, 1.7, 0.045]);
 
-  /* ---------- Bola e joelheiras de vôlei (genéricas) e planta de chão ---------- */
-  // Gomos azul, branco e amarelo pintados por textura (texturaBola), sem marca.
+  /* ---------- Itens de vôlei (genéricos, sem marca) no chão, em frente à cômoda da janela, e planta de chão ---------- */
+  // Bola: gomos azul, branco e amarelo pintados por textura (texturaBola).
   const bola = new Mesh(Esfera(0.105, 24, 16), new MeshLambertMaterial({ map: o.bola }));
-  bola.position.set(4.98, 0.105, 0.78);
+  bola.position.set(0.6, 0.105, 2.35);
   bola.rotation.set(0.5, 0.7, 0.2);
   bola.castShadow = o.sombra;
   g.add(bola);
-  // Joelheiras deitadas (corpo escuro, listra coral) e garrafinha em pé.
-  for (const [x, z] of [[5.24, 0.7], [5.3, 0.82]]) {
-    lote.add(Cyl(0.05, 0.05, 0.09, 12), metal, [x, 0.05, z], ROT_EIXO_X);
-    lote.add(Tor(0.0515, 0.006, 6, 16), m.get(P.coral), [x, 0.05, z], [0, Math.PI / 2, 0]);
+  // Joelheiras deitadas: tubo de tecido canelado (anéis finos), com almofada frontal por cima.
+  const tubo = m.get(P.canelado, { side: DoubleSide });
+  for (const [z, giro] of [[1.95, 0.1], [2.1, -0.12]]) {
+    lote.add(Cyl(0.055, 0.055, 0.14, 14, true), tubo, [0.6, 0.055, z], [giro, 0, Math.PI / 2]);
+    for (const dx of [-0.066, -0.022, 0.022, 0.066]) lote.add(Tor(0.0565, 0.005, 5, 14), m.get(P.preto), [0.6 + dx, 0.055, z], [giro, Math.PI / 2, 0]);
+    lote.add(RB(0.1, 0.022, 0.075, 0.009), m.get(P.preto), [0.6, 0.112, z], [giro, 0, 0]);
   }
-  lote.add(Cyl(0.032, 0.032, 0.2, 12), m.get(P.azul), [5.42, 0.1, 0.5]);
-  lote.add(Cyl(0.0335, 0.0335, 0.05, 12), papel, [5.42, 0.09, 0.5]);
-  lote.add(Cyl(0.02, 0.02, 0.035, 10), papel, [5.42, 0.2175, 0.5]);
+  // Garrafa térmica azul metálica: corpo cilíndrico, tampa preta e display escuro com a temperatura voltado para +x.
+  lote.add(Cyl(0.032, 0.032, 0.2, 14), m.get(P.azulMetal), [0.6, 0.1, 1.62]);
+  lote.add(Cyl(0.034, 0.034, 0.05, 14), m.get(P.preto), [0.6, 0.225, 1.62]);
+  const display = texturaDisplay('22°C');
+  const telaGarrafa = new Mesh(Plane(0.032, 0.016), new MeshBasicMaterial({ map: display, toneMapped: false }));
+  telaGarrafa.rotation.y = Math.PI / 2;
+  telaGarrafa.position.set(0.6 + 0.0345, 0.226, 1.62);
+  g.add(telaGarrafa);
+
+  /* ---------- Jaqueta esportiva preta pendurada na parede do fundo, acima da mesa (sem texto nem bordado) ---------- */
+  // Abaixo do nome na parede (y ≈ 2,5): translada 0,22 m para baixo; fica a 0,1 m acima do topo do monitor e longe do mural (x ≥ 2,42).
+  const lj = lote.filho(new Matrix4().makeTranslation(0, -0.22, 0));
+  const JX = 1.75;
+  const canelado = m.get(P.canelado), cromoJ = m.get(P.cromo), laranja = m.get(P.laranja);
+  lj.add(Cyl(0.006, 0.006, 0.04, 6), metal, [JX, 2.46, 0.02], ROT_EIXO_Z);
+  for (const lado of [-1, 1]) {
+    const h = entre([JX, 2.45, 0.05], [JX + lado * 0.17, 2.27, 0.05]);
+    lj.add(Cyl(0.003, 0.003, h.comprimento, 5), metal, h.centro, h.q);
+  }
+  lj.add(RB(0.36, 0.5, 0.05, 0.02), preto, [JX, 2.0, 0.045]);
+  lj.add(RB(0.37, 0.05, 0.054, 0.015), canelado, [JX, 1.775, 0.046]);
+  lj.add(Cyl(0.066, 0.072, 0.07, 14, true), m.get(P.canelado, { side: DoubleSide }), [JX, 2.29, 0.045]);
+  lj.add(Tor(0.069, 0.007, 5, 14), canelado, [JX, 2.325, 0.045], [Math.PI / 2, 0, 0]);
+  lj.add(Box(0.008, 0.46, 0.004), cromoJ, [JX, 2.0, 0.072]);
+  lj.add(Box(0.014, 0.03, 0.006), cromoJ, [JX, 2.18, 0.075]);
+  for (const lado of [-1, 1]) {
+    const a = lado * 0.1, rot: V3 = [0, 0, a];
+    const sx = JX + lado * 0.235;
+    const ao = (d: number): V3 => [sx + d * Math.sin(a), 2.0 - d * Math.cos(a), 0.045];
+    lj.add(RB(0.11, 0.54, 0.05, 0.02), preto, [sx, 2.0, 0.045], rot);
+    lj.add(RB(0.105, 0.06, 0.052, 0.015), canelado, ao(0.285), rot);
+    for (const d of [0.07, 0.11]) lj.add(RB(0.114, 0.022, 0.054, 0.006), laranja, ao(d), rot);
+  }
+
 
   // Vaso cerâmico terracota e monstera: folhas recortadas (textura com alfa) em dois tons, hastes finas.
   lote.add(Cyl(0.14, 0.11, 0.3, 14), m.get(P.terracota), [0.55, 0.15, 3.25]);
@@ -517,7 +550,7 @@ export async function criarDecoracao(o: Opcoes): Promise<Decoracao> {
 
     const matSombra = new MeshBasicMaterial({ map: o.sombraContato, transparent: true, depthWrite: false, toneMapped: false });
     const sombras: [number, number, number, number, number][] = [
-      [1.05, 1.3, 0.38, 0.38, Y_TAPETE], [2.85, 0.31, 0.5, 0.36, 0.005], [3.42, 0.7, 0.34, 0.2, 0.005], [4.98, 0.78, 0.16, 0.16, 0.005], [5.42, 0.5, 0.05, 0.05, 0.005], [0.55, 3.25, 0.22, 0.22, 0.005],
+      [1.05, 1.3, 0.38, 0.38, Y_TAPETE], [2.85, 0.31, 0.5, 0.36, 0.005], [3.42, 0.7, 0.34, 0.2, 0.005], [0.6, 2.35, 0.16, 0.16, 0.005], [0.6, 2.02, 0.09, 0.16, 0.005], [0.6, 1.62, 0.05, 0.05, 0.005], [0.55, 3.25, 0.22, 0.22, 0.005],
     ];
     for (const [x, z, rx, rz, y] of sombras) {
       const s = new Mesh(Circulo(1, 24), matSombra);
@@ -535,7 +568,7 @@ export async function criarDecoracao(o: Opcoes): Promise<Decoracao> {
     feixe,
     leveGrupo,
     decalqueMat,
-    texturasExtras: [o.anelRgb, o.janelasCidade, o.fumaca, o.rotulo.textura, o.telaVertical, o.folha, ...(o.kanagawa ? [o.kanagawa] : [])],
+    texturasExtras: [display, o.anelRgb, o.janelasCidade, o.fumaca, o.rotulo.textura, o.telaVertical, o.folha, ...(o.kanagawa ? [o.kanagawa] : [])],
     atualizarRelogio,
     balancar,
     modoLeve() {

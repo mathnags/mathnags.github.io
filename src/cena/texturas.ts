@@ -408,6 +408,19 @@ export function texturaBola() {
   return t;
 }
 
+/* ---------- Display da garrafa térmica: retângulo escuro com a temperatura em branco ---------- */
+export function texturaDisplay(texto: string) {
+  const { ctx, t } = nova(128, 64);
+  ctx.fillStyle = '#0d0f12';
+  ctx.fillRect(0, 0, 128, 64);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = `700 34px ${fonteMono()}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(texto, 64, 34);
+  return t;
+}
+
 /* ---------- Anel RGB das ventoinhas (256×256, matiz em volta do eixo, alfa radial): girar a textura = ciclo de cor ---------- */
 export function texturaAnelRgb() {
   const { ctx, t } = nova(256, 256);
