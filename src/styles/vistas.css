@@ -335,10 +335,10 @@
 
   #vista[data-vista='tecido'] .vista-miolo { background: transparent; }
 
-  /* carta */
+  /* carta (contato): cartão de papel liso, como as outras vistas */
   #vista[data-vista='carta'] .vista-moldura { background: var(--room-paper); }
 
-  /* Desktop: o envelope tem a altura do conteúdo e fica centrado na faixa do painel (sem metade vazia). */
+  /* Desktop: o cartão tem a altura do conteúdo e fica centrado na faixa do painel (sem metade vazia). */
   @media (min-width: 768px) and (min-aspect-ratio: 13/10) {
     #vista[data-vista='carta'] .vista-moldura {
       bottom: calc(100% - var(--my) - var(--mh));
@@ -348,19 +348,6 @@
     }
   }
 
-  #vista[data-vista='carta'] .vista-moldura::before {
-    content: '';
-    position: absolute;
-    inset: 0 0 auto;
-    z-index: 1;
-    height: 28px;
-    background: var(--room-wall-shade);
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-    clip-path: polygon(0 0, 100% 0, 50% 100%);
-    pointer-events: none;
-  }
-
-  #vista[data-vista='carta'] .secao-in { padding-top: 40px; }
   #vista[data-vista='carta'] .carta { border: 0; box-shadow: none; max-width: none; }
 
   /* ---------- Mobile e retrato (13.9): folha inferior de 70svh com a cena 3D nos 30% de cima ---------- */

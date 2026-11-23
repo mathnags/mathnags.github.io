@@ -19,7 +19,7 @@ import { criarLuzes } from './luzes';
 import { MonitorQuadros, pixelRatioDe, type Nivel } from './nivel';
 import { criarCaderno } from './objetos/caderno';
 import { criarCaixa } from './objetos/caixa';
-import { criarEnvelope } from './objetos/envelope';
+import { criarCelular } from './objetos/celular';
 import { criarEstante } from './objetos/estante';
 import { criarLenco } from './objetos/lenco';
 import { criarMonitor } from './objetos/monitor';
@@ -29,10 +29,10 @@ import type { Clicavel } from './objetos/base';
 import { P } from './paleta';
 import { geralDe, poseDe as poseDeCtx, type Ctx } from './poses';
 import { Projecao, type AnotacaoProj, type MarcadorProj } from './projecao';
-import { carregarFontes, carregarKanagawa, criarTelaMonitor, texturaFolha, texturaTelaVertical, texturaCaderno, texturaCrachas, texturaEtiquetasMochila, texturaCeu, texturaAnelRgb, texturaFumaca, texturaJanelasCidade, texturaLombadas, texturaBola, texturaRotulo, texturaSombraContato } from './texturas';
+import { carregarFontes, carregarKanagawa, criarTelaMonitor, texturaFolha, texturaTelaVertical, texturaCaderno, texturaCrachas, texturaEtiquetasMochila, texturaCelular, texturaCeu, texturaAnelRgb, texturaFumaca, texturaJanelasCidade, texturaLombadas, texturaBola, texturaRotulo, texturaSombraContato } from './texturas';
 
 /** crachas: nomes das empresas (de textos.*.json, serializados pela página) para os crachás do mural. */
-export type CfgCliente = ReturnType<typeof configCliente> & { crachas?: string[] };
+export type CfgCliente = ReturnType<typeof configCliente> & { crachas?: string[]; mensagem?: string };
 export type { Nivel } from './nivel';
 export { escolherNivel } from './nivel';
 export type { Rect } from './areas';
@@ -147,11 +147,12 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
   const paginas = await fatiar(texturaCaderno);
   const crachas = await fatiar(() => texturaCrachas(cfg.crachas ?? []));
   const etiquetas = await fatiar(texturaEtiquetasMochila);
+  const celular = await fatiar(() => texturaCelular(cfg.mensagem ?? ''));
   const janelasCidade = await fatiar(texturaJanelasCidade);
   const fumaca = await fatiar(texturaFumaca);
   const anelRgb = await fatiar(texturaAnelRgb);
   const rotulo = texturaRotulo();
-  const texturas: Texture[] = [texCeuDia, texCeuNoite, bola, lombadas, sombraContato, paginas, crachas, etiquetas, tela.textura];
+  const texturas: Texture[] = [texCeuDia, texCeuNoite, bola, lombadas, sombraContato, paginas, crachas, etiquetas, celular, tela.textura];
 
   const cena = new Scene();
   cena.add(criarCasca(sombra));
@@ -171,7 +172,7 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
     () => criarCaixa(c('caixa'), sombra, etiquetas),
     () => criarEstante(c('estante'), sombra),
     () => criarLenco(c('lenco'), sombra),
-    () => criarEnvelope(c('envelope'), sombra),
+    () => criarCelular(c('envelope'), sombra, celular),
   ]) {
     clicaveis.push(fazer());
     await ceder();

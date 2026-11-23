@@ -341,6 +341,31 @@ export function texturaCrachas(nomes: string[]) {
   return t;
 }
 
+/* ---------- Tela do celular (288×628): notificação com o texto do post-it de contato; sem logo, marca nem número ---------- */
+export function texturaCelular(mensagem: string) {
+  const { ctx, t } = nova(288, 628);
+  ctx.fillStyle = css(P.preto);
+  ctx.fillRect(0, 0, 288, 628);
+  ctx.fillStyle = css(P.grafite);
+  ctx.beginPath();
+  ctx.roundRect(104, 18, 80, 18, 9); // ilha da câmera
+  ctx.fill();
+  ctx.fillStyle = css(P.papel);
+  ctx.beginPath();
+  ctx.roundRect(20, 120, 248, 110, 22);
+  ctx.fill();
+  ctx.fillStyle = css(P.coral);
+  ctx.beginPath();
+  ctx.arc(60, 175, 20, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = css(P.preto);
+  ctx.font = `700 30px ${familia('--font-display', 'sans-serif')}`;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(mensagem, 92, 176, 164);
+  return t;
+}
+
 /* ---------- Etiquetas da mochila (atlas 256×192, 3 faixas; só texto, nomes de content/textos.pt.json > habilidades) ---------- */
 export const NOMES_ETIQUETAS = ['Excel', 'SQL', 'Power BI'];
 

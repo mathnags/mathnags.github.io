@@ -142,7 +142,7 @@ describe('enquadrar()', () => {
   it('as posições calculadas em 1920×1080 ficam perto da tabela nominal de 13.4 (conferência, ±5% na maioria)', () => {
     const nominal: Record<IdObjeto, [number, number, number]> = {
       monitor: [0.95, 1.22, 1.68], 'porta-retrato': [2.08, 1.14, 1.29], mural: [2.95, 1.45, 2.34], caderno: [3.12, 1.81, 1.33],
-      caixa: [3.74, 1.05, 2.23], estante: [4.1, 0.985, 4.14], lenco: [4.81, 1.73, 1.35], envelope: [4.61, 1.27, 1.11],
+      caixa: [3.74, 1.05, 2.23], estante: [4.1, 0.985, 4.14], lenco: [4.81, 1.73, 1.35], envelope: [1.84, 1.2, 1.3],
     };
     const relatorio: string[] = [];
     for (const [id, esperado] of Object.entries(nominal) as [IdObjeto, [number, number, number]][]) {

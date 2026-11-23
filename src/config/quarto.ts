@@ -84,11 +84,12 @@ export const quarto: ConfigQuarto = validarQuarto({
     },
     {
       id: 'envelope', capitulo: 8, destino: 'contato', secoes: ['contato'],
-      caixa: { min: [4.81, 1.01, 0.04], max: [5.09, 1.3, 0.09] },
-      foco: { alvo: [4.95, 1.155, 0.065], az: -18, el: 6 },
+      // Celular deitado na mesa, à direita do mousepad (modelagem em src/cena/objetos/celular.ts). Foco de cima e de frente: o monitor tem foco próprio (alvo x 0,95).
+      caixa: { min: [1.78, 0.76, 0.47], max: [1.9, 0.78, 0.65] },
+      foco: { alvo: [1.84, 0.77, 0.56], az: 0, el: 55 },
       vista: { tipo: 'carta', lado: 'esquerda' },
       tour: { lado: 'esquerda' },
-      marcador: [4.95, 1.155, 0.11],
+      marcador: [1.84, 0.81, 0.56],
     },
   ],
   anotacoes: [

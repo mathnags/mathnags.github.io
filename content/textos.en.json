@@ -92,7 +92,7 @@
       "caixa": { "tema": "The backpack", "comum": "Skills", "legenda": "What I use, and how well." },
       "estante": { "tema": "The bookshelf", "comum": "Education & certifications", "legenda": "What I've studied and what I'm studying now." },
       "lenco": { "tema": "The neckerchief", "comum": "Beyond work", "legenda": "Scouting, volleyball and gaming." },
-      "envelope": { "tema": "The mail", "comum": "Contact", "legenda": "How to reach me." }
+      "envelope": { "tema": "The phone", "comum": "Contact", "legenda": "How to reach me." }
     }
   },
   "vista": {

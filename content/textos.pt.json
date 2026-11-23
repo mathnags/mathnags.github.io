@@ -92,7 +92,7 @@
       "caixa": { "tema": "A mochila", "comum": "Habilidades", "legenda": "O que eu uso, com o nível de cada coisa." },
       "estante": { "tema": "A estante", "comum": "Formação e certificações", "legenda": "O que estudei e o que estou estudando agora." },
       "lenco": { "tema": "O lenço", "comum": "Além do trabalho", "legenda": "Escotismo, vôlei e games." },
-      "envelope": { "tema": "A correspondência", "comum": "Contato", "legenda": "Como falar comigo." }
+      "envelope": { "tema": "O celular", "comum": "Contato", "legenda": "Como falar comigo." }
     }
   },
   "vista": {
