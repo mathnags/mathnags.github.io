@@ -52,7 +52,7 @@ const t = getTextos(lang);
   <Rodape lang={lang} />
   <Vista lang={lang} />
   <p id="status-modo" class="sr-only" role="status" data-recrutador={t.status.modoAtivado.recrutador} data-quarto={t.status.modoAtivado.quarto} data-sem-webgl={t.quarto.semWebgl}></p>
-  <script is:inline type="application/json" id={ID_CONFIG_QUARTO} set:html={JSON.stringify(configCliente())} />
+  <script is:inline type="application/json" id={ID_CONFIG_QUARTO} set:html={JSON.stringify({ ...configCliente(), crachas: [...new Set(t.experiencia.itens.map((i) => i.empresa))] })} />
   <script>
     import '../scripts/quarto';
   </script>

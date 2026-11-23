@@ -29,9 +29,10 @@ import type { Clicavel } from './objetos/base';
 import { P } from './paleta';
 import { geralDe, poseDe as poseDeCtx, type Ctx } from './poses';
 import { Projecao, type AnotacaoProj, type MarcadorProj } from './projecao';
-import { carregarFontes, carregarKanagawa, criarTelaMonitor, texturaFolha, texturaTelaVertical, texturaCaderno, texturaCeu, texturaAnelRgb, texturaFumaca, texturaJanelasCidade, texturaLombadas, texturaBola, texturaRotulo, texturaSombraContato } from './texturas';
+import { carregarFontes, carregarKanagawa, criarTelaMonitor, texturaFolha, texturaTelaVertical, texturaCaderno, texturaCrachas, texturaCeu, texturaAnelRgb, texturaFumaca, texturaJanelasCidade, texturaLombadas, texturaBola, texturaRotulo, texturaSombraContato } from './texturas';
 
-export type CfgCliente = ReturnType<typeof configCliente>;
+/** crachas: nomes das empresas (de textos.*.json, serializados pela página) para os crachás do mural. */
+export type CfgCliente = ReturnType<typeof configCliente> & { crachas?: string[] };
 export type { Nivel } from './nivel';
 export { escolherNivel } from './nivel';
 export type { Rect } from './areas';
@@ -144,11 +145,12 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
   const lombadas = await fatiar(texturaLombadas);
   const sombraContato = await fatiar(texturaSombraContato);
   const paginas = await fatiar(texturaCaderno);
+  const crachas = await fatiar(() => texturaCrachas(cfg.crachas ?? []));
   const janelasCidade = await fatiar(texturaJanelasCidade);
   const fumaca = await fatiar(texturaFumaca);
   const anelRgb = await fatiar(texturaAnelRgb);
   const rotulo = texturaRotulo();
-  const texturas: Texture[] = [texCeuDia, texCeuNoite, bola, lombadas, sombraContato, paginas, tela.textura];
+  const texturas: Texture[] = [texCeuDia, texCeuNoite, bola, lombadas, sombraContato, paginas, crachas, tela.textura];
 
   const cena = new Scene();
   cena.add(criarCasca(sombra));
@@ -163,7 +165,7 @@ export async function iniciar(o: OpcoesCena): Promise<Cena> {
   for (const fazer of [
     () => criarMonitor(c('monitor'), sombra, tela),
     () => criarPortaRetrato(c('porta-retrato'), sombra),
-    () => criarMural(c('mural'), sombra),
+    () => criarMural(c('mural'), sombra, crachas, cfg.crachas?.length ?? 0),
     () => criarCaderno(c('caderno'), sombra, paginas),
     () => criarCaixa(c('caixa'), sombra),
     () => criarEstante(c('estante'), sombra),

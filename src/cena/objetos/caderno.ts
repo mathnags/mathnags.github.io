@@ -1,4 +1,4 @@
-/** 04 · Caderno aberto sobre a mesinha, com pauta e esboço de gráfico de barras (docs/design.md 13.4). */
+/** 04 · Caderno aberto sobre a cômoda, com pauta e esboço de gráfico de barras (docs/design.md 13.4). */
 import { BufferAttribute, Euler, Matrix4, MeshLambertMaterial, Quaternion, Vector3, type Texture } from 'three';
 import type { Caixa } from '../../config/tipos';
 import { Box, Cyl, Plane, RB } from '../geo';
@@ -8,8 +8,8 @@ import { montarClicavel } from './base';
 export function criarCaderno(caixa: Caixa, sombra: boolean, paginas: Texture) {
   return montarClicavel('caderno', caixa, sombra, (ctx) => {
     const { m } = ctx;
-    // Grupo em (2.76, 0.53, 0.33), rotation.y = −0.20.
-    const base = new Matrix4().compose(new Vector3(2.76, 0.53, 0.33), new Quaternion().setFromEuler(new Euler(0, -0.2, 0, 'YXZ')), new Vector3(1, 1, 1));
+    // Sobre a cômoda (tampo y 0,70), com o topo das páginas para a parede (−x); rotation.y = π/2 − 0,15.
+    const base = new Matrix4().compose(new Vector3(0.25, 0.7, 2.1), new Quaternion().setFromEuler(new Euler(0, Math.PI / 2 - 0.15, 0, 'YXZ')), new Vector3(1, 1, 1));
     const l = ctx.lote.filho(base);
     const folha = ctx.proprio(new MeshLambertMaterial({ map: paginas }));
     l.add(Box(0.42, 0.006, 0.285), m(P.metal), [0, 0.003, 0]);

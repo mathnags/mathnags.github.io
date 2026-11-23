@@ -310,6 +310,37 @@ export function texturaCaderno() {
   return t;
 }
 
+/* ---------- Crachás do mural: atlas (256×384 por crachá) só com o nome da empresa em texto, sem logo ---------- */
+export const CORES_CRACHA = [P.azul, P.vermelho, P.tecido];
+export function texturaCrachas(nomes: string[]) {
+  const { ctx, t } = nova(256 * Math.max(1, nomes.length), 384);
+  const fonte = familia('--font-display', 'sans-serif');
+  nomes.forEach((nome, i) => {
+    const x0 = i * 256;
+    ctx.fillStyle = css(P.papel);
+    ctx.fillRect(x0, 0, 256, 384);
+    ctx.fillStyle = css(CORES_CRACHA[i % CORES_CRACHA.length]);
+    ctx.fillRect(x0, 0, 256, 92);
+    ctx.fillStyle = css(P.papel);
+    ctx.beginPath();
+    ctx.roundRect(x0 + 98, 28, 60, 12, 6); // fenda do cordão
+    ctx.fill();
+    // Quebra por palavra (cabe em ~220 px) e centraliza no corpo do crachá.
+    ctx.font = `700 44px ${fonte}`;
+    const linhas: string[] = [];
+    for (const palavra of nome.split(' ')) {
+      const ult = linhas[linhas.length - 1];
+      if (ult !== undefined && ctx.measureText(`${ult} ${palavra}`).width <= 220) linhas[linhas.length - 1] = `${ult} ${palavra}`;
+      else linhas.push(palavra);
+    }
+    ctx.fillStyle = css(P.preto);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    linhas.forEach((l, k) => ctx.fillText(l, x0 + 128, 238 + (k - (linhas.length - 1) / 2) * 54));
+  });
+  return t;
+}
+
 /* ---------- Lombadas dos estojos (atlas 1024×128, 8 faixas; nomes em fonte comum, sem logo; faixas sem nome são lisas) ---------- */
 export const NOMES_LOMBADAS = ['VALORANT', 'Counter-Strike', 'Resident Evil 4', 'Call of Duty', 'Spider-Man', '', '', ''];
 const FUNDOS_LOMBADAS = [P.papel, P.metal, P.papel, P.azul, P.vermelho, P.tecido, P.papel, P.metal];

@@ -8,8 +8,8 @@ import { montarClicavel } from './base';
 export function criarPortaRetrato(caixa: Caixa, sombra: boolean) {
   return montarClicavel('porta-retrato', caixa, sombra, (ctx) => {
     const { m } = ctx;
-    // Grupo em (1.78, 0.89, 0.32), rotation.y = +0.30 e rotation.x = −0.12.
-    const base = new Matrix4().compose(new Vector3(1.78, 0.89, 0.32), new Quaternion().setFromEuler(new Euler(-0.12, 0.3, 0, 'YXZ')), new Vector3(1, 1, 1));
+    // Sobre a cômoda (tampo y 0,70), de frente para +x (o quarto), girado 0,25 rad; rotation.x = −0.12 inclina para trás.
+    const base = new Matrix4().compose(new Vector3(0.2, 0.84, 1.52), new Quaternion().setFromEuler(new Euler(-0.12, Math.PI / 2 - 0.25, 0, 'YXZ')), new Vector3(1, 1, 1));
     const l = ctx.lote.filho(base);
     l.add(RB(0.2, 0.25, 0.025, 0.006), m(P.madeira), [0, 0, 0]);
     l.add(Plane(0.15, 0.19), m(P.tecido), [0, 0, 0.0145]);

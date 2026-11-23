@@ -18,6 +18,10 @@ export const P = {
   coral: 0xff5f57,
   ervaVerde: 0x4f8a3c,
   ervaVermelha: 0xc2413a,
+  /** Cômoda de carvalho claro (fendi): frentes, corpo/tampo e vãos entre gavetas. */
+  fendi: 0xd9ccb7,
+  fendiCorpo: 0xcbbca4,
+  fendiVao: 0x8f806a,
   /** Mesa industrial, cadeira, headset e monstera. */
   mel: 0xc58b48,
   preto: 0x1b1d22,

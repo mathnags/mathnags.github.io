@@ -16,7 +16,7 @@ export const quarto: ConfigQuarto = validarQuarto({
   limites: { min: [-0.12, -0.12, -0.12], max: [5.6, 2.83, 3.6] },
   geral: { alvo: [2.8, 1.0, 1.4], az: 32, el: 20, margem: 0.05, fov: 30,
     // Retrato (compacto): enquadra só a faixa dos 8 objetos (sem as bordas da parede), mais de frente e de cima, para o quarto usar a largura toda.
-    retrato: { alvo: [2.65, 0.95, 0.4], az: 10, el: 38, margem: 0.01, caixa: { min: [-0.3, 0, 0], max: [5.6, 2.0, 0.9] } },
+    retrato: { alvo: [2.65, 0.95, 0.4], az: 10, el: 38, margem: 0.01, caixa: { min: [-0.3, 0, 0], max: [5.6, 2.0, 2.5] } },
   },
   paredeNome: { ancora: [0.32, 2.5, 0.004], pxPorMetro: 200 },
   objetos: [
@@ -32,11 +32,11 @@ export const quarto: ConfigQuarto = validarQuarto({
     },
     {
       id: 'porta-retrato', capitulo: 2, destino: 'sobre', secoes: ['ficha', 'sobre'],
-      caixa: { min: [1.66, 0.76, 0.22], max: [1.9, 1.03, 0.42] },
-      foco: { alvo: [1.78, 0.89, 0.32], az: 17, el: 14 },
+      caixa: { min: [0.12, 0.71, 1.4], max: [0.3, 0.97, 1.64] },
+      foco: { alvo: [0.2, 0.84, 1.52], az: 60, el: 14 },
       vista: { tipo: 'porta-retrato', lado: 'esquerda' },
       tour: { lado: 'direita' },
-      marcador: [1.78, 0.895, 0.44],
+      marcador: [0.34, 0.86, 1.52],
     },
     {
       id: 'mural', capitulo: 3, destino: 'experiencia', secoes: ['experiencia'],
@@ -50,11 +50,11 @@ export const quarto: ConfigQuarto = validarQuarto({
     },
     {
       id: 'caderno', capitulo: 4, destino: 'projetos', secoes: ['projetos'],
-      caixa: { min: [2.53, 0.53, 0.17], max: [2.99, 0.57, 0.49] },
-      foco: { alvo: [2.76, 0.55, 0.33], az: 20, el: 50 },
+      caixa: { min: [0.07, 0.7, 1.86], max: [0.43, 0.74, 2.34] },
+      foco: { alvo: [0.25, 0.72, 2.1], az: 60, el: 45 },
       vista: { tipo: 'caderno', lado: 'esquerda' },
       tour: { lado: 'direita' },
-      marcador: [2.76, 0.55, 0.51],
+      marcador: [0.36, 0.76, 2.1],
     },
     {
       id: 'caixa', capitulo: 5, destino: 'habilidades', secoes: ['habilidades'],

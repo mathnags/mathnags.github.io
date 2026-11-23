@@ -318,17 +318,23 @@ export async function criarDecoracao(o: Opcoes): Promise<Decoracao> {
   }
 
   await ceder();
-  /* ---------- Tapete, mesinha, vaso ---------- */
+  /* ---------- Tapete ---------- */
   lote.add(RB(2.0, 0.012, 1.3, 0.004), m.get(P.tecido), [1.75, 0.006, 1.65]);
   lote.add(Box(1.8, 0.013, 1.1), m.get(P.paredeSombra), [1.75, 0.0065, 1.65]);
-  lote.add(RB(0.7, 0.03, 0.45, 0.01), madeira, [2.85, 0.515, 0.305]);
-  for (const [x, z] of [[2.54, 0.12], [3.16, 0.12], [2.54, 0.49], [3.16, 0.49]]) lote.add(Cyl(0.018, 0.018, 0.5, 8), m.get(P.madeiraEscura), [x, 0.25, z]);
-
-  lote.add(Cyl(0.06, 0.045, 0.1, 12), m.get(P.paredeSombra), [3.08, 0.58, 0.2]);
-  for (let i = 0; i < 6; i++) {
-    const a = (i * Math.PI) / 3;
-    const h = 0.1 + (i % 3) * 0.02;
-    lote.add(Cone(0.02, h, 6), m.get(i % 2 === 0 ? P.ervaVerde : P.ervaVermelha), [3.08 + Math.cos(a) * 0.02, 0.63 + h / 2, 0.2 + Math.sin(a) * 0.02], [graus(15) * Math.sin(a), 0, -graus(15) * Math.cos(a)]);
+  /* ---------- Cômoda sob a janela (parede esquerda): carvalho fendi, 8 gavetas (2 colunas em z × 4 linhas), pés baixos ---------- */
+  // Corpo x 0–0,46, z 1,30–2,50, topo em y 0,70 (o porta-retrato e o caderno ficam sobre ela).
+  const [cX, cZ, cL, cA, cP] = [0.46, 1.9, 1.2, 0.55, 0.1];
+  const fendi = m.get(P.fendi), fendiCorpo = m.get(P.fendiCorpo), puxador = m.get(P.cinzaMetal);
+  lote.add(Box(cX - 0.01, cA, cL - 0.02), m.get(P.fendiVao), [(cX - 0.01) / 2, cP + cA / 2, cZ]);
+  lote.add(RB(cX, 0.05, cL, 0.006), fendiCorpo, [cX / 2, cP + cA + 0.025, cZ]);
+  for (const dz of [-1, 1]) for (const dx of [0.07, cX - 0.07]) lote.add(Cyl(0.022, 0.016, cP, 8), fendiCorpo, [dx, cP / 2, cZ + dz * (cL / 2 - 0.07)]);
+  const dW = (cL - 0.06) / 2, dH = (cA - 0.05) / 4;
+  for (const col of [0, 1]) {
+    for (let r = 0; r < 4; r++) {
+      const z = cZ - cL / 2 + 0.02 + dW / 2 + col * (dW + 0.02), y = cP + 0.02 + dH / 2 + r * dH;
+      lote.add(RB(0.016, dH - 0.01, dW, 0.003), fendi, [cX - 0.008, y, z]);
+      lote.add(Box(0.014, 0.012, 0.09), puxador, [cX + 0.004, y + dH * 0.25, z]);
+    }
   }
 
   /* ---------- Porta (recebe o 07 e o 08) ---------- */
